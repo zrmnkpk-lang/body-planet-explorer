@@ -96,6 +96,12 @@ function toonMaterial(color, { transparent = false, opacity = 1 } = {}) {
 
 function addMesh(geometry, color, { parent = planet, zone = null, lod = 0 } = {}) {
   const mesh = new THREE.Mesh(geometry, toonMaterial(color));
+  if (lod > 0) {
+    mesh.material = mesh.material.clone();
+    mesh.material.transparent = true;
+    mesh.material.opacity = 0;
+    mesh.material.depthWrite = false;
+  }
   parent.add(mesh);
   if (zone) {
     mesh.userData.zone = zone;
@@ -804,8 +810,9 @@ resize();
 
 function setLodVisibility(objects, amount) {
   for (const object of objects) {
-    object.visible = amount > 0.025;
-    object.scale.setScalar(Math.max(0.001, amount));
+    object.visible = amount > 0.015;
+    object.material.opacity = amount;
+    object.material.depthWrite = amount > 0.72;
   }
 }
 
