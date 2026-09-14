@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10131f" />
+    <meta name="description" content="可旋转、缩放和探索的身体成分星球原型" />
+    <title>养星球 · 地貌探索</title>
+  </head>
+  <body>
+    <main id="app">
+      <div id="scene" tabindex="0" aria-label="可交互星球：拖动旋转，滚轮或双指缩放"></div>
+      <div id="landmark-layer" aria-hidden="true"></div>
+
+      <header class="brand">
+        <strong><span>◉</span> 养星球</strong>
+        <small>BODY PLANET / EXPLORER</small>
+      </header>
+
+      <div class="instructions">拖动探索 · 双指或滚轮缩放 · 点击地貌</div>
+
+      <nav class="zones" aria-label="身体地貌">
+        <button data-zone="muscle"><i></i>造山带<small>骨骼肌</small></button>
+        <button data-zone="water"><i></i>生命水道<small>体内水分</small></button>
+        <button data-zone="bone"><i></i>极地要塞<small>骨量</small></button>
+        <button data-zone="fat"><i></i>季风大陆<small>体脂</small></button>
+      </nav>
+
+      <aside id="detail-card" hidden aria-live="polite">
+        <button id="close-card" aria-label="关闭">×</button>
+        <small id="zone-code"></small>
+        <h1 id="zone-title"></h1>
+        <p id="zone-description"></p>
+        <button id="focus-zone">靠近这片地貌 ↗</button>
+      </aside>
+
+      <div class="camera-tools">
+        <span id="view-level">星球全貌</span>
+        <button id="zoom-in" aria-label="放大">＋</button>
+        <button id="zoom-out" aria-label="缩小">−</button>
+        <button id="reset-view" aria-label="返回全貌">◎</button>
+      </div>
+
+      <div id="loading">正在唤醒星球…</div>
+    </main>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
