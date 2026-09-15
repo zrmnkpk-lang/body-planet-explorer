@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" fill="none" style="width:100%;height:auto;isolation:isolate">
+  <defs>
+    <clipPath id="body-planet-clip">
+      <circle cx="300" cy="300" r="240"/>
+    </clipPath>
+
+    <radialGradient id="body-planet-ocean-gradient" cx="28%" cy="22%" r="85%">
+      <stop offset="0" stop-color="var(--ocean-light, var(--brand-primary))"/>
+      <stop offset=".48" stop-color="var(--ocean-mid, var(--surface-dark))"/>
+      <stop offset="1" stop-color="var(--ocean-deep, var(--surface-dark))"/>
+    </radialGradient>
+
+    <linearGradient id="body-planet-highland-gradient" x1="130" y1="145" x2="296" y2="365" gradientUnits="userSpaceOnUse">
+      <stop stop-color="var(--rock-light, var(--warning))"/>
+      <stop offset=".58" stop-color="var(--rock-mid, var(--warning))"/>
+      <stop offset="1" stop-color="var(--rock-dark, var(--surface-dark))"/>
+    </linearGradient>
+
+    <linearGradient id="body-planet-ice-gradient" x1="255" y1="72" x2="345" y2="184" gradientUnits="userSpaceOnUse">
+      <stop stop-color="var(--ice-light, var(--on-brand))"/>
+      <stop offset=".54" stop-color="var(--ice-mid, var(--on-brand))"/>
+      <stop offset="1" stop-color="var(--ice-shadow, var(--brand-primary))"/>
+    </linearGradient>
+
+    <linearGradient id="body-planet-canopy-gradient" x1="316" y1="318" x2="446" y2="496" gradientUnits="userSpaceOnUse">
+      <stop stop-color="var(--canopy-light, var(--success))"/>
+      <stop offset=".62" stop-color="var(--canopy-mid, var(--success))"/>
+      <stop offset="1" stop-color="var(--canopy-dark, var(--surface-dark))"/>
+    </linearGradient>
+
+    <radialGradient id="body-planet-light-gradient" cx="27%" cy="21%" r="76%">
+      <stop stop-color="var(--sunlight, var(--on-brand))" stop-opacity="var(--sunlight-opacity, .16)"/>
+      <stop offset=".43" stop-color="var(--sunlight, var(--on-brand))" stop-opacity="var(--clear-opacity, 0)"/>
+      <stop offset=".73" stop-color="var(--ink, var(--surface-dark))" stop-opacity="var(--clear-opacity, 0)"/>
+      <stop offset="1" stop-color="var(--ink, var(--surface-dark))" stop-opacity="var(--night-opacity, .6)"/>
+    </radialGradient>
+
+    <radialGradient id="body-planet-lava-gradient" cx="46%" cy="69%" r="65%">
+      <stop stop-color="var(--lava-hot, var(--on-brand))"/>
+      <stop offset=".27" stop-color="var(--lava-light, var(--warning))"/>
+      <stop offset="1" stop-color="var(--lava-dark, var(--surface-dark))"/>
+    </radialGradient>
+
+    <pattern id="body-planet-halftone" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+      <circle cx="2" cy="2" r="1.45" fill="var(--ink, var(--surface-dark))"/>
+      <circle cx="6.5" cy="6.5" r=".8" fill="var(--ink, var(--surface-dark))"/>
+    </pattern>
+
+    <pattern id="body-planet-engraving" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)">
+      <path d="M0 1H8M3 7H12" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--engraving-width, .8)" opacity="var(--engraving-opacity, .28)"/>
+    </pattern>
+
+    <filter id="body-planet-atmosphere-blur" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+
+    <style>
+      .body-planet-zone { cursor: pointer; }
+      .body-planet-mountain-relief { transform-box: fill-box; transform-origin: center bottom; transform: scaleY(var(--muscle-height, 1)); }
+      .body-planet-bone-mass { transform-box: fill-box; transform-origin: center top; transform: scale(var(--bone-scale, 1)); }
+      .water-main { stroke-width: var(--water-main-width, 13); }
+      .water-branch { stroke-width: var(--water-branch-width, 5); }
+      .water-lake { stroke-width: var(--water-lake-width, 3); }
+    </style>
+  </defs>
+</svg>
