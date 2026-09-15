@@ -2,7 +2,7 @@
 
 > 对比日期：2026-09-15  
 > 参考输入：用户提供的“健身App网页.zip”  
-> 目标：保留两边已完成能力，统一到 [产品方案 v1.2](product-spec-v1.2.md) 与 [手机端交互 v1.2](mobile-interaction-v1.2.md)。
+> 目标：保留两边已完成能力，统一到 [MVP 产品方案](product-spec.md) 与 [手机端交互逻辑](interaction-spec.md)。
 
 ## 1. 结论
 
@@ -42,8 +42,8 @@
 
 ## 4. 本次同步内容
 
-- 新增产品单一真源 `docs/product-spec-v1.2.md`。
-- 新增手机端交互规范 `docs/mobile-interaction-v1.2.md`。
+- 新增稳定入口 `docs/product-spec.md`，作为产品规则唯一真源。
+- 新增 `docs/interaction-spec.md`，覆盖手机端逐页行为、状态和异常恢复。
 - 新增本差异矩阵，明确哪些能力合并、保留或后续接入。
 - 更新 README 的产品文档入口。
 - 更新资源索引，补充设计稿与参考包资源处理原则。
