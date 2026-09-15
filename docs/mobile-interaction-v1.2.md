@@ -1,7 +1,8 @@
-# Portal Fitness 手机端交互设计 v1.2
+# Portal Fitness 手机端交互设计 v1.2（历史版本）
 
-> 设计基准：iPhone 390 × 844 pt；Android 使用同一内容结构并适配系统安全区。  
-> 产品依据：[产品方案 v1.2](product-spec-v1.2.md)
+> 本文仅用于历史追溯，不再更新。
+>
+> 当前页面行为、状态和异常恢复请阅读：[手机端交互逻辑](interaction-spec.md)。
 
 ## 1. 手机端布局约束
 
