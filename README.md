@@ -2,7 +2,7 @@
 
 > 你的身体是一颗星球。
 
-一个把日常训练包装为「养成星球」的手机端游戏化健身 App 原型。当前仓库已经包含可运行的基础训练记录工具、训练方案和广覆盖动作库；账户、新手星球、每日额度、可选视频核验和周期进化按照 v1.2 文档继续整合。
+一个把真实训练转化为「养成星球」进度的手机端游戏化健身 App。当前仓库已经包含可运行的训练记录、训练方案、动作库和 Credit 原型；账户、新手流程、视频加成与周期进化按照稳定版产品文档继续实现。
 
 ## 当前实现范围
 
@@ -51,8 +51,9 @@ npm run build
 
 ## Product Docs
 
-- [`docs/product-spec-v1.2.md`](docs/product-spec-v1.2.md) — 当前产品方案与 MVP 单一真源
-- [`docs/mobile-interaction-v1.2.md`](docs/mobile-interaction-v1.2.md) — 390 × 844 手机端交互规范与 20 屏清单
+- [`docs/product-spec.md`](docs/product-spec.md) — MVP 定义、业务规则、Credit、视频核验、星球进化与验收标准的唯一真源
+- [`docs/interaction-spec.md`](docs/interaction-spec.md) — 手机端逐页操作、导航、状态机、异常恢复、离线同步与埋点
 - [`docs/reference-gap-analysis.md`](docs/reference-gap-analysis.md) — Figma Make 参考项目与当前仓库差异
 - [`docs/exercise-library.md`](docs/exercise-library.md) — 动作库与训练记录数据契约
+- [`docs/product-spec-v1.2.md`](docs/product-spec-v1.2.md) 与 [`docs/mobile-interaction-v1.2.md`](docs/mobile-interaction-v1.2.md) — 历史方案，仅供追溯
 - [`src/imports/PortalFitness______v1.md`](src/imports/PortalFitness______v1.md) 与 [`src/imports/PortalFitness______v1-1.md`](src/imports/PortalFitness______v1-1.md) — 历史 v1.1 输入，仅供追溯
