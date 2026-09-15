@@ -37,9 +37,10 @@
 
 | 类型 | 位置 | 用途 | 状态 |
 | --- | --- | --- | --- |
-| Figma 设计 | [Portal Fitness MVP — 完整交互设计 v1](https://www.figma.com/design/OX5ETikVlpMD35jVGJapnX) | 手机端页面、组件、变量与交互原型 | 持续更新 |
-| 产品方案 | [`product-spec-v1.2.md`](product-spec-v1.2.md) | MVP 范围、Credit、AI 与进化规则的单一真源 | 当前 |
-| 手机交互 | [`mobile-interaction-v1.2.md`](mobile-interaction-v1.2.md) | 390 × 844 页面清单、流程与状态规范 | 当前 |
+| 产品方案 | [`product-spec.md`](product-spec.md) | MVP 范围、业务规则、Credit、AI、数据和验收标准的唯一真源 | 当前 |
+| 手机交互 | [`interaction-spec.md`](interaction-spec.md) | 页面行为、跳转、状态、异常恢复、离线同步与埋点 | 当前 |
 | 差异记录 | [`reference-gap-analysis.md`](reference-gap-analysis.md) | 参考项目与仓库的合并决策 | 当前 |
+| Figma 设计 | [Portal Fitness MVP — 历史交互稿](https://www.figma.com/design/OX5ETikVlpMD35jVGJapnX) | 早期视觉探索，仅供参考，不作为产品规则或研发验收依据 | 归档参考 |
+| 历史文档 | [`product-spec-v1.2.md`](product-spec-v1.2.md)、[`mobile-interaction-v1.2.md`](mobile-interaction-v1.2.md) | v1.2 方案与页面清单 | 归档 |
 
 用户提供的“健身App网页.zip”包含多张 0.8–7 MB 的原始 PNG 和 Figma Make 工程文件，仅作为设计与代码对照输入，不作为 App 运行时资源直接入库。需要使用其中视觉素材时，必须先改为语义化文件名、导出 WebP/AVIF、移除元数据，并补充到本索引。
