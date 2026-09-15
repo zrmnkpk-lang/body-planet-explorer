@@ -2,21 +2,25 @@
 
 > 你的身体是一颗星球。
 
-一个把日常训练包装为「养成星球」的游戏化健身 App 原型。当前仓库的实现重点是 Three.js 身体星球可视化；完整的产品设想与交互流程见「产品文档」。
+一个把日常训练包装为「养成星球」的游戏化健身 App 原型。当前仓库已经包含可运行的基础训练记录工具、训练方案和广覆盖动作库；Three.js 身体星球探索代码作为后续整合模块保留。
 
 ## 当前实现范围
 
-- 🌍 **身体星球**：肌肉、水分、骨量、体脂映射为可点选的山脉、河流、极地与大陆。
-- 🔎 **探索交互**：支持拖拽旋转、缩放、区域点选、近景细节和地点标注。
+- 🏋️ **训练记录**：支持力量组次、跑步/骑行距离、游泳趟数与泳姿，以及瑜伽、拉伸和球类的时长记录。
+- 📅 **训练方案**：创建、编辑、删除并直接开始训练方案；内置新手全身力量示例。
+- 📚 **动作库**：覆盖力量、跑步、有氧器械、游泳、户外、恢复、瑜伽和球类运动，支持名称、别名、肌群和器械搜索。
+- 🪐 **Credit 结算**：训练记录自动转换为周进化 Credit，并保存在浏览器本地。
+- 🌍 **身体星球代码**：`src/app.js` 保留可旋转、缩放、区域点选和地貌标注的 Three.js 原型，尚待整合进入 React 主界面。
 - 🌌 **五阶段卡片背景资产**：L1–L5 背景已入库，但尚未被当前代码页面调用。
 
-训练流程、XP/连击、守护者 NPC、数据录入、趋势与「我的」页目前仅在产品方案中定义，尚未作为可用页面提交。
+注册引导、AI 计划生成、AI 地貌周进化、守护者 NPC、体成分趋势与账号云同步仍在产品方案阶段。
 
 ## 技术栈
 
 - **Vite 8**
-- **Three.js** — 程序化 3D 星球渲染
-- **React 19 / TypeScript** — 项目依赖已预置，但当前星球原型的实体逻辑在 `src/app.js`
+- **React 19 / TypeScript** — 训练工具主界面与本地状态管理
+- **Three.js** — 程序化 3D 星球原型
+- **localStorage** — 当前 MVP 的训练、方案、收藏与未完成训练持久化
 
 ## Planet Zones
 
@@ -34,6 +38,12 @@ npm install
 npm run dev
 ```
 
+生产构建：
+
+```bash
+npm run build
+```
+
 ## 资源
 
 全部可运行时资源均纳入 Git 并位于 `public/assets/`。请参阅完整的[资源索引](docs/assets.md)，其中包括路径、尺寸、文件大小、用途、加载约定与版权待办事项。
@@ -41,5 +51,6 @@ npm run dev
 
 ## Product Docs
 
-- [`src/imports/PortalFitness______v1.md`](src/imports/PortalFitness______v1.md) — Product spec v1.0
-- [`src/imports/PortalFitness______v1-1.md`](src/imports/PortalFitness______v1-1.md) — Interaction design doc v1.0
+- [`src/imports/PortalFitness______v1.md`](src/imports/PortalFitness______v1.md) — Product spec v1.1
+- [`src/imports/PortalFitness______v1-1.md`](src/imports/PortalFitness______v1-1.md) — Interaction design doc v1.1
+- [`docs/exercise-library.md`](docs/exercise-library.md) — 动作库与训练记录数据契约
