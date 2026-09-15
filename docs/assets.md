@@ -32,3 +32,14 @@
 ## 版权与追溯
 
 `portal-black-hole.webp` 和 `body-composition-scan.webp` 为当前项目用户提供的源图优化版。在对外发布、商业化或涉及第三方使用前，需由项目方确认源图的使用权利。
+
+## 设计与文档资源
+
+| 类型 | 位置 | 用途 | 状态 |
+| --- | --- | --- | --- |
+| Figma 设计 | [Portal Fitness MVP — 完整交互设计 v1](https://www.figma.com/design/OX5ETikVlpMD35jVGJapnX) | 手机端页面、组件、变量与交互原型 | 持续更新 |
+| 产品方案 | [`product-spec-v1.2.md`](product-spec-v1.2.md) | MVP 范围、Credit、AI 与进化规则的单一真源 | 当前 |
+| 手机交互 | [`mobile-interaction-v1.2.md`](mobile-interaction-v1.2.md) | 390 × 844 页面清单、流程与状态规范 | 当前 |
+| 差异记录 | [`reference-gap-analysis.md`](reference-gap-analysis.md) | 参考项目与仓库的合并决策 | 当前 |
+
+用户提供的“健身App网页.zip”包含多张 0.8–7 MB 的原始 PNG 和 Figma Make 工程文件，仅作为设计与代码对照输入，不作为 App 运行时资源直接入库。需要使用其中视觉素材时，必须先改为语义化文件名、导出 WebP/AVIF、移除元数据，并补充到本索引。

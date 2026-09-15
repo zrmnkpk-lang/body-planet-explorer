@@ -2,7 +2,7 @@
 
 > 你的身体是一颗星球。
 
-一个把日常训练包装为「养成星球」的游戏化健身 App 原型。当前仓库已经包含可运行的基础训练记录工具、训练方案和广覆盖动作库；Three.js 身体星球探索代码作为后续整合模块保留。
+一个把日常训练包装为「养成星球」的手机端游戏化健身 App 原型。当前仓库已经包含可运行的基础训练记录工具、训练方案和广覆盖动作库；账户、新手星球、每日额度、可选视频核验和周期进化按照 v1.2 文档继续整合。
 
 ## 当前实现范围
 
@@ -51,6 +51,8 @@ npm run build
 
 ## Product Docs
 
-- [`src/imports/PortalFitness______v1.md`](src/imports/PortalFitness______v1.md) — Product spec v1.1
-- [`src/imports/PortalFitness______v1-1.md`](src/imports/PortalFitness______v1-1.md) — Interaction design doc v1.1
+- [`docs/product-spec-v1.2.md`](docs/product-spec-v1.2.md) — 当前产品方案与 MVP 单一真源
+- [`docs/mobile-interaction-v1.2.md`](docs/mobile-interaction-v1.2.md) — 390 × 844 手机端交互规范与 20 屏清单
+- [`docs/reference-gap-analysis.md`](docs/reference-gap-analysis.md) — Figma Make 参考项目与当前仓库差异
 - [`docs/exercise-library.md`](docs/exercise-library.md) — 动作库与训练记录数据契约
+- [`src/imports/PortalFitness______v1.md`](src/imports/PortalFitness______v1.md) 与 [`src/imports/PortalFitness______v1-1.md`](src/imports/PortalFitness______v1-1.md) — 历史 v1.1 输入，仅供追溯
