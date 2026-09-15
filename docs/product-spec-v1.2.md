@@ -1,8 +1,8 @@
-# Portal Fitness 产品方案 v1.2
+# Portal Fitness 产品方案 v1.2（历史版本）
 
-> 日期：2026-09-15  
-> 状态：MVP 单一产品真源  
-> 合并范围：原 Figma Make 星球原型 + 当前仓库训练记录、训练方案、动作库与 Credit 系统
+> 本文仅用于历史追溯，不再更新。
+>
+> 当前规则请阅读：[Portal Fitness MVP 产品方案](product-spec.md)。
 
 ## 1. 产品定义
 
