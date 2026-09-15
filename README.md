@@ -2,23 +2,21 @@
 
 > 你的身体是一颗星球。
 
-A gamified fitness app prototype built with React + Vite + Three.js + AstraUI design system.
+一个把日常训练包装为「养成星球」的游戏化健身 App 原型。当前仓库的实现重点是 Three.js 身体星球可视化；完整的产品设想与交互流程见「产品文档」。
 
-## Tech Stack
+## 当前实现范围
 
-- **React 19** + **TypeScript**
-- **Vite 8** + **Tailwind CSS v4**
-- **Three.js** — procedural 3D planet renderer
-- **@figma/astraui** — component library
-- **lucide-react** — icon set
+- 🌍 **身体星球**：肌肉、水分、骨量、体脂映射为可点选的山脉、河流、极地与大陆。
+- 🔎 **探索交互**：支持拖拽旋转、缩放、区域点选、近景细节和地点标注。
+- 🌌 **五阶段卡片背景资产**：L1–L5 背景已入库，但尚未被当前代码页面调用。
 
-## Features
+训练流程、XP/连击、守护者 NPC、数据录入、趋势与「我的」页目前仅在产品方案中定义，尚未作为可用页面提交。
 
-- 🌍 **Body Planet** — your body metrics (muscle/fat/water/bone) map to a living planet's geography
-- 🏋️ **Training System** — 3 workout modes (strength/cardio/recovery) with XP and streaks
-- 🪐 **Planet Ecology** — L1–L5 era progression with era cards and swipe navigation
-- 📊 **Matter Scan** — body composition dashboard with manual data entry
-- 👤 **Profile** — observer level, weekly progress, achievement system
+## 技术栈
+
+- **Vite 8**
+- **Three.js** — 程序化 3D 星球渲染
+- **React 19 / TypeScript** — 项目依赖已预置，但当前星球原型的实体逻辑在 `src/app.js`
 
 ## Planet Zones
 
@@ -29,34 +27,17 @@ A gamified fitness app prototype built with React + Vite + Three.js + AstraUI de
 | 生命水道 (Rivers) | Body water % | River network width |
 | 季风大陆 (Monsoon Plains) | Body fat % | Southern continent |
 
-## Design System
-
-All UI uses CSS variables from `src/index.css` (AstraUI tokens). Update the token values to restyle the entire app.
-
-## Fonts
-
-- **ZCOOL KuaiLe** — Chinese section titles, badges
-- **Bangers** — English titles, large numbers
-- **Comic Neue** — body copy, labels
-
 ## Getting Started
 
 ```bash
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
 
-## Image Assets
+## 资源
 
-The following PNG files in `src/imports/` are required but not tracked in this repo due to size (each ~2.3–2.5 MB):
-
-- `image.png` — Void Runner character (home poster)
-- `image-1.png` — Black hole animation (portal mark)
-- `image-2.png` — Body analysis character (stats page)
-- `image-5.png` to `image-9.png` — Planet era backgrounds (L1–L5)
-- `jimeng-2026-08-30-4227-*.png` — Cosmic background
-
-Add these files to `src/imports/` before running the app.
+全部可运行时资源均纳入 Git 并位于 `public/assets/`。请参阅完整的[资源索引](docs/assets.md)，其中包括路径、尺寸、文件大小、用途、加载约定与版权待办事项。
+卡片背景的布局与相邻预加载策略参阅 [卡片背景资产说明](docs/card-background-assets.md)。
 
 ## Product Docs
 
