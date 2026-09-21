@@ -13,3 +13,13 @@
 .landmark--forest .landmark__marker{background:#6f9674}
 .landmark--desert .landmark__marker{background:#bc8059}
 @media(max-width:700px){.landmark__label{font-size:10px;padding:4px 6px}.landmark{gap:5px}.landmark__marker{width:6px;height:6px}}
+
+/* Desktop exploration: larger planet, quiet controls, readable annotations. */
+header,.top-right,footer,.view-tools,#card{z-index:5}#landmark-layer{z-index:3}
+#app{background:radial-gradient(ellipse at 49% 45%,#233847 0,#142431 39%,#0b1521 76%)}
+header{top:28px;left:32px}.wordmark{font-size:21px}.edition{font-size:12px;letter-spacing:1px}header p{margin-left:41px}
+.top-right{top:32px;right:32px;gap:12px}.sample{font-size:13px}.quality-label{font-size:14px;color:#aabcc4;display:flex;align-items:center;gap:8px}select{font:inherit;color:#dbe5e5;background:#172835;border:1px solid #ffffff25;border-radius:6px;padding:9px}.top-right button{font-size:14px}
+footer{bottom:22px;width:min(700px,calc(100% - 32px))}.caption{font-size:12px;letter-spacing:.3px}#detail-label{letter-spacing:0}.landmark__label{font-size:13px;font-weight:500;letter-spacing:.04em;padding:7px 9px;background:#152530b8;border-color:#bbd5d442}.landmark__marker{width:6px;height:6px;border-width:1px;box-shadow:0 0 0 3px #142b3680}
+#card{background:#10222bea;border-color:#9bbab92e;right:32px}#zone-en{font-size:12px}.sample-note{line-height:1.6}#level{font-size:14px}.hint{font-size:14px}nav small{font-size:13px}.view-tools button{width:42px;height:42px}
+@media(max-width:1000px){.sample{display:none}.edition{display:none}}
+@media(max-width:760px){header{left:18px;top:19px}.top-right{top:70px;right:16px}.quality-label{font-size:13px}.top-right button{font-size:13px}.wordmark{font-size:19px}nav button{font-size:13px}nav small{font-size:12px}.caption{font-size:12px;gap:8px}.caption #detail-label{display:none}.landmark__label{font-size:12px}.hint{font-size:12px}#card{right:16px;bottom:208px;max-height:calc(100svh - 325px);overflow:auto}footer{bottom:18px}.view-tools{bottom:171px}.quality-label select{padding:7px} }

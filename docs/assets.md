@@ -47,3 +47,12 @@
 | 历史文档 | [`product-spec-v1.2.md`](product-spec-v1.2.md)、[`mobile-interaction-v1.2.md`](mobile-interaction-v1.2.md) | v1.2 方案与页面清单 | 归档 |
 
 用户提供的“健身App网页.zip”包含多张 0.8–7 MB 的原始 PNG 和 Figma Make 工程文件，仅作为设计与代码对照输入，不作为 App 运行时资源直接入库。需要使用其中视觉素材时，必须先改为语义化文件名、导出 WebP/AVIF、移除元数据，并补充到本索引。
+
+## 桌面连续地形地标（2026-09）
+
+| 路径 | 大小 | 用途 | 来源与维护 |
+| --- | ---: | --- | --- |
+| `public/assets/landmarks/basalt.glb` | 218,688 bytes | 层岩山脊独立地标 | 原创程序化几何，生成源 `scripts/generate-landmarks.mjs` |
+| `public/assets/landmarks/glacier.glb` | 306,068 bytes | 裂隙冰舌独立地标 | 原创程序化几何，生成源同上 |
+
+GLB 含网格、法线、顶点色和材质，无外部纹理依赖。名称、经纬度、比例在 `src/landmarks.js` 修改。运行 `node scripts/generate-landmarks.mjs` 可复现资产；未进行高低模烘焙。全局地形、树木和水体由 `src/planet/` 实时构建，不依赖外链图片或 CDN 模型。

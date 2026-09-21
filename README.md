@@ -82,3 +82,11 @@ npm run build
 - [`docs/exercise-library.md`](docs/exercise-library.md) — 动作库与训练记录数据契约
 - [`docs/product-spec-v1.2.md`](docs/product-spec-v1.2.md) 与 [`docs/mobile-interaction-v1.2.md`](docs/mobile-interaction-v1.2.md) — 历史方案，仅供追溯
 - [`src/imports/PortalFitness______v1.md`](src/imports/PortalFitness______v1.md) 与 [`src/imports/PortalFitness______v1-1.md`](src/imports/PortalFitness______v1-1.md) — 历史 v1.1 输入，仅供追溯
+
+## 桌面连续球面地形 3.0
+
+打开 `/planet.html` 体验放大的连续大陆、山脊雪线、河谷水系和实例化森林。Sites 展示地址：[养星球 · 地貌探索](https://body-planet-explorer.kinteregla705706.chatgpt.site)。
+
+默认精细档使用 81,920 面全球地形；靠近后启用 327,680 面大陆地形，选择区域并继续靠近可加载 524,288 面局部块。基础地形与细节共用高度场，身体指标保留稳定 zone ID 与更新事件。
+
+实现与数据接入说明：[docs/desktop-terrain.md](docs/desktop-terrain.md)。运行 `node scripts/validate-planet.mjs` 检查几何与绑定。模型生成源、GLB、Web Worker 与资源索引均随源码保存。真实桌面 GPU 帧率尚待实机验收。

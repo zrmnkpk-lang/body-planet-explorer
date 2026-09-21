@@ -8,6 +8,30 @@
  */
 export const LANDMARKS = [
   {
+    id: "basalt-ridge",
+    name: "层岩山脊",
+    type: "desert",
+    latitude: 27,
+    longitude: -36,
+    altitude: 1.18,
+    minDetailLevel: 1,
+    description: "造山带中的层状裸岩地标",
+    model: "/assets/landmarks/basalt.glb",
+    modelScale: 0.018,
+  },
+  {
+    id: "glacier-tongue",
+    name: "裂隙冰舌",
+    type: "glacier",
+    latitude: 68,
+    longitude: 9,
+    altitude: 1.12,
+    minDetailLevel: 1,
+    description: "极地冰盖边缘的破碎冰舌",
+    model: "/assets/landmarks/glacier.glb",
+    modelScale: 0.014,
+  },
+  {
     id: "polar-glacier",
     name: "冰川",
     type: "glacier",
@@ -32,7 +56,7 @@ export const LANDMARKS = [
     name: "河流",
     type: "river",
     latitude: 18,
-    longitude: 4,
+    longitude: 9.48,
     altitude: 1.16,
     minDetailLevel: 0,
     description: "由北部冰川流向季风大陆的主要水道",
@@ -57,7 +81,7 @@ export const LANDMARKS = [
     minDetailLevel: 1,
     description: "造山带西侧的干旱高原与裸露岩层",
   },
-];
+]
 
 export const TERRAIN_TYPES = {
   glacier: {
@@ -85,4 +109,4 @@ export const TERRAIN_TYPES = {
     definition: "降水稀少、以铜橙色岩台和裸露峡谷为主的区域",
     color: "#b87955",
   },
-};
+}

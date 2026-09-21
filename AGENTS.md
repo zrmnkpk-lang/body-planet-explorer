@@ -68,3 +68,12 @@ Use an adult Western animated science-fiction tone expressed through natural sce
 - Click selects a body-composition zone.
 - Near details fade in as the camera approaches.
 - Camera controls and labels must work at mobile widths.
+
+## Continuous terrain modules
+
+- `src/planet/field.js` is the shared height/biome/river classifier. Geometry, water, vegetation and picking must use it.
+- `src/planet/terrain.js` builds global and local surfaces; `terrain.worker.js` computes them off the render thread.
+- `src/planet/zones.js` owns body-zone labels, metric defaults and focus coordinates.
+- `src/landmarks.js` remains the sole source of truth for landmark names and coordinates; optional model/scale fields place local GLBs.
+- After terrain edits run `node scripts/validate-planet.mjs` and `npm run build`. Report actual browser/GPU test limitations; never claim a performance target as measured.
+- Do not remove the standalone scene's WebMCP tool or change the React workout entry as part of terrain-only work.
