@@ -1,12 +1,59 @@
 <!doctype html>
-<html lang="zh">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Portal Fitness — Body Planet Explorer</title>
+    <meta name="theme-color" content="#10121f" />
+    <meta name="description" content="可旋转、缩放和探索的身体成分星球原型" />
+    <title>Portal Fitness · Body Planet Explorer</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <main id="app">
+      <div id="scene" tabindex="0" aria-label="可交互星球：拖动旋转，滚轮或双指缩放"></div>
+      <div id="landmark-layer" aria-hidden="true"></div>
+
+      <header>
+        <div class="wordmark"><span class="orbit-logo">◉</span> BODY PLANET <span class="edition">EXPLORER / 2.0</span></div>
+        <p>你的身体是一颗星球 · 旋转以探索地貌</p>
+      </header>
+
+      <div class="top-right">
+        <span class="sample">程序化高精度地貌预览</span>
+        <button id="motion" aria-pressed="false">自动旋转</button>
+      </div>
+
+      <aside id="card" hidden aria-live="polite">
+        <div class="card-head"><span id="zone-en"></span><button id="close" aria-label="关闭">×</button></div>
+        <h1 id="zone-title"></h1>
+        <div class="metric"><strong id="value"></strong><span id="unit"></span></div>
+        <p id="metric-label"></p>
+        <div class="separator"></div>
+        <p id="description"></p>
+        <button id="focus">靠近观察 <span>↗</span></button>
+        <p class="sample-note">模拟数据 · 训练后会持续变化</p>
+      </aside>
+
+      <div class="view-tools">
+        <span id="level">星球全貌</span>
+        <button id="plus" aria-label="放大">＋</button>
+        <button id="minus" aria-label="缩小">−</button>
+        <button id="reset" aria-label="返回全貌">◎</button>
+      </div>
+
+      <footer>
+        <div class="hint">拖动探索 <span>·</span> 滚轮或双指缩放 <span>·</span> 点击地貌</div>
+        <nav aria-label="身体地貌">
+          <button data-zone="muscle" style="--zone:#a66f50"><i></i><span>造山带<small>骨骼肌</small></span></button>
+          <button data-zone="water" style="--zone:#63c9c6"><i></i><span>生命水道<small>体内水分</small></span></button>
+          <button data-zone="bone" style="--zone:#c5d3df"><i></i><span>极地要塞<small>骨量</small></span></button>
+          <button data-zone="fat" style="--zone:#6c8469"><i></i><span>季风大陆<small>体脂</small></span></button>
+        </nav>
+        <div class="caption"><span>BODY PLANET / PROCEDURAL TERRAIN</span><span id="detail-label">远观轮廓 · 近看山川</span></div>
+      </footer>
+
+      <div id="loading">正在唤醒星球…</div>
+      <div id="error" hidden>当前浏览器无法创建 WebGL 场景。<button onclick="location.reload()">重新加载</button></div>
+    </main>
+    <script type="module" src="/src/app.js"></script>
   </body>
 </html>
