@@ -77,6 +77,9 @@ fill.position.set(4, 0, -3)
 scene.add(fill)
 const root = new T.Group()
 scene.add(root)
+const targetGlobeQuaternion = new T.Quaternion()
+let rotationNeedsShadow = false,
+  lastRotationShadowAt = 0
 const terrainMaterial = surfaceMaterial(),
   terrain = new T.Mesh(makeTerrain(15), terrainMaterial)
 terrain.receiveShadow = true
@@ -316,6 +319,8 @@ function zoom(factor) {
 function reset() {
   close()
   root.quaternion.identity()
+  targetGlobeQuaternion.identity()
+  rotationNeedsShadow = false
   renderer.shadowMap.needsUpdate = true
   targetCamera = new T.Vector3(0, 0.16, innerWidth < 760 ? 4.4 : 3.7)
   setMotion(false)
@@ -402,7 +407,8 @@ let down = null,
   mouseHoldTimer = null,
   rotatingWithMouse = false,
   holdConsumed = false,
-  lastMouse = null
+  lastMouse = null,
+  pointerPosition = null
 function clearMouseHold() {
   if (mouseHoldTimer) clearTimeout(mouseHoldTimer)
   mouseHoldTimer = null
@@ -411,7 +417,7 @@ function beginPointerRotate() {
   if (!down || multi) return
   rotatingWithMouse = true
   holdConsumed = true
-  lastMouse = { x: down.x, y: down.y }
+  lastMouse = { ...(pointerPosition || down) }
   setMotion(false)
   host.classList.add("is-rotating")
 }
@@ -423,6 +429,7 @@ function endMouseRotate() {
   clearMouseHold()
   rotatingWithMouse = false
   lastMouse = null
+  pointerPosition = null
   host.classList.remove("is-rotating")
 }
 function rotateGlobe(yaw, pitch) {
@@ -431,8 +438,11 @@ function rotateGlobe(yaw, pitch) {
     right = new T.Vector3().crossVectors(direction, up).normalize(),
     horizontal = new T.Quaternion().setFromAxisAngle(up, yaw),
     vertical = new T.Quaternion().setFromAxisAngle(right, pitch)
-  root.quaternion.premultiply(vertical).premultiply(horizontal).normalize()
-  renderer.shadowMap.needsUpdate = true
+  targetGlobeQuaternion
+    .premultiply(vertical)
+    .premultiply(horizontal)
+    .normalize()
+  rotationNeedsShadow = true
 }
 function rotateFromMouse(e) {
   if (!lastMouse) return
@@ -440,7 +450,7 @@ function rotateFromMouse(e) {
     dy = e.clientY - lastMouse.y,
     rect = host.getBoundingClientRect()
   rotateGlobe(
-    (-dx / rect.width) * Math.PI * controls.rotateSpeed,
+    (dx / rect.width) * Math.PI * controls.rotateSpeed,
     (dy / rect.height) * Math.PI * controls.rotateSpeed,
   )
   lastMouse = { x: e.clientX, y: e.clientY }
@@ -461,6 +471,7 @@ host.addEventListener("pointerdown", (e) => {
     pointerType: e.pointerType,
     pressedAt: performance.now(),
   }
+  pointerPosition = { x: e.clientX, y: e.clientY }
   moved = 0
   holdConsumed = false
   if (e.pointerType === "mouse" && e.button === 0) {
@@ -477,6 +488,7 @@ host.addEventListener("pointermove", (e) => {
   )
     beginMouseRotate()
   if (rotatingWithMouse) rotateFromMouse(e)
+  pointerPosition = { x: e.clientX, y: e.clientY }
 })
 host.addEventListener("pointercancel", (e) => {
   pointers.delete(e.pointerId)
@@ -552,6 +564,21 @@ function frame(now) {
     if (camera.position.distanceTo(targetCamera) < 0.004) targetCamera = null
   }
   if (autoSpin && !targetCamera) rotateGlobe(dt * 0.12, 0)
+  let rotationGap = root.quaternion.angleTo(targetGlobeQuaternion)
+  if (rotationGap > 0.00001) {
+    root.quaternion.slerp(
+      targetGlobeQuaternion,
+      reduced ? 1 : 1 - Math.exp(-dt * 28),
+    )
+    rotationGap = root.quaternion.angleTo(targetGlobeQuaternion)
+  }
+  if (autoSpin && now - lastRotationShadowAt > 180) {
+    renderer.shadowMap.needsUpdate = true
+    lastRotationShadowAt = now
+  } else if (rotationNeedsShadow && rotationGap < 0.001) {
+    renderer.shadowMap.needsUpdate = true
+    rotationNeedsShadow = false
+  }
   controls.update(dt)
   const distance = camera.position.length()
   controls.rotateSpeed = T.MathUtils.lerp(

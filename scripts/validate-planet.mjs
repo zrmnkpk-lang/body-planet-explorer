@@ -179,8 +179,10 @@ assert.match(appSource, /setTimeout\(beginMouseRotate, HOLD_TO_ROTATE_MS\)/)
 assert.match(appSource, /performance\.now\(\) - down\.pressedAt >= HOLD_TO_ROTATE_MS/)
 assert.doesNotMatch(appSource, /moved > 7\) clearMouseHold\(\)/)
 assert.match(appSource, /function rotateGlobe\(yaw, pitch\)/)
-assert.match(appSource, /root\.quaternion\.premultiply\(vertical\)\.premultiply\(horizontal\)\.normalize\(\)/)
+assert.match(appSource, /targetGlobeQuaternion/)
+assert.match(appSource, /root\.quaternion\.slerp/)
+assert.match(appSource, /\(dx \/ rect\.width\) \* Math\.PI \* controls\.rotateSpeed/)
 assert.doesNotMatch(appSource, /setFromSpherical\(spherical\)/)
 console.log(
-  "PASS: press-and-hold rotation, polar-safe globe quaternion, and short-press picking",
+  "PASS: press-and-hold rotation, drag-aligned smoothing, polar-safe quaternion, and short-press picking",
 )
