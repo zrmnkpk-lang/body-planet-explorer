@@ -9,11 +9,11 @@
   </head>
   <body>
     <main id="app">
-      <div id="scene" tabindex="0" aria-label="可交互星球：拖动旋转，滚轮或双指缩放"></div>
+      <div id="scene" tabindex="0" aria-label="可交互星球：长按后拖动旋转，滚轮或双指缩放"></div>
       <div id="landmark-layer" aria-hidden="true"></div>
 
       <header>
-        <div class="wordmark"><span class="orbit-logo">◉</span> BODY PLANET <span class="edition">ATLAS / 3.1</span></div>
+        <div class="wordmark"><span class="orbit-logo">◉</span> BODY PLANET <span class="edition">ATLAS / 3.2</span></div>
         <p>你的身体是一颗星球 · 拉近，发现下一层风景</p>
       </header>
 
@@ -23,15 +23,16 @@
       </div>
 
       <section class="zoom-map" aria-label="地图缩放层级">
-        <p class="zoom-eyebrow">探索尺度</p>
+        <p class="zoom-eyebrow">探索尺度 <span id="zoom-percent">19%</span></p>
         <div class="zoom-steps" role="group" aria-label="切换观察层级">
-          <button data-view="0" class="active" aria-pressed="true"><span>01</span>全貌</button>
-          <button data-view="1" aria-pressed="false"><span>02</span>大陆</button>
-          <button data-view="2" aria-pressed="false"><span>03</span>生态</button>
-          <button data-view="3" aria-pressed="false"><span>04</span>地表</button>
+          <button data-view="0" class="active" aria-pressed="true"><span>01</span>天际</button>
+          <button data-view="1" aria-pressed="false"><span>02</span>板块</button>
+          <button data-view="2" aria-pressed="false"><span>03</span>气候</button>
+          <button data-view="3" aria-pressed="false"><span>04</span>生态</button>
+          <button data-view="4" aria-pressed="false"><span>05</span>地表</button>
         </div>
-        <p id="zoom-summary" aria-live="polite">大陆轮廓 · 海洋 · 极地</p>
-        <p id="zoom-next">拉近探索山系与水系</p>
+        <p id="zoom-summary" aria-live="polite">星球轮廓 · 薄云 · 极地</p>
+        <p id="zoom-next">缩放至 20%，查看大陆板块</p>
       </section>
 
       <aside id="card" hidden aria-live="polite">
@@ -53,7 +54,7 @@
       </div>
 
       <footer>
-        <div class="hint">拖动探索 <span>·</span> 滚轮或双指缩放 <span>·</span> 点击地貌</div>
+        <div class="hint">长按拖动探索 <span>·</span> 滚轮或双指缩放 <span>·</span> 点击地貌</div>
         <nav aria-label="身体地貌">
           <button data-zone="muscle" style="--zone:#da785a"><i></i><span>造山带<small>骨骼肌</small></span></button>
           <button data-zone="water" style="--zone:#43d2c1"><i></i><span>生命水道<small>体内水分</small></span></button>

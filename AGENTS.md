@@ -41,8 +41,8 @@ When a product rule changes, update the product spec first. When a page behavior
 - Add a label by adding one object to `LANDMARKS`.
 - Keep stable, unique `id` values.
 - Latitude is -90 to 90. Longitude is -180 to 180.
-- `minDetailLevel: 0` is visible from orbit.
-- `minDetailLevel: 1/2/3` targets continent/ecosystem/surface views; `maxDetailLevel` hides parent labels and `priority` controls collision avoidance.
+- `minDetailLevel: 0` targets the unlabeled orbit layer and should be used sparingly.
+- `minDetailLevel: 1/2/3/4` targets plate/climate/ecosystem/surface views; `maxDetailLevel` hides parent labels and `priority` controls collision avoidance.
 - Do not bake labels into textures, CanvasTexture, SVG paths, or 3D meshes.
 - Labels must remain HTML elements in `#landmark-layer`.
 - Keep `pointer-events: none` on the label layer so labels never block globe gestures.

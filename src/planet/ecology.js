@@ -43,7 +43,8 @@ export function addWater(root) {
     metalness: 0.08,
     side: T.DoubleSide,
   })
-  const tributaries = []
+  const primaryWater = [],
+    tributaries = []
   for (let k = 0; k < RIVERS.length; k++) {
     const r = RIVERS[k],
       verts = [],
@@ -72,6 +73,7 @@ export function addWater(root) {
     g.computeVertexNormals()
     const m = new T.Mesh(g, k === 0 ? mat : mat.clone())
     if (k > 0) tributaries.push(installReveal(m))
+    else primaryWater.push(installReveal(m))
     root.add(m)
   }
   const verts = [],
@@ -95,7 +97,9 @@ export function addWater(root) {
   g.setAttribute("position", new T.Float32BufferAttribute(verts, 3))
   g.setIndex(idx)
   g.computeVertexNormals()
-  root.add(new T.Mesh(g, mat))
+  const lake = installReveal(new T.Mesh(g, mat))
+  primaryWater.push(lake)
+  root.add(lake)
   // Short tapered flow marks follow the river's longitudinal direction.
   const marks = []
   for (let lat = -38; lat < 61; lat += 4) {
@@ -119,6 +123,7 @@ export function addWater(root) {
     ocean,
     marks,
     update(weights, now, reduced) {
+      for (const m of primaryWater) revealMesh(m, weights.rivers)
       for (const m of tributaries) revealMesh(m, weights.tributaries)
       for (let i = 0; i < marks.length; i++) {
         marks[i].visible = weights.flow > 0.01

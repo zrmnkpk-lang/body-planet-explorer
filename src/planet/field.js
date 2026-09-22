@@ -69,6 +69,14 @@ const centers = [
   [-9, 157, 32, 1.12],
   [31, -148, 29, 1.1],
   [-62, -8, 10, 0.92],
+  // Oceanic island arcs: small radii keep open water while breaking up oversized basins.
+  [8, 83, 9, 0.55],
+  [-7, 96, 6, 0.48],
+  [18, 111, 8, 0.52],
+  [-24, 122, 7, 0.5],
+  [34, 75, 6, 0.46],
+  [-31, -92, 8, 0.5],
+  [12, -104, 5.5, 0.44],
 ].map(([lat, lon, r, w]) => ({
   d: direction(lat, lon),
   r: (r * Math.PI) / 180,

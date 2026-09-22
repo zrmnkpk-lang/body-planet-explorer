@@ -6,10 +6,12 @@ import { ZONES } from "./planet/zones.js"
 import { sample, sampleLatLon, zoneAt, seeded } from "./planet/field.js"
 import { makeTerrain, surfaceMaterial } from "./planet/terrain.js"
 import { point, addWater, addEcology } from "./planet/ecology.js"
+import { addClimate } from "./planet/climate.js"
 import {
   VIEW_LEVELS,
   levelForDistance,
   detailWeights,
+  layerVisibility,
   installReveal,
   revealMesh,
 } from "./planet/view-levels.js"
@@ -86,7 +88,8 @@ terrain.receiveShadow = true
 terrain.castShadow = true
 root.add(terrain)
 const water = addWater(root),
-  ecology = addEcology(root)
+  ecology = addEcology(root),
+  climate = addClimate(root)
 // A low-cost proxy bounds the ray search; final coordinates use the shared height field.
 const collision = new T.Sphere(new T.Vector3(), 1.27),
   ray = new T.Raycaster(),
@@ -298,9 +301,11 @@ function close() {
 function focus(zone, distance = 2.85) {
   select(zone)
   if (!data[zone]) return
-  targetCamera = point(data[zone].lat, data[zone].lon, distance).applyQuaternion(
-    root.quaternion,
-  )
+  targetCamera = point(
+    data[zone].lat,
+    data[zone].lon,
+    distance,
+  ).applyQuaternion(root.quaternion)
   if (reduced) {
     camera.position.copy(targetCamera)
     targetCamera = null
@@ -322,7 +327,7 @@ function reset() {
   targetGlobeQuaternion.identity()
   rotationNeedsShadow = false
   renderer.shadowMap.needsUpdate = true
-  targetCamera = new T.Vector3(0, 0.16, innerWidth < 760 ? 4.4 : 3.7)
+  targetCamera = new T.Vector3(0, 0.16, innerWidth < 760 ? 4.4 : 4.2)
   setMotion(false)
 }
 for (const b of document.querySelectorAll("[data-zone]"))
@@ -553,7 +558,7 @@ let last = performance.now(),
   frameTime = 0,
   fps = 0,
   raf,
-  currentLevel = 0
+  currentLevel = levelForDistance(camera.position.length(), 0)
 function frame(now) {
   raf = requestAnimationFrame(frame)
   const dt = Math.min((now - last) / 1000, 0.1)
@@ -623,12 +628,18 @@ function frame(now) {
   const view = VIEW_LEVELS[currentLevel],
     weights = detailWeights(distance)
   terrainMaterial.userData.detail.value = weights.grain
-  if (localMesh) localMesh.material.userData.detail.value = weights.grain
+  terrainMaterial.userData.relief.value = weights.relief
+  if (localMesh) {
+    localMesh.material.userData.detail.value = weights.grain
+    localMesh.material.userData.relief.value = weights.relief
+  }
   if (ecology.update(weights)) renderer.shadowMap.needsUpdate = true
   for (const m of landmarkModels)
     if (revealMesh(m, weights.landmarks)) renderer.shadowMap.needsUpdate = true
   water.update(weights, now, reduced)
+  climate.update(weights, now, reduced)
   $("#level").textContent = view.name + "视角"
+  $("#zoom-percent").textContent = `${Math.round(weights.progress * 100)}%`
   $("#zoom-summary").textContent = view.summary
   $("#zoom-next").textContent = view.next
   for (const button of document.querySelectorAll("[data-view]")) {
@@ -659,10 +670,14 @@ function frame(now) {
   for (const { l, el, anchor } of labels) {
     const worldAnchor = anchor.clone().applyQuaternion(root.quaternion),
       projected = worldAnchor.clone().project(camera),
-      normal = worldAnchor.clone().normalize()
+      normal = worldAnchor.clone().normalize(),
+      labelAmount = layerVisibility(
+        l.minDetailLevel,
+        l.maxDetailLevel ?? VIEW_LEVELS.length - 1,
+        weights.progress,
+      )
     let visible =
-      currentLevel >= l.minDetailLevel &&
-      currentLevel <= (l.maxDetailLevel ?? 3) &&
+      labelAmount > 0.06 &&
       normal.dot(camera.position.clone().sub(worldAnchor).normalize()) > 0.15 &&
       Math.abs(projected.x) < 0.96 &&
       Math.abs(projected.y) < 0.88
@@ -681,6 +696,7 @@ function frame(now) {
     )
       visible = false
     el.classList.toggle("is-visible", visible)
+    el.style.setProperty("--label-opacity", labelAmount.toFixed(3))
     if (visible) {
       occupied.push(box)
       el.style.transform = `translate(${x}px,${y}px)`
@@ -692,7 +708,7 @@ function frame(now) {
   if (frameTime > 0.75) {
     fps = Math.round(frames / frameTime)
     $("#render-stats").textContent =
-      `${((terrain.geometry.index.count + (showLocal ? localMesh.geometry.index.count : 0)) / 3 / 1000).toFixed(0)}k 地形面 · ${ecology.treeCount.toLocaleString()} 棵树 · ${fps} FPS`
+      `${((terrain.geometry.index.count + (showLocal ? localMesh.geometry.index.count : 0)) / 3 / 1000).toFixed(0)}k 地形面 · ${ecology.treeCount.toLocaleString()} 棵树 · ${climate.cloudCount} 组云 · ${fps} FPS`
     frames = 0
     frameTime = 0
   }

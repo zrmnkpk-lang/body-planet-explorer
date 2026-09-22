@@ -15,6 +15,7 @@ import {
   waterHeight,
 } from "../src/planet/field.js"
 import { addEcology } from "../src/planet/ecology.js"
+import { addClimate } from "../src/planet/climate.js"
 import { ZONES } from "../src/planet/zones.js"
 import { LANDMARKS } from "../src/landmarks.js"
 // Longitude wrap and poles must sample identical terrain and biomes.
@@ -73,6 +74,12 @@ for (let k = 0; k < RIVERS.length; k++) {
   }
 }
 assert.ok(sampleLatLon(0, 100).h < 0, "open ocean must be below sea level")
+for (const [lat, lon] of [
+  [8, 83],
+  [-7, 96],
+  [18, 111],
+])
+  assert.ok(sampleLatLon(lat, lon).h > 0.008, `ocean island ${lat}/${lon}`)
 const near = makeTerrain(127)
 assert.equal(near.index.count / 3, 327680)
 const local = makeLocalTerrain(direction(ZONES.muscle.lat, ZONES.muscle.lon))
@@ -104,7 +111,9 @@ const shader = {
 }
 surfaceMaterial().onBeforeCompile(shader)
 assert.ok(shader.fragmentShader.includes("uniform vec3 patchCenter;"))
-assert.ok(shader.vertexShader.includes("vTerrainPosition = position;"))
+assert.ok(shader.vertexShader.includes("vTerrainPosition=transformed;"))
+assert.ok(shader.vertexShader.includes("uniform float reliefAmount;"))
+assert.ok(shader.vertexShader.includes("mix(1.,length(position),reliefAmount)"))
 console.log(
   JSON.stringify(
     {
@@ -131,29 +140,38 @@ console.log(
 )
 
 // Semantic map zoom: actual reveal state must change without moving instances.
-const { VIEW_LEVELS, detailWeights, levelForDistance } = await import(
-  "../src/planet/view-levels.js"
-)
+const { VIEW_LEVELS, detailWeights, levelForDistance, layerVisibility } =
+  await import("../src/planet/view-levels.js")
+assert.equal(VIEW_LEVELS.length, 5)
 assert.equal(new Set(LANDMARKS.map((l) => l.id)).size, LANDMARKS.length)
 for (const l of LANDMARKS) {
-  assert.ok(l.minDetailLevel >= 0 && l.minDetailLevel <= 3)
-  assert.ok(l.maxDetailLevel >= l.minDetailLevel && l.maxDetailLevel <= 3)
+  assert.ok(l.minDetailLevel >= 0 && l.minDetailLevel <= 4)
+  assert.ok(l.maxDetailLevel >= l.minDetailLevel && l.maxDetailLevel <= 4)
 }
 const orbit = detailWeights(VIEW_LEVELS[0].distance),
-  surface = detailWeights(VIEW_LEVELS[3].distance)
+  surface = detailWeights(VIEW_LEVELS[4].distance)
 assert.equal(orbit.trees, 0)
 assert.equal(orbit.shrubs, 0)
 assert.equal(orbit.landmarks, 0)
+assert.equal(orbit.progress, 0)
+assert.ok(orbit.relief < 0.3)
+assert.ok(orbit.clouds > 0.95)
 assert.equal(surface.trees, 1)
 assert.equal(surface.shrubs, 1)
 assert.equal(surface.landmarks, 1)
+assert.equal(surface.progress, 1)
+assert.equal(surface.relief, 1)
 let level = 0
 for (let d = 4; d > 1.5; d -= 0.01) level = levelForDistance(d, level)
-assert.equal(level, 3)
+assert.equal(level, 4)
 for (let d = 1.5; d < 4; d += 0.01) level = levelForDistance(d, level)
 assert.equal(level, 0)
-assert.equal(levelForDistance(3.24, 0), 0)
-assert.equal(levelForDistance(3.26, 1), 1)
+assert.equal(levelForDistance(3.8, 0), 0)
+assert.equal(levelForDistance(3.76, 0), 1)
+assert.equal(levelForDistance(3.84, 1), 1)
+assert.equal(levelForDistance(3.88, 1), 0)
+assert.ok(layerVisibility(1, 1, 0.28) > 0.4)
+assert.ok(layerVisibility(1, 1, 0.7) < 0.01)
 const matrix = eco.trees[0].instanceMatrix.array.slice()
 eco.update(orbit)
 assert.equal(eco.trees[0].visible, false)
@@ -163,8 +181,11 @@ assert.equal(eco.trees[0].material.opacity, 1)
 assert.deepEqual(eco.trees[0].instanceMatrix.array, matrix)
 eco.update(orbit)
 assert.equal(eco.trees[0].visible, false)
+const climate = addClimate(new T.Group())
+assert.ok(climate.cloudCount >= 60)
+climate.update(orbit, 0, true)
 console.log(
-  "PASS: map content levels, zoom reversal, hysteresis, instance stability and label ranges",
+  "PASS: five map levels, continuous zoom, islands, climate layer, hysteresis and label ranges",
 )
 
 // Desktop input must reserve OrbitControls rotation for the hold handler and avoid polar clamps.
@@ -176,12 +197,18 @@ assert.match(appSource, /controls\.mouseButtons\.LEFT = null/)
 assert.match(appSource, /controls\.enableRotate = false/)
 assert.match(appSource, /HOLD_TO_ROTATE_MS = 180/)
 assert.match(appSource, /setTimeout\(beginMouseRotate, HOLD_TO_ROTATE_MS\)/)
-assert.match(appSource, /performance\.now\(\) - down\.pressedAt >= HOLD_TO_ROTATE_MS/)
+assert.match(
+  appSource,
+  /performance\.now\(\) - down\.pressedAt >= HOLD_TO_ROTATE_MS/,
+)
 assert.doesNotMatch(appSource, /moved > 7\) clearMouseHold\(\)/)
 assert.match(appSource, /function rotateGlobe\(yaw, pitch\)/)
 assert.match(appSource, /targetGlobeQuaternion/)
 assert.match(appSource, /root\.quaternion\.slerp/)
-assert.match(appSource, /\(dx \/ rect\.width\) \* Math\.PI \* controls\.rotateSpeed/)
+assert.match(
+  appSource,
+  /\(dx \/ rect\.width\) \* Math\.PI \* controls\.rotateSpeed/,
+)
 assert.doesNotMatch(appSource, /setFromSpherical\(spherical\)/)
 console.log(
   "PASS: press-and-hold rotation, drag-aligned smoothing, polar-safe quaternion, and short-press picking",

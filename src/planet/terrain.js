@@ -111,6 +111,7 @@ export function surfaceMaterial() {
     metalness: 0,
   })
   m.userData.detail = { value: 0 }
+  m.userData.relief = { value: 1 }
   m.userData.patch = {
     center: { value: new T.Vector3(0, 1, 0) },
     cos: { value: Math.cos(0.215) },
@@ -118,17 +119,22 @@ export function surfaceMaterial() {
   }
   m.onBeforeCompile = (shader) => {
     shader.uniforms.detailAmount = m.userData.detail
+    shader.uniforms.reliefAmount = m.userData.relief
     shader.uniforms.patchCenter = m.userData.patch.center
     shader.uniforms.patchCos = m.userData.patch.cos
     shader.uniforms.patchMode = m.userData.patch.mode
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vTerrainPosition;",
+        "#include <common>\nvarying vec3 vTerrainPosition;\nuniform float reliefAmount;",
+      )
+      .replace(
+        "#include <beginnormal_vertex>",
+        "#include <beginnormal_vertex>\nobjectNormal=normalize(mix(normalize(position),objectNormal,reliefAmount));",
       )
       .replace(
         "#include <begin_vertex>",
-        "#include <begin_vertex>\nvTerrainPosition = position;",
+        "#include <begin_vertex>\ntransformed=normalize(position)*mix(1.,length(position),reliefAmount);\nvTerrainPosition=transformed;",
       )
     shader.fragmentShader = shader.fragmentShader
       .replace(
