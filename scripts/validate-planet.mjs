@@ -166,3 +166,15 @@ assert.equal(eco.trees[0].visible, false)
 console.log(
   "PASS: map content levels, zoom reversal, hysteresis, instance stability and label ranges",
 )
+
+// Desktop input must reserve OrbitControls left mouse rotation for the press-and-hold handler.
+const appSource = await readFile(
+  new URL("../src/app.js", import.meta.url),
+  "utf8",
+)
+assert.match(appSource, /controls\.mouseButtons\.LEFT = null/)
+assert.match(appSource, /HOLD_TO_ROTATE_MS = 180/)
+assert.match(appSource, /setTimeout\(beginMouseRotate, HOLD_TO_ROTATE_MS\)/)
+console.log(
+  "PASS: mouse rotation requires press-and-hold; short press remains available for picking",
+)

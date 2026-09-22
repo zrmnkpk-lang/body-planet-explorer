@@ -52,6 +52,8 @@ Object.assign(controls, {
   maxDistance: 5.6,
   autoRotateSpeed: 0.32,
 })
+// Mouse rotation uses an intentional press-and-hold gesture below. Keep touch rotation in OrbitControls.
+controls.mouseButtons.LEFT = null
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
 scene.add(new T.HemisphereLight(0xc9e5ff, 0x24234e, 1.6))
 const key = new T.DirectionalLight(0xffebd7, 2.6)
@@ -385,31 +387,83 @@ function pick(e) {
   select(zoneAt(sample(n.x, n.y, n.z)))
 }
 const pointers = new Set()
+const HOLD_TO_ROTATE_MS = 180
 let down = null,
   moved = 0,
-  multi = false
+  multi = false,
+  mouseHoldTimer = null,
+  rotatingWithMouse = false,
+  holdConsumed = false,
+  lastMouse = null
+function clearMouseHold() {
+  if (mouseHoldTimer) clearTimeout(mouseHoldTimer)
+  mouseHoldTimer = null
+}
+function beginMouseRotate() {
+  if (!down || multi || moved > 7 || down.pointerType !== "mouse") return
+  rotatingWithMouse = true
+  holdConsumed = true
+  lastMouse = { x: down.x, y: down.y }
+  setMotion(false)
+  host.classList.add("is-rotating")
+}
+function endMouseRotate() {
+  clearMouseHold()
+  rotatingWithMouse = false
+  lastMouse = null
+  host.classList.remove("is-rotating")
+}
+function rotateFromMouse(e) {
+  if (!lastMouse) return
+  const dx = e.clientX - lastMouse.x,
+    dy = e.clientY - lastMouse.y,
+    rect = host.getBoundingClientRect(),
+    spherical = new T.Spherical().setFromVector3(camera.position)
+  spherical.theta -= (dx / rect.width) * Math.PI * controls.rotateSpeed
+  spherical.phi = T.MathUtils.clamp(
+    spherical.phi + (dy / rect.height) * Math.PI * controls.rotateSpeed,
+    0.05,
+    Math.PI - 0.05,
+  )
+  camera.position.setFromSpherical(spherical)
+  lastMouse = { x: e.clientX, y: e.clientY }
+}
 host.addEventListener("pointerdown", (e) => {
   pointers.add(e.pointerId)
   host.setPointerCapture(e.pointerId)
-  if (pointers.size > 1) multi = true
-  else {
-    multi = false
-    down = { x: e.clientX, y: e.clientY }
-    moved = 0
+  if (pointers.size > 1) {
+    multi = true
+    endMouseRotate()
+    return
+  }
+  multi = false
+  down = { x: e.clientX, y: e.clientY, pointerType: e.pointerType }
+  moved = 0
+  holdConsumed = false
+  if (e.pointerType === "mouse" && e.button === 0) {
+    mouseHoldTimer = setTimeout(beginMouseRotate, HOLD_TO_ROTATE_MS)
   }
 })
 host.addEventListener("pointermove", (e) => {
-  if (down)
-    moved = Math.max(moved, Math.hypot(e.clientX - down.x, e.clientY - down.y))
+  if (!down) return
+  moved = Math.max(moved, Math.hypot(e.clientX - down.x, e.clientY - down.y))
+  if (!rotatingWithMouse && moved > 7) clearMouseHold()
+  if (rotatingWithMouse) rotateFromMouse(e)
 })
 host.addEventListener("pointercancel", (e) => {
   pointers.delete(e.pointerId)
+  endMouseRotate()
   down = null
 })
 host.addEventListener("pointerup", (e) => {
   pointers.delete(e.pointerId)
-  if (down && !multi && moved < 7) pick(e)
+  const shouldPick = down && !multi && !holdConsumed && moved < 7
+  endMouseRotate()
+  if (shouldPick) pick(e)
   if (!pointers.size) down = null
+})
+host.addEventListener("lostpointercapture", () => {
+  endMouseRotate()
 })
 host.addEventListener("keydown", (e) => {
   if (
@@ -601,6 +655,7 @@ window.addEventListener(
     if (event.persisted) return
     cancelAnimationFrame(raf)
     worker?.terminate()
+    clearMouseHold()
     controls.dispose()
     observer.disconnect()
     renderer.dispose()
