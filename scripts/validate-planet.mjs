@@ -167,14 +167,18 @@ console.log(
   "PASS: map content levels, zoom reversal, hysteresis, instance stability and label ranges",
 )
 
-// Desktop input must reserve OrbitControls left mouse rotation for the press-and-hold handler.
+// Desktop input must reserve OrbitControls rotation for the hold handler and avoid polar clamps.
 const appSource = await readFile(
   new URL("../src/app.js", import.meta.url),
   "utf8",
 )
 assert.match(appSource, /controls\.mouseButtons\.LEFT = null/)
+assert.match(appSource, /controls\.enableRotate = false/)
 assert.match(appSource, /HOLD_TO_ROTATE_MS = 180/)
 assert.match(appSource, /setTimeout\(beginMouseRotate, HOLD_TO_ROTATE_MS\)/)
+assert.match(appSource, /function rotateGlobe\(yaw, pitch\)/)
+assert.match(appSource, /root\.quaternion\.premultiply\(vertical\)\.premultiply\(horizontal\)\.normalize\(\)/)
+assert.doesNotMatch(appSource, /setFromSpherical\(spherical\)/)
 console.log(
-  "PASS: mouse rotation requires press-and-hold; short press remains available for picking",
+  "PASS: press-and-hold rotation, polar-safe globe quaternion, and short-press picking",
 )

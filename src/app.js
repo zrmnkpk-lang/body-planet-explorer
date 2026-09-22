@@ -52,7 +52,8 @@ Object.assign(controls, {
   maxDistance: 5.6,
   autoRotateSpeed: 0.32,
 })
-// Mouse rotation uses an intentional press-and-hold gesture below. Keep touch rotation in OrbitControls.
+// Rotation is handled against the planet quaternion below, so it stays continuous across both poles.
+controls.enableRotate = false
 controls.mouseButtons.LEFT = null
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
 scene.add(new T.HemisphereLight(0xc9e5ff, 0x24234e, 1.6))
@@ -249,7 +250,8 @@ selectedOutline.visible = false
 root.add(selectedOutline)
 let selected = null,
   targetCamera = null,
-  contextLost = false
+  contextLost = false,
+  autoSpin = false
 function select(zone) {
   if (!data[zone]) return
   selected = zone
@@ -278,7 +280,8 @@ function select(zone) {
   setMotion(false)
 }
 function setMotion(active) {
-  controls.autoRotate = active
+  autoSpin = active
+  controls.autoRotate = false
   $("#motion").setAttribute("aria-pressed", String(active))
 }
 function close() {
@@ -292,7 +295,9 @@ function close() {
 function focus(zone, distance = 2.85) {
   select(zone)
   if (!data[zone]) return
-  targetCamera = point(data[zone].lat, data[zone].lon, distance)
+  targetCamera = point(data[zone].lat, data[zone].lon, distance).applyQuaternion(
+    root.quaternion,
+  )
   if (reduced) {
     camera.position.copy(targetCamera)
     targetCamera = null
@@ -310,6 +315,8 @@ function zoom(factor) {
 }
 function reset() {
   close()
+  root.quaternion.identity()
+  renderer.shadowMap.needsUpdate = true
   targetCamera = new T.Vector3(0, 0.16, innerWidth < 760 ? 4.4 : 3.7)
   setMotion(false)
 }
@@ -334,7 +341,7 @@ $("#minus").onclick = () => zoom(1.19)
 $("#reset").onclick = reset
 $("#motion").onclick = () => {
   targetCamera = null
-  setMotion(!controls.autoRotate)
+  setMotion(!autoSpin)
 }
 $("#quality").onchange = (e) => {
   quality = e.target.value
@@ -357,12 +364,13 @@ function pick(e) {
     return
   }
   const p = new T.Vector3(),
-    n = new T.Vector3()
+    n = new T.Vector3(),
+    rootInverse = root.quaternion.clone().invert()
   let lo = entry.distanceTo(ray.ray.origin),
     hi = lo
   const evaluate = (t) => {
     ray.ray.at(t, p)
-    n.copy(p).normalize()
+    n.copy(p).normalize().applyQuaternion(rootInverse)
     return p.length() - Math.max(1, 1 + sample(n.x, n.y, n.z).h)
   }
   let found = false
@@ -399,13 +407,17 @@ function clearMouseHold() {
   if (mouseHoldTimer) clearTimeout(mouseHoldTimer)
   mouseHoldTimer = null
 }
-function beginMouseRotate() {
-  if (!down || multi || moved > 7 || down.pointerType !== "mouse") return
+function beginPointerRotate() {
+  if (!down || multi || moved > 7) return
   rotatingWithMouse = true
   holdConsumed = true
   lastMouse = { x: down.x, y: down.y }
   setMotion(false)
   host.classList.add("is-rotating")
+}
+function beginMouseRotate() {
+  if (down?.pointerType !== "mouse") return
+  beginPointerRotate()
 }
 function endMouseRotate() {
   clearMouseHold()
@@ -413,22 +425,28 @@ function endMouseRotate() {
   lastMouse = null
   host.classList.remove("is-rotating")
 }
+function rotateGlobe(yaw, pitch) {
+  const direction = camera.getWorldDirection(new T.Vector3()),
+    up = camera.up.clone().normalize(),
+    right = new T.Vector3().crossVectors(direction, up).normalize(),
+    horizontal = new T.Quaternion().setFromAxisAngle(up, yaw),
+    vertical = new T.Quaternion().setFromAxisAngle(right, pitch)
+  root.quaternion.premultiply(vertical).premultiply(horizontal).normalize()
+  renderer.shadowMap.needsUpdate = true
+}
 function rotateFromMouse(e) {
   if (!lastMouse) return
   const dx = e.clientX - lastMouse.x,
     dy = e.clientY - lastMouse.y,
-    rect = host.getBoundingClientRect(),
-    spherical = new T.Spherical().setFromVector3(camera.position)
-  spherical.theta -= (dx / rect.width) * Math.PI * controls.rotateSpeed
-  spherical.phi = T.MathUtils.clamp(
-    spherical.phi + (dy / rect.height) * Math.PI * controls.rotateSpeed,
-    0.05,
-    Math.PI - 0.05,
+    rect = host.getBoundingClientRect()
+  rotateGlobe(
+    (-dx / rect.width) * Math.PI * controls.rotateSpeed,
+    (dy / rect.height) * Math.PI * controls.rotateSpeed,
   )
-  camera.position.setFromSpherical(spherical)
   lastMouse = { x: e.clientX, y: e.clientY }
 }
 host.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "mouse" && e.button !== 0) return
   pointers.add(e.pointerId)
   host.setPointerCapture(e.pointerId)
   if (pointers.size > 1) {
@@ -442,7 +460,7 @@ host.addEventListener("pointerdown", (e) => {
   holdConsumed = false
   if (e.pointerType === "mouse" && e.button === 0) {
     mouseHoldTimer = setTimeout(beginMouseRotate, HOLD_TO_ROTATE_MS)
-  }
+  } else beginPointerRotate()
 })
 host.addEventListener("pointermove", (e) => {
   if (!down) return
@@ -484,16 +502,11 @@ host.addEventListener("keydown", (e) => {
   if (e.key === "+" || e.key === "=") zoom(0.85)
   else if (e.key === "-") zoom(1.18)
   else if (e.key === "Escape") reset()
-  else {
-    const s = new T.Spherical().setFromVector3(camera.position)
-    s.theta += e.key === "ArrowLeft" ? -0.12 : e.key === "ArrowRight" ? 0.12 : 0
-    s.phi = T.MathUtils.clamp(
-      s.phi + (e.key === "ArrowUp" ? -0.12 : e.key === "ArrowDown" ? 0.12 : 0),
-      0.05,
-      Math.PI - 0.05,
+  else
+    rotateGlobe(
+      e.key === "ArrowLeft" ? -0.12 : e.key === "ArrowRight" ? 0.12 : 0,
+      e.key === "ArrowUp" ? 0.12 : e.key === "ArrowDown" ? -0.12 : 0,
     )
-    camera.position.setFromSpherical(s)
-  }
 })
 window.addEventListener("body-planet:metrics", (e) => {
   for (const [zone, value] of Object.entries(e.detail || {}))
@@ -528,6 +541,7 @@ function frame(now) {
     camera.position.lerp(targetCamera, reduced ? 1 : 1 - Math.exp(-dt * 5))
     if (camera.position.distanceTo(targetCamera) < 0.004) targetCamera = null
   }
+  if (autoSpin && !targetCamera) rotateGlobe(dt * 0.12, 0)
   controls.update(dt)
   const distance = camera.position.length()
   controls.rotateSpeed = T.MathUtils.lerp(
@@ -542,7 +556,10 @@ function frame(now) {
     renderer.shadowMap.needsUpdate = true
   }
   const wantsLocal = quality === "fine" && distance < 2.2
-  const viewCenter = camera.position.clone().normalize()
+  const viewCenter = camera.position
+    .clone()
+    .normalize()
+    .applyQuaternion(root.quaternion.clone().invert())
   if (
     wantsLocal &&
     (!localCenter || localCenter.angleTo(viewCenter) > 0.12) &&
@@ -603,12 +620,13 @@ function frame(now) {
     occupied.push({ x: r.left, y: r.top, w: r.width, h: r.height })
   }
   for (const { l, el, anchor } of labels) {
-    const projected = anchor.clone().project(camera),
-      normal = anchor.clone().normalize()
+    const worldAnchor = anchor.clone().applyQuaternion(root.quaternion),
+      projected = worldAnchor.clone().project(camera),
+      normal = worldAnchor.clone().normalize()
     let visible =
       currentLevel >= l.minDetailLevel &&
       currentLevel <= (l.maxDetailLevel ?? 3) &&
-      normal.dot(camera.position.clone().sub(anchor).normalize()) > 0.15 &&
+      normal.dot(camera.position.clone().sub(worldAnchor).normalize()) > 0.15 &&
       Math.abs(projected.x) < 0.96 &&
       Math.abs(projected.y) < 0.88
     const x = (projected.x * 0.5 + 0.5) * rect.width + rect.left,
