@@ -13,14 +13,26 @@
       <div id="landmark-layer" aria-hidden="true"></div>
 
       <header>
-        <div class="wordmark"><span class="orbit-logo">◉</span> BODY PLANET <span class="edition">EXPLORER / 3.0</span></div>
-        <p>你的身体是一颗星球 · 旋转以探索地貌</p>
+        <div class="wordmark"><span class="orbit-logo">◉</span> BODY PLANET <span class="edition">ATLAS / 3.1</span></div>
+        <p>你的身体是一颗星球 · 拉近，发现下一层风景</p>
       </header>
 
       <div class="top-right">
-        <span class="sample">桌面地貌探索</span>
+        <span class="sample">地貌图鉴</span>
         <label class="quality-label">画质 <select id="quality" aria-label="渲染画质"><option value="fine">精细</option><option value="standard">标准</option></select></label><button id="motion" aria-pressed="false">自动旋转</button>
       </div>
+
+      <section class="zoom-map" aria-label="地图缩放层级">
+        <p class="zoom-eyebrow">探索尺度</p>
+        <div class="zoom-steps" role="group" aria-label="切换观察层级">
+          <button data-view="0" class="active" aria-pressed="true"><span>01</span>全貌</button>
+          <button data-view="1" aria-pressed="false"><span>02</span>大陆</button>
+          <button data-view="2" aria-pressed="false"><span>03</span>生态</button>
+          <button data-view="3" aria-pressed="false"><span>04</span>地表</button>
+        </div>
+        <p id="zoom-summary" aria-live="polite">大陆轮廓 · 海洋 · 极地</p>
+        <p id="zoom-next">拉近探索山系与水系</p>
+      </section>
 
       <aside id="card" hidden aria-live="polite">
         <div class="card-head"><span id="zone-en"></span><button id="close" aria-label="关闭">×</button></div>
@@ -43,10 +55,10 @@
       <footer>
         <div class="hint">拖动探索 <span>·</span> 滚轮或双指缩放 <span>·</span> 点击地貌</div>
         <nav aria-label="身体地貌">
-          <button data-zone="muscle" style="--zone:#a66f50"><i></i><span>造山带<small>骨骼肌</small></span></button>
-          <button data-zone="water" style="--zone:#63c9c6"><i></i><span>生命水道<small>体内水分</small></span></button>
-          <button data-zone="bone" style="--zone:#c5d3df"><i></i><span>极地要塞<small>骨量</small></span></button>
-          <button data-zone="fat" style="--zone:#6c8469"><i></i><span>季风大陆<small>体脂</small></span></button>
+          <button data-zone="muscle" style="--zone:#da785a"><i></i><span>造山带<small>骨骼肌</small></span></button>
+          <button data-zone="water" style="--zone:#43d2c1"><i></i><span>生命水道<small>体内水分</small></span></button>
+          <button data-zone="bone" style="--zone:#91b9e2"><i></i><span>极地要塞<small>骨量</small></span></button>
+          <button data-zone="fat" style="--zone:#288678"><i></i><span>季风大陆<small>体脂</small></span></button>
         </nav>
         <div class="caption"><span id="render-stats">正在准备地貌</span><span id="detail-label">远观轮廓 · 近看山川</span></div>
       </footer>

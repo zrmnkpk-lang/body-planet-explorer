@@ -2,15 +2,15 @@ import * as T from "three"
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 import { sample, noise, smooth, clamp } from "./field.js"
 const palette = {
-  sand: new T.Color("#ab916a"),
-  forest: new T.Color("#507762"),
-  grass: new T.Color("#87936b"),
-  rock: new T.Color("#986346"),
-  strata: new T.Color("#bd8a60"),
-  snow: new T.Color("#e0e8e0"),
-  ice: new T.Color("#abcbd4"),
-  wet: new T.Color("#3b6861"),
-  deep: new T.Color("#192c43"),
+  sand: new T.Color("#d29b68"),
+  forest: new T.Color("#288678"),
+  grass: new T.Color("#6fad85"),
+  rock: new T.Color("#b96052"),
+  strata: new T.Color("#eaa778"),
+  snow: new T.Color("#e4f5ef"),
+  ice: new T.Color("#91b9e2"),
+  wet: new T.Color("#277f85"),
+  deep: new T.Color("#192e55"),
 }
 export function makeTerrain(detail) {
   const raw = new T.IcosahedronGeometry(1, detail)
@@ -82,8 +82,10 @@ function bakeTerrain(g) {
     color.lerp(palette.forest, smooth(0.4, 0.8, s.moisture) * 0.8)
     const strata =
       0.5 + 0.5 * Math.sin(s.h * 660 + noise(v.x * 38, v.y * 38, v.z * 38) * 2)
-    const rock = palette.rock.clone().lerp(palette.strata, strata * 0.55)
-    color.lerp(rock, Math.max(smooth(0.08, 0.38, slope), s.mountains * 0.77))
+    const rock = palette.rock
+      .clone()
+      .lerp(palette.strata, smooth(0.35, 0.65, strata) * 0.65)
+    color.lerp(rock, Math.max(smooth(0.08, 0.38, slope), s.mountains * 0.93))
     color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
     const snow =
       smooth(0.115, 0.15, s.h + noise(v.x * 36, v.y * 36, v.z * 36) * 0.011) *
@@ -92,7 +94,7 @@ function bakeTerrain(g) {
     color.lerp(palette.ice, s.polar)
     color.lerp(palette.snow, s.polar * smooth(0.041, 0.058, s.h))
     if (s.h < 0) color.copy(palette.deep)
-    color.multiplyScalar(0.91 + 0.12 * noise(v.x * 120, v.y * 120, v.z * 120))
+    color.multiplyScalar(0.97 + 0.035 * noise(v.x * 120, v.y * 120, v.z * 120))
     p.setXYZ(i, v.x * (1 + s.h), v.y * (1 + s.h), v.z * (1 + s.h))
     color.toArray(colors, i * 3)
     n.toArray(normals, i * 3)
@@ -108,12 +110,14 @@ export function surfaceMaterial() {
     roughness: 0.9,
     metalness: 0,
   })
+  m.userData.detail = { value: 0 }
   m.userData.patch = {
     center: { value: new T.Vector3(0, 1, 0) },
     cos: { value: Math.cos(0.215) },
     mode: { value: 0 },
   }
   m.onBeforeCompile = (shader) => {
+    shader.uniforms.detailAmount = m.userData.detail
     shader.uniforms.patchCenter = m.userData.patch.center
     shader.uniforms.patchCos = m.userData.patch.cos
     shader.uniforms.patchMode = m.userData.patch.mode
@@ -131,6 +135,7 @@ export function surfaceMaterial() {
         "#include <common>",
         `#include <common>
  varying vec3 vTerrainPosition;
+ uniform float detailAmount;
  uniform vec3 patchCenter;uniform float patchCos;uniform float patchMode;
  float rockGrain(vec3 p){return sin(p.x*483.+sin(p.z*173.))*sin(p.y*367.+sin(p.x*233.));}
  `,
@@ -146,14 +151,14 @@ export function surfaceMaterial() {
       .replace(
         "#include <opaque_fragment>",
         `float terrainLum=dot(outgoingLight,vec3(.2126,.7152,.0722));
- float terrainBand=floor(terrainLum*6.+.5)/6.;
- outgoingLight*=mix(1.,terrainBand/max(terrainLum,.001),.28);
+ float terrainBand=floor(terrainLum*5.+.5)/5.;
+ outgoingLight*=mix(1.,terrainBand/max(terrainLum,.001),.55);
  #include <opaque_fragment>`,
       )
       .replace(
         "#include <normal_fragment_maps>",
         `#include <normal_fragment_maps>
- float grain=rockGrain(vTerrainPosition);
+ float grain=rockGrain(vTerrainPosition)*detailAmount;
  vec3 dp1=dFdx(vViewPosition),dp2=dFdy(vViewPosition);
  vec3 r1=cross(dp2,normal),r2=cross(normal,dp1);
  float det=dot(dp1,r1);

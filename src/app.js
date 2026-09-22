@@ -6,6 +6,13 @@ import { ZONES } from "./planet/zones.js"
 import { sample, sampleLatLon, zoneAt, seeded } from "./planet/field.js"
 import { makeTerrain, surfaceMaterial } from "./planet/terrain.js"
 import { point, addWater, addEcology } from "./planet/ecology.js"
+import {
+  VIEW_LEVELS,
+  levelForDistance,
+  detailWeights,
+  installReveal,
+  revealMesh,
+} from "./planet/view-levels.js"
 import "./styles.css"
 const $ = (s) => document.querySelector(s),
   host = $("#scene"),
@@ -25,7 +32,7 @@ try {
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
 renderer.outputColorSpace = T.SRGBColorSpace
 renderer.toneMapping = T.ACESFilmicToneMapping
-renderer.toneMappingExposure = 1.16
+renderer.toneMappingExposure = 1.08
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = T.PCFSoftShadowMap
 renderer.shadowMap.autoUpdate = false
@@ -46,8 +53,8 @@ Object.assign(controls, {
   autoRotateSpeed: 0.32,
 })
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
-scene.add(new T.HemisphereLight(0xcce9f3, 0x222a36, 1.75))
-const key = new T.DirectionalLight(0xffe3c2, 3)
+scene.add(new T.HemisphereLight(0xc9e5ff, 0x24234e, 1.6))
+const key = new T.DirectionalLight(0xffebd7, 2.6)
 key.position.set(-3, 4, 5)
 key.castShadow = true
 key.shadow.mapSize.set(2048, 2048)
@@ -62,7 +69,7 @@ Object.assign(key.shadow.camera, {
 key.shadow.bias = -0.00025
 key.shadow.normalBias = 0.003
 scene.add(key)
-const fill = new T.DirectionalLight(0x699dbd, 1.6)
+const fill = new T.DirectionalLight(0x7d8bea, 1.4)
 fill.position.set(4, 0, -3)
 scene.add(fill)
 const root = new T.Group()
@@ -116,9 +123,10 @@ const lods = new Map([[15, terrain.geometry]]),
   pending = new Set()
 let quality = "fine",
   worker,
-  localZone = null,
   localMesh = null,
-  pendingZone = null
+  pendingZone = null,
+  localCenter = null,
+  workerFailed = false
 try {
   worker = new Worker(new URL("./planet/terrain.worker.js", import.meta.url), {
     type: "module",
@@ -127,6 +135,9 @@ try {
     pending.delete(d.detail)
     if (d.zone) pendingZone = null
     if (d.error) {
+      workerFailed = true
+      worker.terminate()
+      pending.clear()
       $("#detail-label").textContent = "精细地形加载失败 · 基础地形可继续探索"
       return
     }
@@ -148,26 +159,31 @@ try {
       localMesh.receiveShadow = true
       localMesh.visible = false
       root.add(localMesh)
-      localZone = d.zone
+      localCenter = new T.Vector3(...d.center)
     } else {
       lods.set(d.detail, g)
       if (d.detail === 63) requestTerrain(127)
     }
   }
   worker.onerror = () => {
+    workerFailed = true
+    pending.clear()
+    pendingZone = null
+    worker.terminate()
     $("#detail-label").textContent = "精细地形不可用 · 基础地形可继续探索"
   }
 } catch {
   $("#detail-label").textContent = "基础地形模式"
 }
 function requestTerrain(detail) {
-  if (worker && !pending.has(detail) && !lods.has(detail)) {
+  if (worker && !workerFailed && !pending.has(detail) && !lods.has(detail)) {
     pending.add(detail)
     worker.postMessage({ detail })
   }
 }
 requestTerrain(63)
 // Local GLB landmarks. The generated source and manifest live in the repository.
+const landmarkModels = []
 const loader = new GLTFLoader()
 for (const landmark of LANDMARKS.filter((l) => l.model)) {
   loader.load(
@@ -187,6 +203,8 @@ for (const landmark of LANDMARKS.filter((l) => l.model)) {
         if (n.isMesh) {
           n.castShadow = true
           n.receiveShadow = true
+          installReveal(n)
+          landmarkModels.push(n)
         }
       })
       root.add(model)
@@ -198,24 +216,29 @@ for (const landmark of LANDMARKS.filter((l) => l.model)) {
     },
   )
 }
-const labels = LANDMARKS.map((l) => {
-  const el = document.createElement("div")
-  el.className = "landmark landmark--" + l.type
-  el.dataset.landmark = l.id
-  const marker = document.createElement("span")
-  marker.className = "landmark__marker"
-  const text = document.createElement("span")
-  text.className = "landmark__label"
-  text.textContent = l.name
-  el.append(marker, text)
-  $("#landmark-layer").append(el)
-  const h = sampleLatLon(l.latitude, l.longitude).h
-  return {
-    l,
-    el,
-    anchor: point(l.latitude, l.longitude, Math.max(1.01, 1 + h + 0.02)),
-  }
-})
+const labels = [...LANDMARKS]
+  .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+  .map((l) => {
+    const el = document.createElement("div")
+    el.className =
+      "landmark landmark--" +
+      l.type +
+      (l.labelKind === "region" ? " landmark--region" : "")
+    el.dataset.landmark = l.id
+    const marker = document.createElement("span")
+    marker.className = "landmark__marker"
+    const text = document.createElement("span")
+    text.className = "landmark__label"
+    text.textContent = l.name
+    el.append(marker, text)
+    $("#landmark-layer").append(el)
+    const h = sampleLatLon(l.latitude, l.longitude).h
+    return {
+      l,
+      el,
+      anchor: point(l.latitude, l.longitude, Math.max(1.01, 1 + h + 0.02)),
+    }
+  })
 const selectedOutline = new T.LineLoop(
   new T.BufferGeometry(),
   new T.LineBasicMaterial({ color: 0xe0ddbb, transparent: true, opacity: 0.8 }),
@@ -264,7 +287,7 @@ function close() {
     .querySelectorAll("[data-zone]")
     .forEach((b) => b.classList.remove("active"))
 }
-function focus(zone, distance = 3.1) {
+function focus(zone, distance = 2.85) {
   select(zone)
   if (!data[zone]) return
   targetCamera = point(data[zone].lat, data[zone].lon, distance)
@@ -290,8 +313,20 @@ function reset() {
 }
 for (const b of document.querySelectorAll("[data-zone]"))
   b.onclick = () => focus(b.dataset.zone)
+for (const button of document.querySelectorAll("[data-view]"))
+  button.onclick = () => {
+    const level = Number(button.dataset.view)
+    targetCamera = camera.position
+      .clone()
+      .setLength(VIEW_LEVELS[level].distance)
+    setMotion(false)
+    if (reduced) {
+      camera.position.copy(targetCamera)
+      targetCamera = null
+    }
+  }
 $("#close").onclick = close
-$("#focus").onclick = () => focus(selected, 1.85)
+$("#focus").onclick = () => focus(selected, 1.53)
 $("#plus").onclick = () => zoom(0.84)
 $("#minus").onclick = () => zoom(1.19)
 $("#reset").onclick = reset
@@ -428,7 +463,8 @@ let last = performance.now(),
   frames = 0,
   frameTime = 0,
   fps = 0,
-  raf
+  raf,
+  currentLevel = 0
 function frame(now) {
   raf = requestAnimationFrame(frame)
   const dt = Math.min((now - last) / 1000, 0.1)
@@ -440,47 +476,107 @@ function frame(now) {
   }
   controls.update(dt)
   const distance = camera.position.length()
+  controls.rotateSpeed = T.MathUtils.lerp(
+    0.13,
+    0.5,
+    T.MathUtils.smoothstep(distance, 1.5, 3.2),
+  )
   const wanted = quality === "fine" && distance < 3.2 ? 127 : 63
   const nextGeometry = lods.get(wanted) || lods.get(63) || lods.get(15)
   if (terrain.geometry !== nextGeometry) {
     terrain.geometry = nextGeometry
     renderer.shadowMap.needsUpdate = true
   }
-  const wantsLocal = quality === "fine" && distance < 2.45 && selected
-  if (wantsLocal && localZone !== selected && !pendingZone && worker) {
-    pendingZone = selected
-    worker.postMessage({
-      zone: selected,
-      center: point(data[selected].lat, data[selected].lon).toArray(),
-    })
+  const wantsLocal = quality === "fine" && distance < 2.2
+  const viewCenter = camera.position.clone().normalize()
+  if (
+    wantsLocal &&
+    (!localCenter || localCenter.angleTo(viewCenter) > 0.12) &&
+    !pendingZone &&
+    worker &&
+    !workerFailed &&
+    !targetCamera
+  ) {
+    pendingZone = "view"
+    worker.postMessage({ zone: "view", center: viewCenter.toArray() })
   }
-  const showLocal = !!(wantsLocal && localZone === selected)
+  const showLocal = !!(
+    wantsLocal &&
+    localCenter &&
+    localCenter.angleTo(viewCenter) < 0.2
+  )
   if (localMesh) localMesh.visible = showLocal
   terrainMaterial.userData.patch.mode.value = showLocal ? 1 : 0
   if (showLocal)
     terrainMaterial.userData.patch.center.value.copy(
       localMesh.material.userData.patch.center.value,
     )
-  $("#level").textContent =
-    distance < 2.5 ? "山川近景" : distance < 3.3 ? "大陆视角" : "星球全貌"
-  $("#detail-label").textContent =
-    pending.size || pendingZone ? "地貌细节加载中" : "山脊 · 河谷 · 森林"
-  const rect = host.getBoundingClientRect()
+  currentLevel = levelForDistance(distance, currentLevel)
+  const view = VIEW_LEVELS[currentLevel],
+    weights = detailWeights(distance)
+  terrainMaterial.userData.detail.value = weights.grain
+  if (localMesh) localMesh.material.userData.detail.value = weights.grain
+  if (ecology.update(weights)) renderer.shadowMap.needsUpdate = true
+  for (const m of landmarkModels)
+    if (revealMesh(m, weights.landmarks)) renderer.shadowMap.needsUpdate = true
+  water.update(weights, now, reduced)
+  $("#level").textContent = view.name + "视角"
+  $("#zoom-summary").textContent = view.summary
+  $("#zoom-next").textContent = view.next
+  for (const button of document.querySelectorAll("[data-view]")) {
+    const active = Number(button.dataset.view) === currentLevel
+    button.setAttribute("aria-pressed", String(active))
+    button.classList.toggle("active", active)
+  }
+  $("#detail-label").textContent = workerFailed
+    ? "细节加载受限 · 基础视图可用"
+    : pending.size || pendingZone
+      ? "地貌细节加载中"
+      : view.summary
+  const rect = host.getBoundingClientRect(),
+    occupied = []
+  for (const selector of [
+    "header",
+    ".top-right",
+    ".zoom-map",
+    "#card",
+    "footer",
+    ".view-tools",
+  ]) {
+    const el = $(selector)
+    if (!el || el.hidden) continue
+    const r = el.getBoundingClientRect()
+    occupied.push({ x: r.left, y: r.top, w: r.width, h: r.height })
+  }
   for (const { l, el, anchor } of labels) {
     const projected = anchor.clone().project(camera),
       normal = anchor.clone().normalize()
-    const visible =
-      (distance < 3.15 || l.minDetailLevel === 0) &&
-      normal.dot(camera.position.clone().sub(anchor).normalize()) > 0.12 &&
-      Math.abs(projected.x) < 0.95 &&
-      Math.abs(projected.y) < 0.83
+    let visible =
+      currentLevel >= l.minDetailLevel &&
+      currentLevel <= (l.maxDetailLevel ?? 3) &&
+      normal.dot(camera.position.clone().sub(anchor).normalize()) > 0.15 &&
+      Math.abs(projected.x) < 0.96 &&
+      Math.abs(projected.y) < 0.88
+    const x = (projected.x * 0.5 + 0.5) * rect.width + rect.left,
+      y = (-projected.y * 0.5 + 0.5) * rect.height + rect.top
+    const box = { x, y, w: el.offsetWidth || 130, h: el.offsetHeight || 32 }
+    if (
+      visible &&
+      occupied.some(
+        (r) =>
+          box.x < r.x + r.w + 12 &&
+          box.x + box.w > r.x - 12 &&
+          box.y < r.y + r.h + 9 &&
+          box.y + box.h > r.y - 9,
+      )
+    )
+      visible = false
     el.classList.toggle("is-visible", visible)
-    if (visible)
-      el.style.transform = `translate(${(projected.x * 0.5 + 0.5) * rect.width}px,${(-projected.y * 0.5 + 0.5) * rect.height}px)`
+    if (visible) {
+      occupied.push(box)
+      el.style.transform = `translate(${x}px,${y}px)`
+    }
   }
-  for (let i = 0; i < water.marks.length; i++)
-    water.marks[i].material.opacity =
-      0.3 + 0.16 * Math.sin(now * 0.0016 + i * 0.9)
   renderer.render(scene, camera)
   frames++
   frameTime += dt
@@ -501,7 +597,8 @@ renderer.domElement.addEventListener("webglcontextlost", (e) => {
 })
 window.addEventListener(
   "pagehide",
-  () => {
+  (event) => {
+    if (event.persisted) return
     cancelAnimationFrame(raf)
     worker?.terminate()
     controls.dispose()
@@ -531,7 +628,7 @@ if (document.modelContext?.registerTool) {
           execute: ({ zone, view = "orbit" }) => {
             if (!data[zone] || !["orbit", "region"].includes(view))
               throw new Error("Invalid zone or view")
-            focus(zone, view === "region" ? 1.85 : 3.1)
+            focus(zone, view === "region" ? 1.53 : 2.85)
             return { zone, view, simulated: true }
           },
         },

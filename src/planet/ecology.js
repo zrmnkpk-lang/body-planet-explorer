@@ -8,24 +8,42 @@ import {
   waterHeight,
   sampleLatLon,
 } from "./field.js"
+import { installReveal, revealMesh } from "./view-levels.js"
 export const point = (lat, lon, r = 1) =>
   new T.Vector3(...direction(lat, lon)).multiplyScalar(r)
 export function addWater(root) {
+  const oceanGeometry = new T.SphereGeometry(1, 160, 96),
+    oceanColors = [],
+    oceanPoint = new T.Vector3()
+  const deep = new T.Color("#172b58"),
+    shelf = new T.Color("#408eac")
+  for (let i = 0; i < oceanGeometry.attributes.position.count; i++) {
+    oceanPoint.fromBufferAttribute(oceanGeometry.attributes.position, i)
+    const s = sample(oceanPoint.x, oceanPoint.y, oceanPoint.z)
+    const c = deep.clone().lerp(shelf, smooth(-0.017, 0.005, s.h) * 0.85)
+    oceanColors.push(c.r, c.g, c.b)
+  }
+  oceanGeometry.setAttribute(
+    "color",
+    new T.Float32BufferAttribute(oceanColors, 3),
+  )
   const ocean = new T.Mesh(
-    new T.SphereGeometry(1, 160, 96),
+    oceanGeometry,
     new T.MeshStandardMaterial({
-      color: 0x23475f,
-      roughness: 0.48,
-      metalness: 0.18,
+      color: 0xffffff,
+      vertexColors: true,
+      roughness: 0.64,
+      metalness: 0.07,
     }),
   )
   root.add(ocean)
   const mat = new T.MeshStandardMaterial({
-    color: 0x70bdb6,
+    color: 0x43d2c1,
     roughness: 0.3,
     metalness: 0.08,
     side: T.DoubleSide,
   })
+  const tributaries = []
   for (let k = 0; k < RIVERS.length; k++) {
     const r = RIVERS[k],
       verts = [],
@@ -52,7 +70,8 @@ export function addWater(root) {
     g.setAttribute("position", new T.Float32BufferAttribute(verts, 3))
     g.setIndex(idx)
     g.computeVertexNormals()
-    const m = new T.Mesh(g, mat)
+    const m = new T.Mesh(g, k === 0 ? mat : mat.clone())
+    if (k > 0) tributaries.push(installReveal(m))
     root.add(m)
   }
   const verts = [],
@@ -96,7 +115,19 @@ export function addWater(root) {
     root.add(line)
     marks.push(line)
   }
-  return { ocean, marks }
+  return {
+    ocean,
+    marks,
+    update(weights, now, reduced) {
+      for (const m of tributaries) revealMesh(m, weights.tributaries)
+      for (let i = 0; i < marks.length; i++) {
+        marks[i].visible = weights.flow > 0.01
+        marks[i].material.opacity =
+          weights.flow *
+          (reduced ? 0.38 : 0.3 + 0.16 * Math.sin(now * 0.0016 + i * 0.9))
+      }
+    },
+  }
 }
 function treeGeometry(type) {
   const p = [],
@@ -197,7 +228,7 @@ export function addEcology(root) {
     m.castShadow = true
     m.receiveShadow = true
     m.computeBoundingSphere()
-    root.add(m)
+    root.add(installReveal(m))
     count += items.length
     return m
   }
@@ -205,24 +236,40 @@ export function addEcology(root) {
     instances(
       treeGeometry(i),
       arr,
-      [0x426855, 0x36584f, 0x63816a, 0x31594b][i],
+      [0x287c70, 0x206071, 0x569e79, 0x327d84][i],
     ),
   )
-  instances(new T.IcosahedronGeometry(1, 0).scale(1, 0.65, 1), shrubs, 0x658367)
-  instances(
+  const shrubMesh = instances(
+    new T.IcosahedronGeometry(1, 0).scale(1, 0.65, 1),
+    shrubs,
+    0x64ae86,
+  )
+  const rockMesh = instances(
     new T.DodecahedronGeometry(1, 0).scale(1, 1.35, 0.7),
     rocks,
-    0x96765c,
+    0xc18072,
   )
-  instances(
+  const iceMesh = instances(
     new T.CylinderGeometry(0.75, 1, 1, 5).translate(0, 0.3, 0),
     ice,
-    0xb3d0d8,
+    0x9bc9e7,
     0.65,
   )
   return {
     trees,
     count,
+    update(weights) {
+      let shadowChanged = false
+      for (const m of trees)
+        shadowChanged = revealMesh(m, weights.trees) || shadowChanged
+      for (const [m, w] of [
+        [shrubMesh, weights.shrubs],
+        [rockMesh, weights.rocks],
+        [iceMesh, weights.ice],
+      ])
+        shadowChanged = revealMesh(m, w) || shadowChanged
+      return shadowChanged
+    },
     treeCount: treeGroups.reduce((n, a) => n + a.length, 0),
     shrubCount: shrubs.length,
   }

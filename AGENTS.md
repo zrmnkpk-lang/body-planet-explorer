@@ -42,7 +42,7 @@ When a product rule changes, update the product spec first. When a page behavior
 - Keep stable, unique `id` values.
 - Latitude is -90 to 90. Longitude is -180 to 180.
 - `minDetailLevel: 0` is visible from orbit.
-- `minDetailLevel: 1` appears only in the closer view.
+- `minDetailLevel: 1/2/3` targets continent/ecosystem/surface views; `maxDetailLevel` hides parent labels and `priority` controls collision avoidance.
 - Do not bake labels into textures, CanvasTexture, SVG paths, or 3D meshes.
 - Labels must remain HTML elements in `#landmark-layer`.
 - Keep `pointer-events: none` on the label layer so labels never block globe gestures.
@@ -59,7 +59,7 @@ When a product rule changes, update the product spec first. When a page behavior
 
 ## Visual direction
 
-Use an adult Western animated science-fiction tone expressed through natural scenery: midnight indigo ocean, copper rock, smoky jade forest, cool ivory glacier, and restrained cyan water. Do not add technological props. Avoid children's picture-book colors, glossy plastic materials, identical cone mountains, rounded broccoli forests, or photoreal rendering.
+Use an adult Western animated science-fiction tone expressed through natural scenery: midnight indigo ocean, vermilion-copper rock, saturated jade forest, cool ivory glacier, and restrained cyan water. Do not add technological props. Avoid children's picture-book colors, glossy plastic materials, identical cone mountains, rounded broccoli forests, or photoreal rendering.
 
 ## Interaction invariants
 
@@ -77,3 +77,5 @@ Use an adult Western animated science-fiction tone expressed through natural sce
 - `src/landmarks.js` remains the sole source of truth for landmark names and coordinates; optional model/scale fields place local GLBs.
 - After terrain edits run `node scripts/validate-planet.mjs` and `npm run build`. Report actual browser/GPU test limitations; never claim a performance target as measured.
 - Do not remove the standalone scene's WebMCP tool or change the React workout entry as part of terrain-only work.
+
+- `src/planet/view-levels.js` owns semantic zoom thresholds and reveal weights. Zoom must not scale vegetation or change its location; depth shadows follow reveal weights.

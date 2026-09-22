@@ -129,3 +129,40 @@ console.log(
     2,
   ),
 )
+
+// Semantic map zoom: actual reveal state must change without moving instances.
+const { VIEW_LEVELS, detailWeights, levelForDistance } = await import(
+  "../src/planet/view-levels.js"
+)
+assert.equal(new Set(LANDMARKS.map((l) => l.id)).size, LANDMARKS.length)
+for (const l of LANDMARKS) {
+  assert.ok(l.minDetailLevel >= 0 && l.minDetailLevel <= 3)
+  assert.ok(l.maxDetailLevel >= l.minDetailLevel && l.maxDetailLevel <= 3)
+}
+const orbit = detailWeights(VIEW_LEVELS[0].distance),
+  surface = detailWeights(VIEW_LEVELS[3].distance)
+assert.equal(orbit.trees, 0)
+assert.equal(orbit.shrubs, 0)
+assert.equal(orbit.landmarks, 0)
+assert.equal(surface.trees, 1)
+assert.equal(surface.shrubs, 1)
+assert.equal(surface.landmarks, 1)
+let level = 0
+for (let d = 4; d > 1.5; d -= 0.01) level = levelForDistance(d, level)
+assert.equal(level, 3)
+for (let d = 1.5; d < 4; d += 0.01) level = levelForDistance(d, level)
+assert.equal(level, 0)
+assert.equal(levelForDistance(3.24, 0), 0)
+assert.equal(levelForDistance(3.26, 1), 1)
+const matrix = eco.trees[0].instanceMatrix.array.slice()
+eco.update(orbit)
+assert.equal(eco.trees[0].visible, false)
+eco.update(surface)
+assert.equal(eco.trees[0].visible, true)
+assert.equal(eco.trees[0].material.opacity, 1)
+assert.deepEqual(eco.trees[0].instanceMatrix.array, matrix)
+eco.update(orbit)
+assert.equal(eco.trees[0].visible, false)
+console.log(
+  "PASS: map content levels, zoom reversal, hysteresis, instance stability and label ranges",
+)
