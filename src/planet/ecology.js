@@ -11,6 +11,43 @@ import {
 import { installReveal, revealMesh } from "./view-levels.js"
 export const point = (lat, lon, r = 1) =>
   new T.Vector3(...direction(lat, lon)).multiplyScalar(r)
+function oceanMaterial() {
+  const material = new T.MeshStandardMaterial({
+    color: 0xffffff,
+    vertexColors: true,
+    roughness: 0.64,
+    metalness: 0.07,
+  })
+  material.userData.time = { value: 0 }
+  material.userData.current = { value: 0 }
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.oceanTime = material.userData.time
+    shader.uniforms.currentAmount = material.userData.current
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying vec3 vOceanPosition;",
+      )
+      .replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>\nvOceanPosition=position;",
+      )
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying vec3 vOceanPosition;\nuniform float oceanTime;uniform float currentAmount;",
+      )
+      .replace(
+        "#include <opaque_fragment>",
+        `float oceanCurrent=sin(vOceanPosition.y*42.+oceanTime*.42+sin(vOceanPosition.x*31.)*1.7);
+float crossingCurrent=sin(vOceanPosition.z*36.-oceanTime*.29+vOceanPosition.y*12.);
+float currentLight=max(0.,oceanCurrent*crossingCurrent)*currentAmount;
+outgoingLight+=vec3(.08,.32,.34)*currentLight;
+#include <opaque_fragment>`,
+      )
+  }
+  return material
+}
 export function addWater(root) {
   const oceanGeometry = new T.SphereGeometry(1, 160, 96),
     oceanColors = [],
@@ -27,15 +64,7 @@ export function addWater(root) {
     "color",
     new T.Float32BufferAttribute(oceanColors, 3),
   )
-  const ocean = new T.Mesh(
-    oceanGeometry,
-    new T.MeshStandardMaterial({
-      color: 0xffffff,
-      vertexColors: true,
-      roughness: 0.64,
-      metalness: 0.07,
-    }),
-  )
+  const ocean = new T.Mesh(oceanGeometry, oceanMaterial())
   root.add(ocean)
   const mat = new T.MeshStandardMaterial({
     color: 0x43d2c1,
@@ -123,6 +152,8 @@ export function addWater(root) {
     ocean,
     marks,
     update(weights, now, reduced) {
+      ocean.material.userData.time.value = reduced ? 0 : now * 0.001
+      ocean.material.userData.current.value = 0.035 + weights.weather * 0.13
       for (const m of primaryWater) revealMesh(m, weights.rivers)
       for (const m of tributaries) revealMesh(m, weights.tributaries)
       for (let i = 0; i < marks.length; i++) {

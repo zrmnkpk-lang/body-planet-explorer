@@ -708,7 +708,7 @@ function frame(now) {
   if (frameTime > 0.75) {
     fps = Math.round(frames / frameTime)
     $("#render-stats").textContent =
-      `${((terrain.geometry.index.count + (showLocal ? localMesh.geometry.index.count : 0)) / 3 / 1000).toFixed(0)}k 地形面 · ${ecology.treeCount.toLocaleString()} 棵树 · ${climate.cloudCount} 组云 · ${fps} FPS`
+      `${((terrain.geometry.index.count + (showLocal ? localMesh.geometry.index.count : 0)) / 3 / 1000).toFixed(0)}k 地形面 · ${ecology.treeCount.toLocaleString()} 棵树 · ${(climate.windParticleCount + climate.rainParticleCount).toLocaleString()} 气候粒子 · ${fps} FPS`
     frames = 0
     frameTime = 0
   }

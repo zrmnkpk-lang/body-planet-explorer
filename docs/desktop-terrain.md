@@ -82,6 +82,6 @@ window.dispatchEvent(new CustomEvent('body-planet:metrics', {
 
 左侧五级入口可保持当前观察方向切换尺度。局部地形按屏幕中心方向生成，拖动到新位置时后台更新，不要求先点击身体区域。加载期间保留完整基础球。`src/planet/view-levels.js` 统一管理层级距离、缩放百分比与细节权重；`landmarks.js` 的 min/maxDetailLevel 与 priority 管理标签进退场。
 
-`src/planet/climate.js` 使用低面数实例云、球面气流线和雨线组成独立气候层。云层与气流采用缓慢差速旋转，雨线使用透明度脉冲表达降水。当前方案全部由 Three.js 原生几何、实例和材质完成；后续需要更大规模的风场或数千粒子时，可把气流升级为 GPU 粒子或自定义 ShaderMaterial，不需要更换渲染技术栈。
+`src/planet/climate.js` 使用低面数实例云、1,600 条 GPU 气流粒子和 720 条 GPU 降水粒子组成独立气候层。气流与降水的位移、循环和拖尾在顶点 Shader 中计算，JavaScript 每帧只更新统一时间与显隐权重。云层使用独立 ShaderMaterial 生成分层明暗、边缘光和缓慢漂移；海洋材质注入双向流场高光，随气候层逐渐增强。系统“减少动态效果”开启后统一时间冻结为零。
 
 新增回归检查覆盖岛链高度、五级缩放、远景地形简化、气候层、地表完整展开、反向缩放收起、阈值防抖以及显隐过程中实例矩阵不变。GPU 过渡画面与帧率仍需实机验收。

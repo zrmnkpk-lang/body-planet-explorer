@@ -14,7 +14,7 @@ import {
   RIVERS,
   waterHeight,
 } from "../src/planet/field.js"
-import { addEcology } from "../src/planet/ecology.js"
+import { addEcology, addWater } from "../src/planet/ecology.js"
 import { addClimate } from "../src/planet/climate.js"
 import { ZONES } from "../src/planet/zones.js"
 import { LANDMARKS } from "../src/landmarks.js"
@@ -181,11 +181,27 @@ assert.equal(eco.trees[0].material.opacity, 1)
 assert.deepEqual(eco.trees[0].instanceMatrix.array, matrix)
 eco.update(orbit)
 assert.equal(eco.trees[0].visible, false)
-const climate = addClimate(new T.Group())
+const climateRoot = new T.Group(),
+  climate = addClimate(climateRoot)
 assert.ok(climate.cloudCount >= 60)
+assert.equal(climate.windParticleCount, 1600)
+assert.equal(climate.rainParticleCount, 720)
+assert.ok(
+  climateRoot.children.filter((child) => child.material?.isShaderMaterial)
+    .length >= 4,
+)
 climate.update(orbit, 0, true)
+const waterRoot = new T.Group(),
+  waterSystem = addWater(waterRoot),
+  oceanShader = {
+    uniforms: {},
+    vertexShader: T.ShaderLib.standard.vertexShader,
+    fragmentShader: T.ShaderLib.standard.fragmentShader,
+  }
+waterSystem.ocean.material.onBeforeCompile(oceanShader)
+assert.ok(oceanShader.fragmentShader.includes("float oceanCurrent="))
 console.log(
-  "PASS: five map levels, continuous zoom, islands, climate layer, hysteresis and label ranges",
+  "PASS: five map levels, islands, GPU climate particles, cloud and ocean shaders, hysteresis and labels",
 )
 
 // Desktop input must reserve OrbitControls rotation for the hold handler and avoid polar clamps.
