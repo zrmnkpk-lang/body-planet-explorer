@@ -408,7 +408,7 @@ function clearMouseHold() {
   mouseHoldTimer = null
 }
 function beginPointerRotate() {
-  if (!down || multi || moved > 7) return
+  if (!down || multi) return
   rotatingWithMouse = true
   holdConsumed = true
   lastMouse = { x: down.x, y: down.y }
@@ -455,7 +455,12 @@ host.addEventListener("pointerdown", (e) => {
     return
   }
   multi = false
-  down = { x: e.clientX, y: e.clientY, pointerType: e.pointerType }
+  down = {
+    x: e.clientX,
+    y: e.clientY,
+    pointerType: e.pointerType,
+    pressedAt: performance.now(),
+  }
   moved = 0
   holdConsumed = false
   if (e.pointerType === "mouse" && e.button === 0) {
@@ -465,7 +470,12 @@ host.addEventListener("pointerdown", (e) => {
 host.addEventListener("pointermove", (e) => {
   if (!down) return
   moved = Math.max(moved, Math.hypot(e.clientX - down.x, e.clientY - down.y))
-  if (!rotatingWithMouse && moved > 7) clearMouseHold()
+  if (
+    !rotatingWithMouse &&
+    down.pointerType === "mouse" &&
+    performance.now() - down.pressedAt >= HOLD_TO_ROTATE_MS
+  )
+    beginMouseRotate()
   if (rotatingWithMouse) rotateFromMouse(e)
 })
 host.addEventListener("pointercancel", (e) => {
