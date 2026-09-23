@@ -153,7 +153,7 @@ function bakeTerrain(g) {
     const iceScar = smooth(0.22, 0.47, Math.abs(noise(v.x * 48, v.y * 48, v.z * 48)))
     color.lerp(palette.iceCrack, s.polar * iceScar * 0.23)
     if (s.h < 0) color.copy(palette.deep)
-    // Fine color grain aliases at globe scale; retain detail in the near shader.
+    // Near-surface ink is drawn in the shader, where its edges can be filtered.
     color.multiplyScalar(0.99 + 0.015 * noise(v.x * 32, v.y * 32, v.z * 32))
     p.setXYZ(i, v.x * (1 + s.h), v.y * (1 + s.h), v.z * (1 + s.h))
     color.toArray(colors, i * 3)
@@ -212,6 +212,16 @@ export function surfaceMaterial() {
  uniform float detailAmount;
  uniform vec3 patchCenter;uniform float patchCos;uniform float patchMode;
  float rockGrain(vec3 p){return sin(p.x*163.+sin(p.z*57.))*sin(p.y*151.+sin(p.x*61.));}
+ float inkHash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+ float inkDots(vec3 p,float frequency,float coverage){
+   vec3 cell=floor(p*frequency),local=fract(p*frequency);
+   vec3 center=vec3(inkHash(cell),inkHash(cell+19.7),inkHash(cell+43.2));
+   float distanceToDot=length(local-center);
+   float aa=max(fwidth(distanceToDot),.012);
+   float radius=mix(.19,.27,inkHash(cell+7.1));
+   return step(1.-coverage,inkHash(cell+87.1))
+     *(1.-smoothstep(radius-aa,radius+aa,distanceToDot));
+ }
  `,
       )
       .replace(
@@ -232,7 +242,7 @@ export function surfaceMaterial() {
  float iceCrevasse=pow(1.-abs(sin(vTerrainPosition.x*104.+vTerrainPosition.y*39.-vTerrainPosition.z*71.)),10.);
  float fineGrain=(rockGrain(vTerrainPosition)*(1.-vTerrainBiome.y*.4)
    +duneRipple*vTerrainBiome.x*.42-iceCrevasse*vTerrainBiome.y*.72)*grainFilter;
- float roughHeight=fineGrain*detailAmount*(.00009+vTerrainBiome.x*.00012+vTerrainBiome.y*.00018);
+ float roughHeight=fineGrain*detailAmount*(.00018+vTerrainBiome.x*.00023+vTerrainBiome.y*.00029);
  vec3 dp1=dFdx(vTerrainViewPosition),dp2=dFdy(vTerrainViewPosition);
  vec3 r1=cross(dp2,normal),r2=cross(normal,dp1);
  float det=dot(dp1,r1);
@@ -241,11 +251,34 @@ export function surfaceMaterial() {
       )
       .replace(
         "#include <opaque_fragment>",
-        `float terrainLum=dot(outgoingLight,vec3(.2126,.7152,.0722));
+        `float land=smoothstep(1.004,1.024,length(vTerrainPosition));
+ float closeInk=smoothstep(.28,.88,detailAmount)*land;
+ float terrainLum=dot(outgoingLight,vec3(.2126,.7152,.0722));
  float terrainBand=floor(terrainLum*4.+.5)/4.;
- outgoingLight*=mix(1.,terrainBand/max(terrainLum,.001),.22);
- float broadGrain=sin(vTerrainPosition.x*47.+vTerrainPosition.z*29.)*sin(vTerrainPosition.y*53.-vTerrainPosition.z*19.);
- outgoingLight*=1.+detailAmount*(fineGrain*.037+broadGrain*.018)*(1.+vTerrainBiome.x*.6+vTerrainBiome.y*.9);
+ outgoingLight*=mix(1.,clamp(terrainBand/max(terrainLum,.001),.68,1.32),.32+closeInk*.38);
+ if(closeInk>.008){
+ // Broad broken ink fields connect the small props to the ground.
+ float broadGrain=sin(vTerrainPosition.x*53.+sin(vTerrainPosition.z*17.)*2.1)
+   *sin(vTerrainPosition.y*49.-vTerrainPosition.z*33.);
+ float landInk=smoothstep(.17,.42,broadGrain)*(.12+vTerrainBiome.x*.07);
+ float strata=sin((length(vTerrainPosition)-1.)*155.
+   +sin(vTerrainPosition.x*19.+vTerrainPosition.z*23.)*.34);
+ float reliefEdge=smoothstep(.83,.95,abs(strata))
+   *smoothstep(.015,.08,length(fwidth(normal)))*.19;
+ float colorEdge=smoothstep(.008,.032,length(fwidth(diffuseColor.rgb)))*.18;
+ float duneHatch=(1.-smoothstep(.67,.88,duneRipple))
+   *vTerrainBiome.x*grainFilter*.16;
+ float iceScratch=iceCrevasse*vTerrainBiome.y*grainFilter*.21;
+ float speckleFilter=1.-smoothstep(.58,1.08,length(fwidth(vTerrainPosition))*225.);
+ float coarseDots=inkDots(vTerrainPosition,210.,mix(.53,.93,vTerrainBiome.x))
+   *speckleFilter*(.31+vTerrainBiome.x*.19+vTerrainBiome.y*.13);
+ float fineFilter=1.-smoothstep(.48,.92,length(fwidth(vTerrainPosition))*420.);
+ float fineDots=inkDots(vTerrainPosition+3.7,380.,.78)*fineFilter
+   *(.12+vTerrainBiome.x*.18);
+ float ink=landInk+reliefEdge+colorEdge+duneHatch+iceScratch+coarseDots+fineDots;
+ outgoingLight*=1.-closeInk*min(.68,ink);
+ }
+ outgoingLight*=1.+detailAmount*fineGrain*.028*grainFilter;
  #include <opaque_fragment>`,
       )
   }

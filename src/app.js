@@ -661,8 +661,12 @@ function frame(now) {
   const view = VIEW_LEVELS[currentLevel],
     weights = detailWeights(distance)
   if (coastline) {
-    coastline.visible = weights.progress < 0.67
-    coastline.material.opacity = 0.82 * (1 - T.MathUtils.smoothstep(weights.progress, 0.43, 0.67))
+    // Reintroduce the coast stroke at surface scale; the previous fade left
+    // the zoomed land/ocean boundary soft exactly when it was most visible.
+    const farInk = 1 - T.MathUtils.smoothstep(weights.progress, 0.48, 0.75)
+    const nearInk = T.MathUtils.smoothstep(weights.progress, 0.58, 0.87)
+    coastline.material.opacity = 0.82 * farInk + 0.78 * nearInk
+    coastline.visible = coastline.material.opacity > 0.01
   }
   terrainMaterial.userData.detail.value = weights.grain
   terrainMaterial.userData.relief.value = weights.relief
