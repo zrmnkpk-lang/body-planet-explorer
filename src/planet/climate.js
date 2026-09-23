@@ -1,5 +1,7 @@
 import * as T from "three"
-import { sample, seeded } from "./field.js"
+import { direction, sample, seeded } from "./field.js"
+
+const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160]]
 
 const cloudVertexShader = `
 uniform float uTime;
@@ -85,7 +87,7 @@ attribute float aGround;
 varying float vAlpha;
 void main(){
   float progress=fract(aPhase+uTime*aSpeed);
-  float radius=mix(1.078,aGround,progress)+aTail*0.014;
+  float radius=mix(1.124,aGround,progress)+aTail*0.014;
   float angle=uTime*0.011;
   float c=cos(angle),s=sin(angle);
   vec3 p=position*radius;
@@ -147,6 +149,135 @@ function gpuWind(rand, count = 1600) {
   lines.frustumCulled = false
   lines.renderOrder = 4
   return lines
+}
+
+// Short curved strips have real width; WebGL lineWidth is capped at one pixel
+// on most desktop GPUs. Each strip follows the sphere in the vertex shader.
+const monsoonVertexShader = `
+uniform float uTime;
+uniform float uOpacity;
+attribute vec2 aAnchor;
+attribute float aPhase;
+attribute float aSpeed;
+attribute float aTrail;
+attribute float aSide;
+attribute float aWidth;
+attribute float aStrength;
+varying float vAlpha;
+void main(){
+  float travel=fract(aPhase+uTime*aSpeed);
+  float lon=aAnchor.x+(travel-0.5)*1.12+aTrail*0.30;
+  float envelope=sin(3.14159265*aTrail);
+  float lat=aAnchor.y+0.065*sin((lon-aAnchor.x)*2.8+aPhase*6.283)
+    +aSide*aWidth*(0.12+0.88*envelope);
+  vec3 p=vec3(sin(lon)*cos(lat),sin(lat),cos(lon)*cos(lat))*1.091;
+  vAlpha=uOpacity*aStrength*envelope
+    *smoothstep(0.02,0.18,travel)*(1.0-smoothstep(0.82,0.98,travel));
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
+}`
+
+function gpuMonsoonBands(rand, count = 330) {
+  const positions = [], anchors = [], phases = [], speeds = [],
+    trails = [], sides = [], widths = [], strengths = [], indices = []
+  for (let i = 0; i < count; i++) {
+    const [lat, lon] = STORM_CENTERS[i % STORM_CENTERS.length],
+      anchorLon = (lon + (rand() - 0.5) * 64) * Math.PI / 180,
+      anchorLat = (lat + (rand() - 0.5) * 27) * Math.PI / 180,
+      phase = rand(), speed = 0.012 + rand() * 0.02,
+      width = 0.0025 + rand() * 0.0045,
+      strength = 0.36 + rand() * 0.64,
+      base = positions.length / 3
+    for (let step = 0; step <= 6; step++) {
+      for (const side of [-1, 1]) {
+        positions.push(0, 0, 0)
+        anchors.push(anchorLon, anchorLat)
+        phases.push(phase)
+        speeds.push(speed)
+        trails.push(step / 6)
+        sides.push(side)
+        widths.push(width)
+        strengths.push(strength)
+      }
+      if (step < 6) {
+        const n = base + step * 2
+        indices.push(n, n + 1, n + 2, n + 1, n + 3, n + 2)
+      }
+    }
+  }
+  const geometry = new T.BufferGeometry()
+  geometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3))
+  for (const [name, values, size] of [
+    ["aAnchor", anchors, 2], ["aPhase", phases, 1], ["aSpeed", speeds, 1],
+    ["aTrail", trails, 1], ["aSide", sides, 1], ["aWidth", widths, 1],
+    ["aStrength", strengths, 1],
+  ]) geometry.setAttribute(name, new T.Float32BufferAttribute(values, size))
+  geometry.setIndex(indices)
+  const mesh = new T.Mesh(geometry, particleMaterial(monsoonVertexShader, 0xa2eee5))
+  mesh.material.side = T.DoubleSide
+  mesh.frustumCulled = false
+  mesh.renderOrder = 5
+  return mesh
+}
+
+const lightningVertexShader = `
+uniform float uTime;
+uniform float uOpacity;
+attribute float aPhase;
+attribute float aRate;
+attribute float aProgress;
+varying float vAlpha;
+void main(){
+  float angle=uTime*0.011;
+  float c=cos(angle),s=sin(angle);
+  vec3 p=position;
+  p.xz=mat2(c,-s,s,c)*p.xz;
+  float flash=pow(max(0.0,sin(uTime*aRate+aPhase)),28.0);
+  vAlpha=uOpacity*flash*(1.0-0.55*aProgress);
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
+}`
+
+function gpuLightning(rand, rainItems, count = 24) {
+  const positions = [], phases = [], rates = [], progresses = [], indices = []
+  for (let i = 0; i < count; i++) {
+    const center = rainItems[(i * 7) % rainItems.length].v,
+      axis = new T.Vector3(0, 1, 0).cross(center).normalize(),
+      across = center.clone().cross(axis).normalize(),
+      ground = 1 + Math.max(0, sample(center.x, center.y, center.z).h) + 0.005,
+      phase = rand() * Math.PI * 2,
+      rate = 1.2 + rand() * 1.1,
+      base = positions.length / 3
+    for (let j = 0; j <= 7; j++) {
+      const progress = j / 7,
+        radius = 1.116 * (1 - progress) + ground * progress,
+        jitter = j === 0 || j === 7 ? 0 : 0.0038,
+        point = center.clone()
+          .addScaledVector(axis, (rand() - 0.5) * jitter)
+          .addScaledVector(across, (rand() - 0.5) * jitter).normalize().multiplyScalar(radius),
+        halfWidth = (0.0009 + 0.0007 * (1 - progress))
+      for (const sign of [-1, 1]) {
+        const edge = point.clone().addScaledVector(axis, halfWidth * sign)
+        positions.push(edge.x, edge.y, edge.z)
+        phases.push(phase)
+        rates.push(rate)
+        progresses.push(progress)
+      }
+      if (j < 7) {
+        const n = base + 2 * j
+        indices.push(n, n + 1, n + 2, n + 1, n + 3, n + 2)
+      }
+    }
+  }
+  const geometry = new T.BufferGeometry()
+  geometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute("aPhase", new T.Float32BufferAttribute(phases, 1))
+  geometry.setAttribute("aRate", new T.Float32BufferAttribute(rates, 1))
+  geometry.setAttribute("aProgress", new T.Float32BufferAttribute(progresses, 1))
+  geometry.setIndex(indices)
+  const mesh = new T.Mesh(geometry, particleMaterial(lightningVertexShader, 0xe2ffff))
+  mesh.material.side = T.DoubleSide
+  mesh.frustumCulled = false
+  mesh.renderOrder = 7
+  return mesh
 }
 
 function gpuRain(rand, rainItems, count = 720) {
@@ -229,8 +360,23 @@ export function addClimate(root) {
       }
     }
     if (++inBand >= size.count) { band++; inBand = 0 }
-    if (s.moisture > 0.64 && s.h < 0.04 && rainItems.length < 18)
-      rainItems.push({ v: v.clone(), scale: 0.03 + rand() * 0.025 })
+  }
+
+  // Three wet mainland and island systems share the dark banks, rain, and
+  // electrical activity. Keep the dry continents free of storm coverage.
+  const stormCloudItems = []
+  for (const [lat, lon] of STORM_CENTERS) {
+    const center = new T.Vector3(...direction(lat, lon))
+    for (let i = 0; i < 24; i++) {
+      const v = center.clone().add(new T.Vector3(
+        rand() - 0.5, rand() - 0.5, rand() - 0.5,
+      ).multiplyScalar(i < 4 ? 0.07 : 0.18)).normalize()
+      const terrain = sample(v.x, v.y, v.z)
+      if (terrain.desert > 0.24 || terrain.polar > 0.35) continue
+      const scale = i < 4 ? 0.076 + rand() * 0.035 : 0.032 + rand() * 0.048
+      stormCloudItems.push({ v, scale })
+      if (i % 2 === 0) rainItems.push({ v })
+    }
   }
 
   function cloudMesh(items, material, altitude) {
@@ -250,28 +396,42 @@ export function addClimate(root) {
   }
 
   const clouds = cloudMesh(cloudItems, cloudMaterial(0xf1f7f5, 0.008), 1.075),
-    rainClouds = cloudMesh(rainItems, cloudMaterial(0x70899c, 0.011), 1.047),
+    rainClouds = cloudMesh(stormCloudItems, cloudMaterial(0x4d6373, 0.011), 1.116),
     wind = gpuWind(rand),
-    rain = gpuRain(rand, rainItems)
-  root.add(clouds, rainClouds, wind, rain)
+    monsoon = gpuMonsoonBands(rand),
+    rain = gpuRain(rand, rainItems),
+    lightning = gpuLightning(rand, rainItems)
+  rainClouds.renderOrder = 4
+  rain.renderOrder = 6
+  root.add(clouds, rainClouds, wind, monsoon, rain, lightning)
 
   return {
     cloudCount: cloudItems.length,
     cloudSizeCounts: sizeBands.map(({ count }) => count),
     windParticleCount: wind.geometry.attributes.position.count / 2,
     rainParticleCount: rain.geometry.attributes.position.count / 2,
+    stormCloudCount: stormCloudItems.length,
+    stormCenters: STORM_CENTERS,
+    windRibbonCount: monsoon.geometry.attributes.aAnchor.count / 14,
+    lightningCount: lightning.geometry.attributes.aPhase.count / 16,
     update(weights, now, reduced) {
       const time = reduced ? 0 : now * 0.001
       clouds.material.uniforms.uTime.value = time
       clouds.material.uniforms.uOpacity.value = weights.clouds * 0.34
       rainClouds.material.uniforms.uTime.value = time
-      rainClouds.material.uniforms.uOpacity.value = weights.weather * 0.3
+      rainClouds.material.uniforms.uOpacity.value = weights.weather * 0.64
       wind.visible = weights.weather > 0.01
       wind.material.uniforms.uTime.value = time
-      wind.material.uniforms.uOpacity.value = weights.weather * 0.34
+      wind.material.uniforms.uOpacity.value = weights.weather * 0.42
+      monsoon.visible = weights.weather > 0.01
+      monsoon.material.uniforms.uTime.value = time
+      monsoon.material.uniforms.uOpacity.value = weights.weather * 0.57
       rain.visible = weights.weather > 0.01
       rain.material.uniforms.uTime.value = time
       rain.material.uniforms.uOpacity.value = weights.weather * 0.46
+      lightning.visible = weights.weather > 0.01 && !reduced
+      lightning.material.uniforms.uTime.value = time
+      lightning.material.uniforms.uOpacity.value = weights.weather * 0.92
     },
   }
 }

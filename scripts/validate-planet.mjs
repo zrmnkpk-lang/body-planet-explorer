@@ -254,14 +254,30 @@ assert.ok(climate.cloudCount >= 60)
 assert.deepEqual(climate.cloudSizeCounts, [10, 16, 22, 30])
 assert.equal(climate.windParticleCount, 1600)
 assert.equal(climate.rainParticleCount, 720)
+assert.ok(climate.stormCloudCount >= 50)
+assert.equal(climate.stormCenters.length, 3)
+for (const [lat, lon] of climate.stormCenters) {
+  assert.ok(sampleLatLon(lat, lon).moisture > 0.6, `dry storm center ${lat}/${lon}`)
+  assert.ok(sampleLatLon(lat, lon).desert < 0.1, `desert storm center ${lat}/${lon}`)
+}
+assert.equal(climate.windRibbonCount, 330)
+assert.equal(climate.lightningCount, 24)
+const monsoon = climateRoot.children[3], lightning = climateRoot.children[5]
+assert.ok(monsoon.isMesh && monsoon.geometry.index.count > 3000)
+assert.ok(monsoon.geometry.attributes.aWidth.array.some((width) => width > 0.004))
+assert.ok(lightning.isMesh && lightning.geometry.index.count > 800)
 assert.ok(
   climateRoot.children.filter((child) => child.material?.isShaderMaterial)
-    .length >= 4,
+    .length >= 6,
 )
 climate.update(orbit, 0, true)
+assert.equal(lightning.visible, false)
 const farCloudOpacity = climateRoot.children[0].material.uniforms.uOpacity.value
 climate.update(detailWeights(VIEW_LEVELS[2].distance), 0, true)
 assert.ok(climateRoot.children[0].material.uniforms.uOpacity.value < farCloudOpacity * 0.6)
+assert.equal(monsoon.visible, true)
+climate.update(detailWeights(VIEW_LEVELS[2].distance), 2000, false)
+assert.equal(lightning.visible, true)
 const waterRoot = new T.Group(),
   waterSystem = addWater(waterRoot),
   oceanShader = {
