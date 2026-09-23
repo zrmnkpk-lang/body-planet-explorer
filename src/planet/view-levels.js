@@ -56,7 +56,7 @@ export function detailWeights(distance) {
     // Ground objects start appearing at 63%; the surface must already be at
     // its final radius so their instances stay attached during zoom.
     relief: 0.22 + reveal(progress, 0.14, 0.61) * 0.78,
-    clouds: 1 - reveal(progress, 0.78, 1) * 0.48,
+    clouds: 1 - reveal(progress, 0.27, 0.68) * 0.78,
     weather:
       reveal(progress, 0.32, 0.5) * (1 - reveal(progress, 0.82, 1) * 0.4),
     rivers: reveal(progress, 0.34, 0.5),

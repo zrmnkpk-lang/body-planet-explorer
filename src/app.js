@@ -34,7 +34,7 @@ try {
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
 renderer.outputColorSpace = T.SRGBColorSpace
 renderer.toneMapping = T.ACESFilmicToneMapping
-renderer.toneMappingExposure = 1.08
+renderer.toneMappingExposure = 1.0
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = T.PCFSoftShadowMap
 renderer.shadowMap.autoUpdate = false
@@ -58,8 +58,8 @@ Object.assign(controls, {
 controls.enableRotate = false
 controls.mouseButtons.LEFT = null
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
-scene.add(new T.HemisphereLight(0xc9e5ff, 0x24234e, 1.6))
-const key = new T.DirectionalLight(0xffebd7, 2.6)
+scene.add(new T.HemisphereLight(0xc9e5ff, 0x41506b, 1.2))
+const key = new T.DirectionalLight(0xffebd7, 1.8)
 key.position.set(-3, 4, 5)
 key.castShadow = true
 key.shadow.mapSize.set(1024, 1024)
@@ -74,7 +74,7 @@ Object.assign(key.shadow.camera, {
 key.shadow.bias = -0.00025
 key.shadow.normalBias = 0.003
 scene.add(key)
-const fill = new T.DirectionalLight(0x7d8bea, 1.4)
+const fill = new T.DirectionalLight(0x879ad2, 0.7)
 fill.position.set(4, 0, -3)
 scene.add(fill)
 const root = new T.Group()

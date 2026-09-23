@@ -2,13 +2,13 @@ import * as T from "three"
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 import { sample, noise, smooth, clamp } from "./field.js"
 const palette = {
-  sand: new T.Color("#cba27c"),
-  forest: new T.Color("#174c58"),
-  forestEdge: new T.Color("#2d806b"),
-  grass: new T.Color("#83aa82"),
-  rock: new T.Color("#966967"),
-  strata: new T.Color("#c18a70"),
-  snow: new T.Color("#e4f5ef"),
+  sand: new T.Color("#bfa388"),
+  forest: new T.Color("#39776a"),
+  forestEdge: new T.Color("#57937b"),
+  grass: new T.Color("#7ca888"),
+  rock: new T.Color("#927c75"),
+  strata: new T.Color("#aa9584"),
+  snow: new T.Color("#d8e6de"),
   ice: new T.Color("#91b9e2"),
   wet: new T.Color("#277f85"),
   deep: new T.Color("#192e55"),
@@ -135,7 +135,7 @@ function bakeTerrain(g) {
     color.lerp(rock, rockAmount * (1 - s.forest * 0.68))
     color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
     const snow =
-      smooth(0.12, 0.145, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.004) *
+      smooth(0.135, 0.165, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.003) *
       (1 - smooth(0.5, 0.85, slope))
     color.lerp(palette.snow, snow)
     color.lerp(palette.ice, s.polar)
@@ -153,10 +153,9 @@ function bakeTerrain(g) {
   return g
 }
 export function surfaceMaterial() {
-  const m = new T.MeshStandardMaterial({
+  // Diffuse cartographic ink has no view-dependent specular lobe.
+  const m = new T.MeshLambertMaterial({
     vertexColors: true,
-    roughness: 0.9,
-    metalness: 0,
   })
   m.userData.detail = { value: 0 }
   m.userData.relief = { value: 1 }
@@ -205,19 +204,10 @@ export function surfaceMaterial() {
       .replace(
         "#include <opaque_fragment>",
         `float terrainLum=dot(outgoingLight,vec3(.2126,.7152,.0722));
- float terrainBand=floor(terrainLum*5.+.5)/5.;
- outgoingLight*=mix(1.,terrainBand/max(terrainLum,.001),.55);
+ float terrainBand=floor(terrainLum*4.+.5)/4.;
+ outgoingLight*=mix(1.,terrainBand/max(terrainLum,.001),.22);
+ outgoingLight*=1.+detailAmount*rockGrain(vTerrainPosition)*.012;
  #include <opaque_fragment>`,
-      )
-      .replace(
-        "#include <normal_fragment_maps>",
-        `#include <normal_fragment_maps>
- float grain=rockGrain(vTerrainPosition)*detailAmount;
- vec3 dp1=dFdx(vViewPosition),dp2=dFdy(vViewPosition);
- vec3 r1=cross(dp2,normal),r2=cross(normal,dp1);
- float det=dot(dp1,r1);
- normal=normalize(abs(det)*normal - sign(det)*(dFdx(grain)*r1+dFdy(grain)*r2)*0.00016);
- `,
       )
   }
   return m

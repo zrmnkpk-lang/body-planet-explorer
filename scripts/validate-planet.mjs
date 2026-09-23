@@ -142,10 +142,11 @@ for (const l of LANDMARKS.filter((x) => x.model)) {
 // Verify shader insertions against this checkout's actual Three.js shader chunks.
 const shader = {
   uniforms: {},
-  vertexShader: T.ShaderLib.standard.vertexShader,
-  fragmentShader: T.ShaderLib.standard.fragmentShader,
+  vertexShader: T.ShaderLib.lambert.vertexShader,
+  fragmentShader: T.ShaderLib.lambert.fragmentShader,
 }
 surfaceMaterial().onBeforeCompile(shader)
+assert.equal(surfaceMaterial().isMeshLambertMaterial, true, "terrain must stay matte")
 assert.ok(shader.fragmentShader.includes("uniform vec3 patchCenter;"))
 assert.ok(shader.vertexShader.includes("vTerrainPosition=transformed;"))
 assert.ok(shader.vertexShader.includes("uniform float reliefAmount;"))
@@ -234,14 +235,18 @@ assert.ok(
     .length >= 4,
 )
 climate.update(orbit, 0, true)
+const farCloudOpacity = climateRoot.children[0].material.uniforms.uOpacity.value
+climate.update(detailWeights(VIEW_LEVELS[2].distance), 0, true)
+assert.ok(climateRoot.children[0].material.uniforms.uOpacity.value < farCloudOpacity * 0.6)
 const waterRoot = new T.Group(),
   waterSystem = addWater(waterRoot),
   oceanShader = {
     uniforms: {},
-    vertexShader: T.ShaderLib.standard.vertexShader,
-    fragmentShader: T.ShaderLib.standard.fragmentShader,
+    vertexShader: T.ShaderLib.lambert.vertexShader,
+    fragmentShader: T.ShaderLib.lambert.fragmentShader,
   }
 waterSystem.ocean.material.onBeforeCompile(oceanShader)
+assert.equal(waterSystem.ocean.material.isMeshLambertMaterial, true, "ocean must stay matte")
 assert.ok(oceanShader.fragmentShader.includes("float oceanCurrent="))
 console.log(
   "PASS: five map levels, islands, GPU climate particles, cloud and ocean shaders, hysteresis and labels",

@@ -263,7 +263,7 @@ export function addClimate(root) {
     update(weights, now, reduced) {
       const time = reduced ? 0 : now * 0.001
       clouds.material.uniforms.uTime.value = time
-      clouds.material.uniforms.uOpacity.value = 0.2 + weights.clouds * 0.27
+      clouds.material.uniforms.uOpacity.value = weights.clouds * 0.34
       rainClouds.material.uniforms.uTime.value = time
       rainClouds.material.uniforms.uOpacity.value = weights.weather * 0.3
       wind.visible = weights.weather > 0.01

@@ -12,11 +12,9 @@ import { installReveal, revealMesh } from "./view-levels.js"
 export const point = (lat, lon, r = 1) =>
   new T.Vector3(...direction(lat, lon)).multiplyScalar(r)
 function oceanMaterial() {
-  const material = new T.MeshStandardMaterial({
+  const material = new T.MeshLambertMaterial({
     color: 0xffffff,
     vertexColors: true,
-    roughness: 0.64,
-    metalness: 0.07,
   })
   material.userData.time = { value: 0 }
   material.userData.current = { value: 0 }
@@ -39,10 +37,10 @@ function oceanMaterial() {
       )
       .replace(
         "#include <opaque_fragment>",
-        `float oceanCurrent=sin(vOceanPosition.y*42.+oceanTime*.42+sin(vOceanPosition.x*31.)*1.7);
-float crossingCurrent=sin(vOceanPosition.z*36.-oceanTime*.29+vOceanPosition.y*12.);
+        `float oceanCurrent=sin(vOceanPosition.y*32.+oceanTime*.32+sin(vOceanPosition.x*23.)*1.3);
+float crossingCurrent=sin(vOceanPosition.z*25.-oceanTime*.24+vOceanPosition.y*9.);
 float currentLight=max(0.,oceanCurrent*crossingCurrent)*currentAmount;
-outgoingLight+=vec3(.08,.32,.34)*currentLight;
+outgoingLight+=vec3(.04,.12,.15)*currentLight;
 #include <opaque_fragment>`,
       )
   }
@@ -52,8 +50,8 @@ export function addWater(root) {
   const oceanGeometry = new T.SphereGeometry(1, 160, 96),
     oceanColors = [],
     oceanPoint = new T.Vector3()
-  const deep = new T.Color("#172b58"),
-    shelf = new T.Color("#408eac")
+  const deep = new T.Color("#263e68"),
+    shelf = new T.Color("#508da2")
   for (let i = 0; i < oceanGeometry.attributes.position.count; i++) {
     oceanPoint.fromBufferAttribute(oceanGeometry.attributes.position, i)
     const s = sample(oceanPoint.x, oceanPoint.y, oceanPoint.z)
@@ -66,10 +64,8 @@ export function addWater(root) {
   )
   const ocean = new T.Mesh(oceanGeometry, oceanMaterial())
   root.add(ocean)
-  const mat = new T.MeshStandardMaterial({
-    color: 0x43d2c1,
-    roughness: 0.3,
-    metalness: 0.08,
+  const mat = new T.MeshLambertMaterial({
+    color: 0x62c3b9,
     side: T.DoubleSide,
   })
   const primaryWater = [],
@@ -153,7 +149,7 @@ export function addWater(root) {
     marks,
     update(weights, now, reduced) {
       ocean.material.userData.time.value = reduced ? 0 : now * 0.001
-      ocean.material.userData.current.value = 0.035 + weights.weather * 0.13
+      ocean.material.userData.current.value = 0.035 + weights.weather * 0.085
       for (const m of primaryWater) revealMesh(m, weights.rivers)
       for (const m of tributaries) revealMesh(m, weights.tributaries)
       for (let i = 0; i < marks.length; i++) {
