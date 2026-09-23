@@ -254,9 +254,9 @@ eco.update(orbit)
 assert.equal(eco.trees[0].visible, false)
 const climateRoot = new T.Group(),
   climate = addClimate(climateRoot)
-assert.ok(climate.cloudCount >= 60)
-assert.deepEqual(climate.cloudSizeCounts, [10, 16, 22, 30])
-assert.equal(climate.windParticleCount, 1600)
+assert.ok(climate.cloudCount >= 190)
+assert.deepEqual(climate.cloudSizeCounts, [10, 20, 38])
+assert.equal(climate.windParticleCount, 1100)
 assert.equal(climate.rainParticleCount, 720)
 assert.ok(climate.stormCloudCount >= 50)
 assert.equal(climate.stormCenters.length, 3)
@@ -264,12 +264,30 @@ for (const [lat, lon] of climate.stormCenters) {
   assert.ok(sampleLatLon(lat, lon).moisture > 0.6, `dry storm center ${lat}/${lon}`)
   assert.ok(sampleLatLon(lat, lon).desert < 0.1, `desert storm center ${lat}/${lon}`)
 }
-assert.equal(climate.windRibbonCount, 330)
+assert.equal(climate.windRibbonCount, 470)
 assert.equal(climate.lightningCount, 24)
-const monsoon = climateRoot.children[3], lightning = climateRoot.children[5]
+const thinWind = climateRoot.children[2], monsoon = climateRoot.children[3],
+  lightning = climateRoot.children[5]
+assert.ok(Math.abs(climate.windRibbonCount /
+  (climate.windRibbonCount + climate.windParticleCount) - 0.3) < 0.005)
+assert.ok(thinWind.isMesh && thinWind.geometry.index.count > 6000)
+assert.equal(thinWind.material.uniforms.uColor.value.getHex(), 0xffffff)
+assert.equal(monsoon.material.uniforms.uColor.value.getHex(), 0xffffff)
+assert.equal(climateRoot.children[4].material.uniforms.uColor.value.getHex(), 0xa8dff7)
+assert.ok(thinWind.geometry.attributes.aWidth.array.every((width) => width <= 0.0019))
 assert.ok(monsoon.isMesh && monsoon.geometry.index.count > 3000)
-assert.ok(monsoon.geometry.attributes.aWidth.array.some((width) => width > 0.004))
+assert.ok(monsoon.geometry.attributes.aWidth.array.every((width) => width <= 0.0035))
 assert.ok(lightning.isMesh && lightning.geometry.index.count > 800)
+const boltVertices = lightning.geometry.attributes.position.array
+let highestBolt = 0
+for (let i = 0; i < boltVertices.length; i += 3)
+  highestBolt = Math.max(highestBolt, Math.hypot(...boltVertices.slice(i, i + 3)))
+assert.ok(highestBolt > 1.16, "lightning must reach above storm clouds")
+const cloudMatrix = new T.Matrix4(), cloudScale = new T.Vector3()
+climateRoot.children[0].getMatrixAt(0, cloudMatrix)
+cloudScale.setFromMatrixScale(cloudMatrix)
+assert.ok(cloudScale.y > 0.03, "large clouds need visible radial volume")
+assert.ok(climateRoot.children[0].material.vertexShader.includes("normalScale="))
 assert.ok(
   climateRoot.children.filter((child) => child.material?.isShaderMaterial)
     .length >= 6,
