@@ -70,13 +70,16 @@ attribute float aTail;
 attribute float aSide;
 attribute float aWidth;
 attribute float aStrength;
+attribute float aLifetime;
 varying float vAlpha;
 void main(){
   float angle=aPhase+uTime*aSpeed-sign(aSpeed)*aTail*(0.048+abs(aSpeed)*0.17);
   float lat=asin(position.y)+sin(angle*3.0+position.y*11.0)*0.008
     +aSide*aWidth*(0.16+0.84*sin(3.14159265*aTail));
   vec3 p=vec3(sin(angle)*cos(lat),sin(lat),cos(angle)*cos(lat))*1.09;
-  vAlpha=uOpacity*aStrength*(0.23+0.77*sin(3.14159265*aTail));
+  float event=fract(uTime*0.067+aLifetime);
+  float pulse=smoothstep(0.05,0.2,event)*(1.0-smoothstep(0.62,0.79,event));
+  vAlpha=uOpacity*aStrength*pulse*(0.23+0.77*sin(3.14159265*aTail));
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
 
@@ -120,7 +123,7 @@ function particleMaterial(vertexShader, color) {
   })
 }
 
-function gpuWind(rand, count = 1100) {
+function gpuWind(rand, count = 520) {
   const positions = [],
     phases = [],
     speeds = [],
@@ -128,6 +131,7 @@ function gpuWind(rand, count = 1100) {
     sides = [],
     widths = [],
     strengths = [],
+    lifetimes = [],
     indices = []
   for (let i = 0; i < count; i++) {
     const latitude = ((rand() * 124 - 62) * Math.PI) / 180,
@@ -136,6 +140,7 @@ function gpuWind(rand, count = 1100) {
       phase = rand() * Math.PI * 2,
       speed = (0.025 + rand() * 0.055) * (rand() > 0.24 ? 1 : -1),
       strength = 0.35 + rand() * 0.65,
+      lifetime = rand(),
       width = 0.001 + rand() * 0.00085,
       base = positions.length / 3
     for (let segment = 0; segment <= 3; segment++) {
@@ -147,6 +152,7 @@ function gpuWind(rand, count = 1100) {
         sides.push(side)
         widths.push(width)
         strengths.push(strength)
+        lifetimes.push(lifetime)
       }
       if (segment < 3) {
         const n = base + segment * 2
@@ -162,6 +168,7 @@ function gpuWind(rand, count = 1100) {
   geometry.setAttribute("aSide", new T.Float32BufferAttribute(sides, 1))
   geometry.setAttribute("aWidth", new T.Float32BufferAttribute(widths, 1))
   geometry.setAttribute("aStrength", new T.Float32BufferAttribute(strengths, 1))
+  geometry.setAttribute("aLifetime", new T.Float32BufferAttribute(lifetimes, 1))
   geometry.setIndex(indices)
   const mesh = new T.Mesh(geometry, particleMaterial(windVertexShader, 0xffffff))
   mesh.material.side = T.DoubleSide
@@ -182,29 +189,32 @@ attribute float aTrail;
 attribute float aSide;
 attribute float aWidth;
 attribute float aStrength;
+attribute float aLifetime;
 varying float vAlpha;
 void main(){
   float travel=fract(aPhase+uTime*aSpeed);
-  float lon=aAnchor.x+(travel-0.5)*1.12+aTrail*0.15;
+  float lon=aAnchor.x+(travel-0.5)*0.42+aTrail*0.15;
   float envelope=sin(3.14159265*aTrail);
   float lat=aAnchor.y+0.065*sin((lon-aAnchor.x)*2.8+aPhase*6.283)
     +aSide*aWidth*(0.12+0.88*envelope);
   vec3 p=vec3(sin(lon)*cos(lat),sin(lat),cos(lon)*cos(lat))*1.091;
-  vAlpha=uOpacity*aStrength*envelope
-    *smoothstep(0.02,0.18,travel)*(1.0-smoothstep(0.82,0.98,travel));
+  float event=fract(uTime*0.028+aLifetime);
+  float pulse=smoothstep(0.04,0.18,event)*(1.0-smoothstep(0.75,0.92,event));
+  vAlpha=uOpacity*aStrength*envelope*pulse;
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
 
-function gpuMonsoonBands(rand, count = 470) {
+function gpuMonsoonBands(rand, count = 120) {
   const positions = [], anchors = [], phases = [], speeds = [],
-    trails = [], sides = [], widths = [], strengths = [], indices = []
+    trails = [], sides = [], widths = [], strengths = [], lifetimes = [], indices = []
   for (let i = 0; i < count; i++) {
     const [lat, lon] = STORM_CENTERS[i % STORM_CENTERS.length],
-      anchorLon = (lon + (rand() - 0.5) * 64) * Math.PI / 180,
-      anchorLat = (lat + (rand() - 0.5) * 27) * Math.PI / 180,
+      anchorLon = (lon + (rand() - 0.5) * 30) * Math.PI / 180,
+      anchorLat = (lat + (rand() - 0.5) * 16) * Math.PI / 180,
       phase = rand(), speed = 0.012 + rand() * 0.02,
       width = 0.00125 + rand() * 0.00225,
       strength = 0.36 + rand() * 0.64,
+      lifetime = rand(),
       base = positions.length / 3
     for (let step = 0; step <= 6; step++) {
       for (const side of [-1, 1]) {
@@ -216,6 +226,7 @@ function gpuMonsoonBands(rand, count = 470) {
         sides.push(side)
         widths.push(width)
         strengths.push(strength)
+        lifetimes.push(lifetime)
       }
       if (step < 6) {
         const n = base + step * 2
@@ -228,10 +239,83 @@ function gpuMonsoonBands(rand, count = 470) {
   for (const [name, values, size] of [
     ["aAnchor", anchors, 2], ["aPhase", phases, 1], ["aSpeed", speeds, 1],
     ["aTrail", trails, 1], ["aSide", sides, 1], ["aWidth", widths, 1],
-    ["aStrength", strengths, 1],
+    ["aStrength", strengths, 1], ["aLifetime", lifetimes, 1],
   ]) geometry.setAttribute(name, new T.Float32BufferAttribute(values, size))
   geometry.setIndex(indices)
   const mesh = new T.Mesh(geometry, particleMaterial(monsoonVertexShader, 0xffffff))
+  mesh.material.side = T.DoubleSide
+  mesh.frustumCulled = false
+  mesh.renderOrder = 5
+  return mesh
+}
+
+// Two sparse spiral systems circle above the northern glacier. Their arms
+// remain attached to the sphere while the vertex shader turns and fades them.
+const polarWindVertexShader = `
+uniform float uTime;
+uniform float uOpacity;
+attribute vec3 aCenter;
+attribute vec3 aEast;
+attribute vec3 aNorth;
+attribute float aArm;
+attribute float aTrail;
+attribute float aSide;
+attribute float aWidth;
+attribute float aCycle;
+varying float vAlpha;
+void main(){
+  float angle=aArm+aTrail*4.8+uTime*0.13;
+  vec3 outward=cos(angle)*aEast+sin(angle)*aNorth;
+  float radius=0.024+aTrail*0.15+aSide*aWidth;
+  vec3 p=normalize(aCenter+outward*radius)*1.145;
+  float event=fract(uTime*0.042+aCycle);
+  float pulse=smoothstep(0.06,0.19,event)*(1.0-smoothstep(0.72,0.9,event));
+  vAlpha=uOpacity*pulse*sin(3.14159265*aTrail);
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
+}`
+
+function gpuPolarVortices(rand) {
+  const positions = [], centers = [], easts = [], norths = [],
+    arms = [], trails = [], sides = [], widths = [], cycles = [], indices = []
+  const locations = [[79, -55], [76, 105]]
+  locations.forEach(([latitude, longitude], site) => {
+    const center = new T.Vector3(...direction(latitude, longitude)),
+      east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
+        -Math.sin(longitude * Math.PI / 180)).normalize(),
+      north = new T.Vector3().crossVectors(center, east).normalize(),
+      cycle = site * 0.48 + rand() * 0.08
+    for (let arm = 0; arm < 3; arm++) {
+      const base = positions.length / 3,
+        angle = arm * Math.PI * 2 / 3 + (rand() - 0.5) * 0.24,
+        width = 0.0011 + rand() * 0.0008
+      for (let step = 0; step <= 18; step++) {
+        for (const side of [-1, 1]) {
+          positions.push(0, 0, 0)
+          centers.push(center.x, center.y, center.z)
+          easts.push(east.x, east.y, east.z)
+          norths.push(north.x, north.y, north.z)
+          arms.push(angle)
+          trails.push(step / 18)
+          sides.push(side)
+          widths.push(width)
+          cycles.push(cycle)
+        }
+        if (step < 18) {
+          const n = base + step * 2
+          indices.push(n, n + 1, n + 2, n + 1, n + 3, n + 2)
+        }
+      }
+    }
+  })
+  const geometry = new T.BufferGeometry()
+  geometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3))
+  for (const [name, values, size] of [
+    ["aCenter", centers, 3], ["aEast", easts, 3], ["aNorth", norths, 3],
+    ["aArm", arms, 1], ["aTrail", trails, 1], ["aSide", sides, 1],
+    ["aWidth", widths, 1], ["aCycle", cycles, 1],
+  ]) geometry.setAttribute(name, new T.Float32BufferAttribute(values, size))
+  geometry.setIndex(indices)
+  const mesh = new T.Mesh(geometry, particleMaterial(polarWindVertexShader, 0xffffff))
   mesh.material.side = T.DoubleSide
   mesh.frustumCulled = false
   mesh.renderOrder = 5
@@ -430,11 +514,12 @@ export function addClimate(root) {
     rainClouds = cloudMesh(stormCloudItems, cloudMaterial(0x4d6373, 0.011), 1.136),
     wind = gpuWind(rand),
     monsoon = gpuMonsoonBands(rand),
+    vortices = gpuPolarVortices(rand),
     rain = gpuRain(rand, rainItems),
     lightning = gpuLightning(rand, rainItems)
   rainClouds.renderOrder = 4
   rain.renderOrder = 6
-  root.add(clouds, rainClouds, wind, monsoon, rain, lightning)
+  root.add(clouds, rainClouds, wind, monsoon, vortices, rain, lightning)
 
   return {
     cloudCount: cloudItems.length,
@@ -444,6 +529,7 @@ export function addClimate(root) {
     stormCloudCount: stormCloudItems.length,
     stormCenters: STORM_CENTERS,
     windRibbonCount: monsoon.geometry.attributes.aAnchor.count / 14,
+    polarVortexCount: 2,
     lightningCount: lightning.geometry.attributes.aPhase.count / 22,
     update(weights, now, reduced) {
       const time = reduced ? 0 : now * 0.001
@@ -457,6 +543,9 @@ export function addClimate(root) {
       monsoon.visible = weights.weather > 0.01
       monsoon.material.uniforms.uTime.value = time
       monsoon.material.uniforms.uOpacity.value = weights.weather * 0.39
+      vortices.visible = weights.weather > 0.01
+      vortices.material.uniforms.uTime.value = time
+      vortices.material.uniforms.uOpacity.value = weights.weather * 0.36
       rain.visible = weights.weather > 0.01
       rain.material.uniforms.uTime.value = time
       rain.material.uniforms.uOpacity.value = weights.weather * 0.46

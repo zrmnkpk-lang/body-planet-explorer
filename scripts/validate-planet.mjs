@@ -260,7 +260,7 @@ const climateRoot = new T.Group(),
   climate = addClimate(climateRoot)
 assert.ok(climate.cloudCount >= 190)
 assert.deepEqual(climate.cloudSizeCounts, [10, 20, 38])
-assert.equal(climate.windParticleCount, 1100)
+assert.equal(climate.windParticleCount, 520)
 assert.equal(climate.rainParticleCount, 720)
 assert.ok(climate.stormCloudCount >= 50)
 assert.equal(climate.stormCenters.length, 3)
@@ -268,19 +268,33 @@ for (const [lat, lon] of climate.stormCenters) {
   assert.ok(sampleLatLon(lat, lon).moisture > 0.6, `dry storm center ${lat}/${lon}`)
   assert.ok(sampleLatLon(lat, lon).desert < 0.1, `desert storm center ${lat}/${lon}`)
 }
-assert.equal(climate.windRibbonCount, 470)
+assert.equal(climate.windRibbonCount, 120)
+assert.equal(climate.polarVortexCount, 2)
 assert.equal(climate.lightningCount, 24)
 const thinWind = climateRoot.children[2], monsoon = climateRoot.children[3],
-  lightning = climateRoot.children[5]
-assert.ok(Math.abs(climate.windRibbonCount /
-  (climate.windRibbonCount + climate.windParticleCount) - 0.3) < 0.005)
+  vortices = climateRoot.children[4], lightning = climateRoot.children[6]
+assert.ok(climate.windRibbonCount < climate.windParticleCount / 3)
 assert.ok(thinWind.isMesh && thinWind.geometry.index.count > 6000)
 assert.equal(thinWind.material.uniforms.uColor.value.getHex(), 0xffffff)
 assert.equal(monsoon.material.uniforms.uColor.value.getHex(), 0xffffff)
-assert.equal(climateRoot.children[4].material.uniforms.uColor.value.getHex(), 0xa8dff7)
+assert.equal(climateRoot.children[5].material.uniforms.uColor.value.getHex(), 0xa8dff7)
 assert.ok(thinWind.geometry.attributes.aWidth.array.every((width) => width <= 0.0019))
 assert.ok(monsoon.isMesh && monsoon.geometry.index.count > 3000)
 assert.ok(monsoon.geometry.attributes.aWidth.array.every((width) => width <= 0.0035))
+assert.ok(thinWind.material.vertexShader.includes("fract(uTime*0.067+aLifetime)"))
+assert.ok(monsoon.material.vertexShader.includes("fract(uTime*0.028+aLifetime)"))
+assert.ok(new Set(thinWind.geometry.attributes.aLifetime.array).size > 400)
+assert.ok(new Set(monsoon.geometry.attributes.aLifetime.array).size > 100)
+for (let i = 0; i < climate.windRibbonCount; i++) {
+  const [lat, lon] = climate.stormCenters[i % 3],
+    anchor = monsoon.geometry.attributes.aAnchor
+  assert.ok(Math.abs(anchor.getX(i * 14) - lon * Math.PI / 180) <= 15 * Math.PI / 180)
+  assert.ok(Math.abs(anchor.getY(i * 14) - lat * Math.PI / 180) <= 8 * Math.PI / 180)
+}
+assert.ok(vortices.isMesh && vortices.geometry.index.count > 600)
+assert.ok(vortices.geometry.attributes.aCenter.array.every((_, i) =>
+  i % 3 !== 1 || vortices.geometry.attributes.aCenter.array[i] > 0.94))
+assert.equal(new Set(vortices.geometry.attributes.aCycle.array).size, 2)
 assert.ok(lightning.isMesh && lightning.geometry.index.count > 800)
 const boltVertices = lightning.geometry.attributes.position.array
 let highestBolt = 0
