@@ -2,6 +2,8 @@ import * as T from "three"
 import { direction, sample, seeded } from "./field.js"
 
 const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160]]
+const POLAR_CYCLONES = [[79, -55], [76, 105]]
+const cycloneCycle = (site) => 0.07 + site * 0.48
 
 const cloudVertexShader = `
 uniform float uTime;
@@ -249,8 +251,7 @@ function gpuMonsoonBands(rand, count = 120) {
   return mesh
 }
 
-// Two sparse spiral systems circle above the northern glacier. Their arms
-// remain attached to the sphere while the vertex shader turns and fades them.
+// Fine airflow traces the cloud walls while keeping the eye clear.
 const polarWindVertexShader = `
 uniform float uTime;
 uniform float uOpacity;
@@ -266,8 +267,8 @@ varying float vAlpha;
 void main(){
   float angle=aArm+aTrail*4.8+uTime*0.13;
   vec3 outward=cos(angle)*aEast+sin(angle)*aNorth;
-  float radius=0.024+aTrail*0.15+aSide*aWidth;
-  vec3 p=normalize(aCenter+outward*radius)*1.145;
+  float radius=0.055+aTrail*0.15+aSide*aWidth;
+  vec3 p=normalize(aCenter+outward*radius)*1.187;
   float event=fract(uTime*0.042+aCycle);
   float pulse=smoothstep(0.06,0.19,event)*(1.0-smoothstep(0.72,0.9,event));
   vAlpha=uOpacity*pulse*sin(3.14159265*aTrail);
@@ -277,13 +278,12 @@ void main(){
 function gpuPolarVortices(rand) {
   const positions = [], centers = [], easts = [], norths = [],
     arms = [], trails = [], sides = [], widths = [], cycles = [], indices = []
-  const locations = [[79, -55], [76, 105]]
-  locations.forEach(([latitude, longitude], site) => {
+  POLAR_CYCLONES.forEach(([latitude, longitude], site) => {
     const center = new T.Vector3(...direction(latitude, longitude)),
       east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
         -Math.sin(longitude * Math.PI / 180)).normalize(),
       north = new T.Vector3().crossVectors(center, east).normalize(),
-      cycle = site * 0.48 + rand() * 0.08
+      cycle = cycloneCycle(site)
     for (let arm = 0; arm < 3; arm++) {
       const base = positions.length / 3,
         angle = arm * Math.PI * 2 / 3 + (rand() - 0.5) * 0.24,
@@ -319,6 +319,111 @@ function gpuPolarVortices(rand) {
   mesh.material.side = T.DoubleSide
   mesh.frustumCulled = false
   mesh.renderOrder = 5
+  return mesh
+}
+
+// Hundreds of overlapping cloud lobes form curved, rotating walls around
+// each exposed eye. Instancing keeps the extra volume to a single draw call.
+const cycloneCloudVertexShader = `
+uniform float uTime;
+attribute vec3 aVortexCenter;
+attribute float aVortexCycle;
+varying vec3 vCloudNormal;
+varying float vPulse;
+void main(){
+  vec3 p=position;
+  vec3 n=normal;
+  #ifdef USE_INSTANCING
+    p=(instanceMatrix*vec4(p,1.0)).xyz;
+    mat3 basis=mat3(instanceMatrix);
+    vec3 scaleSquared=vec3(dot(basis[0],basis[0]),
+      dot(basis[1],basis[1]),dot(basis[2],basis[2]));
+    n=basis*(n/scaleSquared);
+  #endif
+  float angle=uTime*0.13;
+  float c=cos(angle),s=sin(angle);
+  vec3 offset=p-aVortexCenter*1.161;
+  p=aVortexCenter*1.161+offset*c+cross(aVortexCenter,offset)*s
+    +aVortexCenter*dot(aVortexCenter,offset)*(1.0-c);
+  n=n*c+cross(aVortexCenter,n)*s
+    +aVortexCenter*dot(aVortexCenter,n)*(1.0-c);
+  float event=fract(uTime*0.042+aVortexCycle);
+  vPulse=smoothstep(0.06,0.19,event)*(1.0-smoothstep(0.72,0.9,event));
+  vCloudNormal=normalize(normalMatrix*n);
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
+}`
+
+const cycloneCloudFragmentShader = `
+uniform float uOpacity;
+uniform vec3 uColor;
+varying vec3 vCloudNormal;
+varying float vPulse;
+void main(){
+  float light=dot(normalize(vCloudNormal),normalize(vec3(-0.35,0.72,0.58)))*0.5+0.5;
+  float band=floor(light*4.0+0.5)/4.0;
+  vec3 color=mix(vec3(0.46,0.62,0.72),uColor,0.48+band*0.48);
+  gl_FragColor=vec4(color,uOpacity*vPulse*(0.68+band*0.27));
+}`
+
+function gpuPolarCloudWalls(rand, baseGeometry) {
+  const items = [],
+    up = new T.Vector3(0, 1, 0),
+    helper = new T.Object3D()
+  POLAR_CYCLONES.forEach(([latitude, longitude], site) => {
+    const center = new T.Vector3(...direction(latitude, longitude)),
+      east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
+        -Math.sin(longitude * Math.PI / 180)).normalize(),
+      north = new T.Vector3().crossVectors(center, east).normalize()
+    for (let arm = 0; arm < 4; arm++) {
+      for (let step = 0; step < 42; step++) {
+        if (rand() < 0.09) continue
+        const t = (step + rand() * 0.55) / 42,
+          angle = arm * Math.PI / 2 + t * Math.PI * 3.05
+            + (rand() - 0.5) * 0.18,
+          radial = 0.052 + 0.148 * t + (rand() - 0.5) * 0.013,
+          v = center.clone()
+            .addScaledVector(east, Math.cos(angle) * radial)
+            .addScaledVector(north, Math.sin(angle) * radial).normalize(),
+          scale = (0.014 + (1 - t) * 0.009 + rand() * 0.009)
+        items.push({ center, v, site, scale })
+        if (step % 3 === 0) {
+          const lobe = v.clone().addScaledVector(east, (rand() - 0.5) * scale)
+            .addScaledVector(north, (rand() - 0.5) * scale).normalize()
+          items.push({ center, v: lobe, site, scale: scale * (0.63 + rand() * 0.27) })
+        }
+      }
+    }
+  })
+  const geometry = baseGeometry.clone(),
+    centers = new Float32Array(items.length * 3),
+    cycles = new Float32Array(items.length),
+    material = new T.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }, uOpacity: { value: 0 },
+        uColor: { value: new T.Color(0xf1f8fa) },
+      },
+      vertexShader: cycloneCloudVertexShader,
+      fragmentShader: cycloneCloudFragmentShader,
+      transparent: true,
+      depthWrite: false,
+    }),
+    mesh = new T.InstancedMesh(geometry, material, items.length)
+  items.forEach(({ center, v, site, scale }, i) => {
+    helper.position.copy(v).multiplyScalar(1.161 + (rand() - 0.5) * 0.012)
+    helper.quaternion.setFromUnitVectors(up, v)
+    helper.rotateY(rand() * Math.PI * 2)
+    helper.scale.set(scale * (1.1 + rand() * 0.55),
+      scale * (0.66 + rand() * 0.27), scale * (0.75 + rand() * 0.55))
+    helper.updateMatrix()
+    mesh.setMatrixAt(i, helper.matrix)
+    center.toArray(centers, i * 3)
+    cycles[i] = cycloneCycle(site)
+  })
+  geometry.setAttribute("aVortexCenter", new T.InstancedBufferAttribute(centers, 3))
+  geometry.setAttribute("aVortexCycle", new T.InstancedBufferAttribute(cycles, 1))
+  mesh.instanceMatrix.needsUpdate = true
+  mesh.frustumCulled = false
+  mesh.renderOrder = 4
   return mesh
 }
 
@@ -515,11 +620,12 @@ export function addClimate(root) {
     wind = gpuWind(rand),
     monsoon = gpuMonsoonBands(rand),
     vortices = gpuPolarVortices(rand),
+    cycloneClouds = gpuPolarCloudWalls(rand, cloudGeometry),
     rain = gpuRain(rand, rainItems),
     lightning = gpuLightning(rand, rainItems)
   rainClouds.renderOrder = 4
   rain.renderOrder = 6
-  root.add(clouds, rainClouds, wind, monsoon, vortices, rain, lightning)
+  root.add(clouds, rainClouds, cycloneClouds, wind, monsoon, vortices, rain, lightning)
 
   return {
     cloudCount: cloudItems.length,
@@ -530,6 +636,7 @@ export function addClimate(root) {
     stormCenters: STORM_CENTERS,
     windRibbonCount: monsoon.geometry.attributes.aAnchor.count / 14,
     polarVortexCount: 2,
+    polarCloudCount: cycloneClouds.count,
     lightningCount: lightning.geometry.attributes.aPhase.count / 22,
     update(weights, now, reduced) {
       const time = reduced ? 0 : now * 0.001
@@ -537,6 +644,9 @@ export function addClimate(root) {
       clouds.material.uniforms.uOpacity.value = weights.clouds * 0.43
       rainClouds.material.uniforms.uTime.value = time
       rainClouds.material.uniforms.uOpacity.value = weights.weather * 0.56
+      cycloneClouds.visible = weights.weather > 0.01
+      cycloneClouds.material.uniforms.uTime.value = time
+      cycloneClouds.material.uniforms.uOpacity.value = weights.weather * 0.52
       wind.visible = weights.weather > 0.01
       wind.material.uniforms.uTime.value = time
       wind.material.uniforms.uOpacity.value = weights.weather * 0.48
@@ -545,7 +655,7 @@ export function addClimate(root) {
       monsoon.material.uniforms.uOpacity.value = weights.weather * 0.39
       vortices.visible = weights.weather > 0.01
       vortices.material.uniforms.uTime.value = time
-      vortices.material.uniforms.uOpacity.value = weights.weather * 0.36
+      vortices.material.uniforms.uOpacity.value = weights.weather * 0.16
       rain.visible = weights.weather > 0.01
       rain.material.uniforms.uTime.value = time
       rain.material.uniforms.uOpacity.value = weights.weather * 0.46

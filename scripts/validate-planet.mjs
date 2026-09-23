@@ -270,14 +270,34 @@ for (const [lat, lon] of climate.stormCenters) {
 }
 assert.equal(climate.windRibbonCount, 120)
 assert.equal(climate.polarVortexCount, 2)
+assert.ok(climate.polarCloudCount > 350 && climate.polarCloudCount < 500)
 assert.equal(climate.lightningCount, 24)
-const thinWind = climateRoot.children[2], monsoon = climateRoot.children[3],
-  vortices = climateRoot.children[4], lightning = climateRoot.children[6]
+const cycloneClouds = climateRoot.children[2], thinWind = climateRoot.children[3],
+  monsoon = climateRoot.children[4], vortices = climateRoot.children[5],
+  lightning = climateRoot.children[7]
 assert.ok(climate.windRibbonCount < climate.windParticleCount / 3)
+assert.ok(cycloneClouds.isInstancedMesh && cycloneClouds.count === climate.polarCloudCount)
+assert.equal(cycloneClouds.geometry.attributes.aVortexCenter.count, cycloneClouds.count)
+assert.equal(new Set(cycloneClouds.geometry.attributes.aVortexCycle.array).size, 2)
+assert.ok(cycloneClouds.material.vertexShader.includes("cross(aVortexCenter,offset)*s"))
+assert.ok(cycloneClouds.material.vertexShader.includes("fract(uTime*0.042+aVortexCycle)"))
+let closestToEye = Infinity, farthestFromEye = 0
+const cloudDirection = new T.Vector3(), eyeDirection = new T.Vector3(),
+  vortexMatrix = new T.Matrix4()
+for (let i = 0; i < cycloneClouds.count; i++) {
+  cycloneClouds.getMatrixAt(i, vortexMatrix)
+  cloudDirection.setFromMatrixPosition(vortexMatrix).normalize()
+  eyeDirection.fromBufferAttribute(cycloneClouds.geometry.attributes.aVortexCenter, i)
+  const separation = cloudDirection.angleTo(eyeDirection)
+  closestToEye = Math.min(closestToEye, separation)
+  farthestFromEye = Math.max(farthestFromEye, separation)
+}
+assert.ok(closestToEye > 0.035 && farthestFromEye > 0.18,
+  "cyclone needs an open eye and outer cloud walls")
 assert.ok(thinWind.isMesh && thinWind.geometry.index.count > 6000)
 assert.equal(thinWind.material.uniforms.uColor.value.getHex(), 0xffffff)
 assert.equal(monsoon.material.uniforms.uColor.value.getHex(), 0xffffff)
-assert.equal(climateRoot.children[5].material.uniforms.uColor.value.getHex(), 0xa8dff7)
+assert.equal(climateRoot.children[6].material.uniforms.uColor.value.getHex(), 0xa8dff7)
 assert.ok(thinWind.geometry.attributes.aWidth.array.every((width) => width <= 0.0019))
 assert.ok(monsoon.isMesh && monsoon.geometry.index.count > 3000)
 assert.ok(monsoon.geometry.attributes.aWidth.array.every((width) => width <= 0.0035))
@@ -312,10 +332,12 @@ assert.ok(
 )
 climate.update(orbit, 0, true)
 assert.equal(lightning.visible, false)
+assert.equal(cycloneClouds.visible, false)
 const farCloudOpacity = climateRoot.children[0].material.uniforms.uOpacity.value
 climate.update(detailWeights(VIEW_LEVELS[2].distance), 0, true)
 assert.ok(climateRoot.children[0].material.uniforms.uOpacity.value < farCloudOpacity * 0.6)
 assert.equal(monsoon.visible, true)
+assert.equal(cycloneClouds.visible, true)
 climate.update(detailWeights(VIEW_LEVELS[2].distance), 2000, false)
 assert.equal(lightning.visible, true)
 const waterRoot = new T.Group(),
