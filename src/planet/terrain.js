@@ -50,6 +50,45 @@ export function makeLocalTerrain(center, segments = 512) {
   g.setIndex(idx)
   return bakeTerrain(g)
 }
+// The sea-facing strip follows the height-field zero contour, including islands.
+// Compute it in the terrain worker so map-scale outlines do not block dragging.
+export function coastlinePositions(terrain) {
+  const p = terrain.attributes.position,
+    index = terrain.index,
+    heights = new Float32Array(p.count),
+    vertices = [],
+    corners = [new T.Vector3(), new T.Vector3(), new T.Vector3()],
+    sea = new T.Vector3(), land = new T.Vector3(),
+    shoreA = new T.Vector3(), shoreB = new T.Vector3(),
+    outward = new T.Vector3(), offsetA = new T.Vector3(), offsetB = new T.Vector3()
+  for (let i = 0; i < p.count; i++)
+    heights[i] = Math.hypot(p.getX(i), p.getY(i), p.getZ(i)) - 1
+  for (let i = 0; i < index.count; i += 3) {
+    const ids = [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
+    for (let k = 0; k < 3; k++) corners[k].fromBufferAttribute(p, ids[k]).normalize()
+    sea.set(0, 0, 0)
+    land.set(0, 0, 0)
+    let crossings = 0
+    for (let j = 0; j < 3; j++) {
+      const id = ids[j], other = ids[(j + 1) % 3]
+      if (heights[id] < 0) sea.add(corners[j])
+      else land.add(corners[j])
+      const h1 = heights[id], h2 = heights[other]
+      if ((h1 < 0) === (h2 < 0)) continue
+      const target = crossings++ ? shoreB : shoreA
+      target.copy(corners[j]).lerp(corners[(j + 1) % 3], h1 / (h1 - h2)).normalize()
+    }
+    if (crossings !== 2 || !sea.lengthSq() || !land.lengthSq()) continue
+    outward.copy(sea.normalize().sub(land.normalize()))
+    outward.addScaledVector(shoreA, -outward.dot(shoreA)).normalize().multiplyScalar(0.006)
+    offsetA.copy(shoreA).add(outward).normalize().multiplyScalar(1.003)
+    offsetB.copy(shoreB).add(outward).normalize().multiplyScalar(1.003)
+    shoreA.multiplyScalar(1.003)
+    shoreB.multiplyScalar(1.003)
+    vertices.push(...shoreA, ...shoreB, ...offsetA, ...shoreB, ...offsetB, ...offsetA)
+  }
+  return new Float32Array(vertices)
+}
 function bakeTerrain(g) {
   const p = g.attributes.position,
     colors = new Float32Array(p.count * 3),
@@ -102,7 +141,8 @@ function bakeTerrain(g) {
     color.lerp(palette.ice, s.polar)
     color.lerp(palette.snow, s.polar * smooth(0.041, 0.058, s.h))
     if (s.h < 0) color.copy(palette.deep)
-    color.multiplyScalar(0.97 + 0.035 * noise(v.x * 120, v.y * 120, v.z * 120))
+    // Fine color grain aliases at globe scale; retain detail in the near shader.
+    color.multiplyScalar(0.99 + 0.015 * noise(v.x * 32, v.y * 32, v.z * 32))
     p.setXYZ(i, v.x * (1 + s.h), v.y * (1 + s.h), v.z * (1 + s.h))
     color.toArray(colors, i * 3)
     n.toArray(normals, i * 3)

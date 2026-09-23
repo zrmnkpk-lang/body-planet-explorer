@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises"
 import {
   makeTerrain,
   makeLocalTerrain,
+  coastlinePositions,
   surfaceMaterial,
 } from "../src/planet/terrain.js"
 import {
@@ -33,6 +34,9 @@ for (const lat of [-90, 90])
     )
 const g = makeTerrain(63)
 assert.equal(g.index.count / 3, 81920)
+const coastline = coastlinePositions(g)
+assert.ok(coastline.length > 3000 && coastline.length % 18 === 0)
+assert.ok(coastline.every(Number.isFinite), "coastline contour must be finite")
 // Closed manifold: every undirected edge belongs to exactly two faces.
 const edges = new Map()
 for (let i = 0; i < g.index.count; i += 3) {
@@ -187,6 +191,7 @@ assert.equal(orbit.shrubs, 0)
 assert.equal(orbit.landmarks, 0)
 assert.equal(orbit.progress, 0)
 assert.ok(orbit.relief < 0.3)
+assert.equal(detailWeights(4.2 - 0.63 * (4.2 - 1.53)).relief, 1)
 assert.ok(orbit.clouds > 0.95)
 assert.equal(surface.trees, 1)
 assert.equal(surface.shrubs, 1)
@@ -207,15 +212,21 @@ assert.ok(layerVisibility(1, 1, 0.7) < 0.01)
 const matrix = eco.trees[0].instanceMatrix.array.slice()
 eco.update(orbit)
 assert.equal(eco.trees[0].visible, false)
+assert.equal(eco.trees[0].castShadow, false)
+eco.update(detailWeights(4.2 - 0.73 * (4.2 - 1.53)))
+assert.equal(eco.trees[0].material.alphaHash, false)
+assert.equal(eco.trees[0].castShadow, false)
 eco.update(surface)
 assert.equal(eco.trees[0].visible, true)
 assert.equal(eco.trees[0].material.opacity, 1)
+assert.equal(eco.trees[0].castShadow, true)
 assert.deepEqual(eco.trees[0].instanceMatrix.array, matrix)
 eco.update(orbit)
 assert.equal(eco.trees[0].visible, false)
 const climateRoot = new T.Group(),
   climate = addClimate(climateRoot)
 assert.ok(climate.cloudCount >= 60)
+assert.deepEqual(climate.cloudSizeCounts, [10, 16, 22, 30])
 assert.equal(climate.windParticleCount, 1600)
 assert.equal(climate.rainParticleCount, 720)
 assert.ok(

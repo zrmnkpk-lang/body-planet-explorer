@@ -53,7 +53,9 @@ export function detailWeights(distance) {
   const progress = zoomProgress(distance)
   return {
     progress,
-    relief: 0.26 + reveal(progress, 0.26, 0.82) * 0.74,
+    // Ground objects start appearing at 63%; the surface must already be at
+    // its final radius so their instances stay attached during zoom.
+    relief: 0.22 + reveal(progress, 0.14, 0.61) * 0.78,
     clouds: 1 - reveal(progress, 0.78, 1) * 0.48,
     weather:
       reveal(progress, 0.32, 0.5) * (1 - reveal(progress, 0.82, 1) * 0.4),
@@ -90,26 +92,32 @@ export function installReveal(mesh) {
     ? mesh.material
     : [mesh.material]
   for (const material of materials) {
-    material.alphaHash = true
+    material.transparent = true
+    material.depthWrite = false
     material.opacity = 0
     material.needsUpdate = true
   }
-  mesh.customDepthMaterial = new T.MeshDepthMaterial({
-    depthPacking: T.RGBADepthPacking,
-    alphaHash: true,
-    opacity: 0,
-  })
+  mesh.userData.revealCastShadow = mesh.castShadow
+  mesh.castShadow = false
   mesh.visible = false
   return mesh
 }
 export function revealMesh(mesh, amount) {
   const previous = mesh.userData.reveal ?? 0
+  const wasCasting = mesh.castShadow
   mesh.visible = amount > 0.008
   for (const m of Array.isArray(mesh.material)
     ? mesh.material
-    : [mesh.material])
+    : [mesh.material]) {
     m.opacity = amount
-  if (mesh.customDepthMaterial) mesh.customDepthMaterial.opacity = amount
+    const opaque = amount >= 0.995
+    if (m.transparent === opaque) {
+      m.transparent = !opaque
+      m.depthWrite = opaque
+      m.needsUpdate = true
+    }
+  }
+  mesh.castShadow = mesh.userData.revealCastShadow && amount >= 0.995
   mesh.userData.reveal = amount
-  return Math.floor(previous * 8) !== Math.floor(amount * 8)
+  return wasCasting !== mesh.castShadow || Math.floor(previous * 8) !== Math.floor(amount * 8)
 }

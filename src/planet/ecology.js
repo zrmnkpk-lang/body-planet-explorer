@@ -248,7 +248,7 @@ export function addEcology(root) {
     up = new T.Vector3(0, 1, 0),
     color = new T.Color()
   let count = 0
-  function instances(geo, items, base, roughness = 1) {
+  function instances(geo, items, base, roughness = 1, castShadow = false) {
     const mat = new T.MeshStandardMaterial({ color: base, roughness })
     const m = new T.InstancedMesh(geo, mat, items.length)
     items.forEach(({ v, s, scale }, i) => {
@@ -266,7 +266,7 @@ export function addEcology(root) {
       m.setColorAt(i, color)
     })
     m.instanceMatrix.needsUpdate = true
-    m.castShadow = true
+    m.castShadow = castShadow
     m.receiveShadow = true
     m.computeBoundingSphere()
     root.add(installReveal(m))
@@ -278,6 +278,8 @@ export function addEcology(root) {
       treeGeometry(i),
       arr,
       [0x287c70, 0x206071, 0x569e79, 0x327d84][i],
+      1,
+      true,
     ),
   )
   const shrubMesh = instances(

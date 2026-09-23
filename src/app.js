@@ -62,7 +62,7 @@ scene.add(new T.HemisphereLight(0xc9e5ff, 0x24234e, 1.6))
 const key = new T.DirectionalLight(0xffebd7, 2.6)
 key.position.set(-3, 4, 5)
 key.castShadow = true
-key.shadow.mapSize.set(2048, 2048)
+key.shadow.mapSize.set(1024, 1024)
 Object.assign(key.shadow.camera, {
   left: -1.4,
   right: 1.4,
@@ -85,7 +85,9 @@ let rotationNeedsShadow = false,
 const terrainMaterial = surfaceMaterial(),
   terrain = new T.Mesh(makeTerrain(15), terrainMaterial)
 terrain.receiveShadow = true
-terrain.castShadow = true
+// Continuous relief has tiny depth differences between LODs. Its self-shadow
+// creates flickering dark specks while orbiting; trees still shade the ground.
+terrain.castShadow = false
 root.add(terrain)
 const water = addWater(root),
   ecology = addEcology(root),
@@ -135,7 +137,8 @@ let quality = "fine",
   localMesh = null,
   pendingZone = null,
   localCenter = null,
-  workerFailed = false
+  workerFailed = false,
+  coastline = null
 try {
   worker = new Worker(new URL("./planet/terrain.worker.js", import.meta.url), {
     type: "module",
@@ -166,11 +169,34 @@ try {
       m.userData.patch.mode.value = 2
       localMesh = new T.Mesh(g, m)
       localMesh.receiveShadow = true
+      localMesh.castShadow = false
       localMesh.visible = false
       root.add(localMesh)
       localCenter = new T.Vector3(...d.center)
     } else {
       lods.set(d.detail, g)
+      if (d.coastline) {
+        if (coastline) {
+          root.remove(coastline)
+          coastline.geometry.dispose()
+          coastline.material.dispose()
+        }
+        const shoreGeometry = new T.BufferGeometry()
+        shoreGeometry.setAttribute("position", new T.BufferAttribute(d.coastline, 3))
+        shoreGeometry.computeBoundingSphere()
+        coastline = new T.Mesh(
+          shoreGeometry,
+          new T.MeshBasicMaterial({
+            color: 0x254a60,
+            side: T.DoubleSide,
+            transparent: true,
+            opacity: 0.82,
+            depthWrite: false,
+          }),
+        )
+        coastline.renderOrder = 2
+        root.add(coastline)
+      }
       if (d.detail === 63) requestTerrain(127)
     }
   }
@@ -413,7 +439,8 @@ let down = null,
   rotatingWithMouse = false,
   holdConsumed = false,
   lastMouse = null,
-  pointerPosition = null
+  pointerPosition = null,
+  lastDragAt = 0
 function clearMouseHold() {
   if (mouseHoldTimer) clearTimeout(mouseHoldTimer)
   mouseHoldTimer = null
@@ -458,6 +485,7 @@ function rotateFromMouse(e) {
     (dx / rect.width) * Math.PI * controls.rotateSpeed,
     (dy / rect.height) * Math.PI * controls.rotateSpeed,
   )
+  lastDragAt = performance.now()
   lastMouse = { x: e.clientX, y: e.clientY }
 }
 host.addEventListener("pointerdown", (e) => {
@@ -573,11 +601,14 @@ function frame(now) {
   if (rotationGap > 0.00001) {
     root.quaternion.slerp(
       targetGlobeQuaternion,
-      reduced ? 1 : 1 - Math.exp(-dt * 28),
+      reduced ? 1 : 1 - Math.exp(-dt * 46),
     )
     rotationGap = root.quaternion.angleTo(targetGlobeQuaternion)
   }
-  if (autoSpin && now - lastRotationShadowAt > 180) {
+  if (rotatingWithMouse && now - lastRotationShadowAt > 32) {
+    renderer.shadowMap.needsUpdate = true
+    lastRotationShadowAt = now
+  } else if (autoSpin && now - lastRotationShadowAt > 180) {
     renderer.shadowMap.needsUpdate = true
     lastRotationShadowAt = now
   } else if (rotationNeedsShadow && rotationGap < 0.001) {
@@ -587,8 +618,8 @@ function frame(now) {
   controls.update(dt)
   const distance = camera.position.length()
   controls.rotateSpeed = T.MathUtils.lerp(
-    0.13,
-    0.5,
+    0.26,
+    0.55,
     T.MathUtils.smoothstep(distance, 1.5, 3.2),
   )
   const wanted = quality === "fine" && distance < 3.2 ? 127 : 63
@@ -598,13 +629,14 @@ function frame(now) {
     renderer.shadowMap.needsUpdate = true
   }
   const wantsLocal = quality === "fine" && distance < 2.2
+  const moving = rotatingWithMouse || now - lastDragAt < 200 || !!targetCamera || autoSpin
   const viewCenter = camera.position
     .clone()
     .normalize()
     .applyQuaternion(root.quaternion.clone().invert())
   if (
-    wantsLocal &&
-    (!localCenter || localCenter.angleTo(viewCenter) > 0.12) &&
+    wantsLocal && !moving &&
+    (!localCenter || localCenter.angleTo(viewCenter) > 0.085) &&
     !pendingZone &&
     worker &&
     !workerFailed &&
@@ -614,9 +646,9 @@ function frame(now) {
     worker.postMessage({ zone: "view", center: viewCenter.toArray() })
   }
   const showLocal = !!(
-    wantsLocal &&
+    wantsLocal && !moving &&
     localCenter &&
-    localCenter.angleTo(viewCenter) < 0.2
+    localCenter.angleTo(viewCenter) < 0.12
   )
   if (localMesh) localMesh.visible = showLocal
   terrainMaterial.userData.patch.mode.value = showLocal ? 1 : 0
@@ -627,6 +659,10 @@ function frame(now) {
   currentLevel = levelForDistance(distance, currentLevel)
   const view = VIEW_LEVELS[currentLevel],
     weights = detailWeights(distance)
+  if (coastline) {
+    coastline.visible = weights.progress < 0.67
+    coastline.material.opacity = 0.82 * (1 - T.MathUtils.smoothstep(weights.progress, 0.43, 0.67))
+  }
   terrainMaterial.userData.detail.value = weights.grain
   terrainMaterial.userData.relief.value = weights.relief
   if (localMesh) {
