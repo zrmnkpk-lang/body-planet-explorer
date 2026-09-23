@@ -2,11 +2,12 @@ import * as T from "three"
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 import { sample, noise, smooth, clamp } from "./field.js"
 const palette = {
-  sand: new T.Color("#d29b68"),
-  forest: new T.Color("#288678"),
-  grass: new T.Color("#6fad85"),
-  rock: new T.Color("#b96052"),
-  strata: new T.Color("#eaa778"),
+  sand: new T.Color("#cba27c"),
+  forest: new T.Color("#174c58"),
+  forestEdge: new T.Color("#2d806b"),
+  grass: new T.Color("#83aa82"),
+  rock: new T.Color("#966967"),
+  strata: new T.Color("#c18a70"),
   snow: new T.Color("#e4f5ef"),
   ice: new T.Color("#91b9e2"),
   wet: new T.Color("#277f85"),
@@ -53,7 +54,9 @@ function bakeTerrain(g) {
   const p = g.attributes.position,
     colors = new Float32Array(p.count * 3),
     normals = new Float32Array(p.count * 3),
-    color = new T.Color()
+    color = new T.Color(),
+    forestColor = new T.Color(),
+    rock = new T.Color()
   const v = new T.Vector3(),
     t = new T.Vector3(),
     b = new T.Vector3(),
@@ -78,17 +81,22 @@ function bakeTerrain(g) {
     n.crossVectors(u, w).normalize()
     if (n.dot(v) < 0) n.negate()
     const slope = 1 - clamp(n.dot(v))
-    color.copy(palette.sand).lerp(palette.grass, smooth(0.008, 0.025, s.h))
-    color.lerp(palette.forest, smooth(0.4, 0.8, s.moisture) * 0.8)
+    color.copy(palette.sand).lerp(palette.grass, smooth(0.008, 0.035, s.h))
+    forestColor.copy(palette.forestEdge).lerp(palette.forest, smooth(0.3, 0.8, s.forest))
+    color.lerp(forestColor, smooth(0.08, 0.75, s.forest) * 0.94)
     const strata =
-      0.5 + 0.5 * Math.sin(s.h * 660 + noise(v.x * 38, v.y * 38, v.z * 38) * 2)
-    const rock = palette.rock
-      .clone()
-      .lerp(palette.strata, smooth(0.35, 0.65, strata) * 0.65)
-    color.lerp(rock, Math.max(smooth(0.08, 0.38, slope), s.mountains * 0.93))
+      0.5 + 0.5 * Math.sin(s.h * 170 + noise(v.x * 12, v.y * 12, v.z * 12))
+    rock.copy(palette.rock).lerp(palette.strata, smooth(0.3, 0.7, strata) * 0.45)
+    // Rock faces and high plateaus read as broad faceted forms; wooded slopes stay green.
+    const rockAmount = Math.max(
+      smooth(0.11, 0.36, slope) * 0.85,
+      s.mountains * smooth(0.065, 0.115, s.h) * 0.7,
+      s.plateau * smooth(0.085, 0.12, s.h) * 0.45,
+    )
+    color.lerp(rock, rockAmount * (1 - s.forest * 0.68))
     color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
     const snow =
-      smooth(0.115, 0.15, s.h + noise(v.x * 36, v.y * 36, v.z * 36) * 0.011) *
+      smooth(0.12, 0.145, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.004) *
       (1 - smooth(0.5, 0.85, slope))
     color.lerp(palette.snow, snow)
     color.lerp(palette.ice, s.polar)

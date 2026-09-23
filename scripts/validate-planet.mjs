@@ -62,6 +62,26 @@ for (let i = 0; i < g.attributes.position.count; i += 31) {
 }
 for (const [id, z] of Object.entries(ZONES))
   assert.equal(zoneAt(sampleLatLon(z.lat, z.lon)), id, `zone binding ${id}`)
+// Each principal landmass has a broad elevation range and visible woodland,
+// including continents away from the original western mountain belt.
+const mainlands = [
+  [17, -27], [-20, 28], [49, 2], [21, 6],
+  [0, 10], [-9, 157], [31, -148],
+]
+for (const [latitude, longitude] of mainlands) {
+  let min = Infinity, max = -Infinity, woodland = 0, landSamples = 0
+  for (let lat = latitude - 12; lat <= latitude + 12; lat += 2)
+    for (let lon = longitude - 12; lon <= longitude + 12; lon += 2) {
+      const s = sampleLatLon(lat, lon)
+      if (s.h <= 0.015) continue
+      landSamples++
+      min = Math.min(min, s.h)
+      max = Math.max(max, s.h)
+      if (s.forest > 0.3) woodland++
+    }
+  assert.ok(max - min > 0.02, `flat mainland ${latitude}/${longitude}`)
+  assert.ok(woodland / landSamples > 0.13, `forestless mainland ${latitude}/${longitude}`)
+}
 for (let k = 0; k < RIVERS.length; k++) {
   const r = RIVERS[k]
   let previous = Infinity
@@ -97,6 +117,18 @@ for (let i = 0; i < local.attributes.position.count; i += 999) {
 const eco = addEcology(new T.Group())
 assert.ok(eco.treeCount >= 1000 && eco.treeCount <= 3000)
 assert.ok(eco.shrubCount >= 3000 && eco.shrubCount <= 8000)
+for (const [lat, lon] of mainlands) {
+  const center = new T.Vector3(...direction(lat, lon))
+  let canopy = 0
+  for (const mesh of eco.trees) {
+    const array = mesh.instanceMatrix.array
+    for (let i = 0; i < mesh.count; i++) {
+      p.set(array[i * 16 + 12], array[i * 16 + 13], array[i * 16 + 14]).normalize()
+      if (p.dot(center) > Math.cos(20 * Math.PI / 180)) canopy++
+    }
+  }
+  assert.ok(canopy >= 12, `missing trees on ${lat}/${lon}`)
+}
 for (const l of LANDMARKS.filter((x) => x.model)) {
   const buf = await readFile(new URL("../public" + l.model, import.meta.url))
   assert.equal(buf.toString("utf8", 0, 4), "glTF")

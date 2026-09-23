@@ -81,6 +81,7 @@ const centers = [
   d: direction(lat, lon),
   r: (r * Math.PI) / 180,
   w,
+  mainland: r > 12,
 }))
 export const RIVERS = [
   {
@@ -134,18 +135,23 @@ export function sample(x, y, z) {
   const [lat, lon] = coordinates(x, y, z)
   const warp = fbm(x * 3 + 9, y * 3, z * 3, 3)
   let continental = -1
+  let mainland = -1
   for (const c of centers) {
     const angle = Math.acos(clamp(x * c.d[0] + y * c.d[1] + z * c.d[2], -1, 1))
-    continental = Math.max(continental, (1 - angle / c.r) * c.w)
+    const shape = (1 - angle / c.r) * c.w
+    continental = Math.max(continental, shape)
+    if (c.mainland) mainland = Math.max(mainland, shape)
   }
   continental +=
     0.14 * fbm(x * 7 + warp, y * 7 - warp, z * 7 + warp, 4) +
     0.035 * noise(x * 28, y * 28, z * 28)
   const polar = smooth(56, 73, lat + 0.9 * noise(x * 22, y * 22, z * 22))
   const land = smooth(-0.015, 0.15, continental)
-  const w = fbm(x * 8 + 16, y * 8 + 4, z * 8, 3)
-  const ridge =
-    1 - Math.abs(fbm(x * 26 + w * 2, y * 26 + w * 2, z * 26, 4) * 1.65)
+  // Long rolling ridges and broad plateau shoulders; avoid high-frequency spires.
+  const broad = fbm(x * 5.5 + warp, y * 5.5 - warp, z * 5.5 + warp, 3)
+  const ridge = 1 - Math.abs(fbm(x * 9.5 + warp, y * 9.5, z * 9.5 - warp, 3))
+  const upland = smooth(-0.16, 0.15, broad)
+  const plateau = smooth(0.08, 0.31, fbm(x * 4 - 8, y * 4, z * 4 + 5, 3))
   const belt = Math.exp(
     -((deltaLon(lon, -30 + lat * 0.1 - 4 * Math.sin(lat * 0.1)) / 13) ** 2) -
       ((lat - 23) / 35) ** 2,
@@ -153,13 +159,16 @@ export function sample(x, y, z) {
   const backBelt = Math.exp(
     -((deltaLon(lon, -146) / 13) ** 2) - ((lat - 32) / 27) ** 2,
   )
-  const mountains = Math.max(belt, backBelt) * land
+  const inland = smooth(0.035, 0.25, mainland)
+  const mountains =
+    inland * clamp(0.17 + upland * 0.5 + Math.max(belt, backBelt) * 0.36)
   let h =
     -0.018 +
-    land * (0.028 + Math.max(0, continental) * 0.045) +
-    mountains * (0.028 + Math.pow(clamp(ridge), 3) * 0.145) +
-    land * 0.0028 * fbm(x * 75, y * 75, z * 75, 3)
-  h = Math.max(h, -0.018 + polar * (0.06 + 0.018 * ridge))
+    land * (0.032 + Math.max(0, continental) * 0.038) +
+    mountains * (0.016 + smooth(0.34, 0.87, ridge) * 0.039) +
+    inland * plateau * 0.014 +
+    land * 0.0013 * fbm(x * 37, y * 37, z * 37, 2)
+  h = Math.max(h, -0.018 + polar * (0.06 + 0.012 * ridge))
   const river = riverInfo(lat, lon),
     water = waterHeight(lat, river.index)
   if (river.distance < 7) {
@@ -174,12 +183,20 @@ export function sample(x, y, z) {
   if (lake < 1.4)
     h = mix(h, waterHeight(2) - 0.004, 1 - smooth(0.82, 1.4, lake))
   const moisture = clamp(
-    0.5 +
-      0.6 * fbm(x * 5 - 20, y * 5, z * 5, 4) +
-      0.23 * smooth(-0.09, 0.42, x) -
-      0.33 * mountains +
-      0.24 * (1 - smooth(2, 8, river.distance)),
+    0.63 +
+      0.48 * fbm(x * 5 - 20, y * 5, z * 5, 4) +
+      0.13 * fbm(x * 12 + 3, y * 12, z * 12, 2) -
+      0.12 * mountains +
+      0.16 * (1 - smooth(2, 8, river.distance)),
   )
+  const forest =
+    land *
+    (1 - polar) *
+    smooth(0.43, 0.66, moisture) *
+    smooth(0.012, 0.042, h) *
+    (1 - smooth(0.075, 0.125, h)) *
+    smooth(-0.2, 0.12, fbm(x * 8 + 12, y * 8, z * 8 - 6, 3)) *
+    (1 - mountains * 0.38)
   return {
     h,
     lat,
@@ -188,6 +205,8 @@ export function sample(x, y, z) {
     polar,
     mountains,
     moisture,
+    forest,
+    plateau,
     ridge,
     river: river.distance,
     water,

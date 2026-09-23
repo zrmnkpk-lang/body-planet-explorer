@@ -220,11 +220,16 @@ export function addEcology(root) {
       .normalize()
     const slope =
       Math.abs(sample(nearby.x, nearby.y, nearby.z).h - s.h) / 0.0014
+    // Use the same woodland mask as the terrain colors, with thinner cover
+    // along steep ridges and upper plateau edges.
     const density =
-      (1 - smooth(0.25, 0.8, slope)) *
-      smooth(0.42, 0.78, s.moisture) *
-      (1 - smooth(0.055, 0.125, s.h)) *
-      (1 - smooth(0.16, 0.5, s.mountains))
+      (1 - smooth(0.26, 0.85, slope)) *
+      smooth(0.12, 0.7, s.forest) *
+      (1 - smooth(0.09, 0.145, s.h))
+    const shrubDensity =
+      (1 - smooth(0.3, 0.9, slope)) *
+      (1 - smooth(0.11, 0.16, s.h)) *
+      Math.max(density * 1.35, smooth(0.38, 0.75, s.moisture) * 0.35)
     if (
       rand() < density &&
       treeGroups.reduce((n, a) => n + a.length, 0) < 2400
@@ -234,7 +239,7 @@ export function addEcology(root) {
         s,
         scale: 0.01 + rand() * 0.016,
       })
-    } else if (rand() < density * 0.75 && shrubs.length < 5600)
+    } else if (rand() < shrubDensity && shrubs.length < 5600)
       shrubs.push({ v, s, scale: 0.002 + rand() * 0.004 })
     else if (rand() < 0.05 && rocks.length < 750)
       rocks.push({ v, s, scale: 0.003 + rand() * 0.007 })
@@ -254,9 +259,9 @@ export function addEcology(root) {
       o.updateMatrix()
       m.setMatrixAt(i, o.matrix)
       color.setHSL(
-        0.08 + rand() * 0.08,
-        0.08 + rand() * 0.12,
-        0.67 + rand() * 0.25,
+        0.37 + rand() * 0.12,
+        0.08 + rand() * 0.16,
+        0.8 + rand() * 0.16,
       )
       m.setColorAt(i, color)
     })
