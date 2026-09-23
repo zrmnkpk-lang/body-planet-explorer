@@ -238,10 +238,20 @@ export function surfaceMaterial() {
  // Screen-space filtering avoids shimmer while the planet is zoomed out.
  float textureFootprint=length(fwidth(vTerrainPosition))*163.;
  float grainFilter=1.-smoothstep(.65,1.6,textureFootprint);
- float duneRipple=sin(vTerrainPosition.x*139.+vTerrainPosition.z*84.+sin(vTerrainPosition.y*33.)*2.5);
- float iceCrevasse=pow(1.-abs(sin(vTerrainPosition.x*104.+vTerrainPosition.y*39.-vTerrainPosition.z*71.)),10.);
- float fineGrain=(rockGrain(vTerrainPosition)*(1.-vTerrainBiome.y*.4)
-   +duneRipple*vTerrainBiome.x*.42-iceCrevasse*vTerrainBiome.y*.72)*grainFilter;
+ vec3 inkWarp=vTerrainPosition+vec3(
+   sin(vTerrainPosition.y*19.+vTerrainPosition.z*27.),
+   sin(vTerrainPosition.z*17.-vTerrainPosition.x*23.),
+   sin(vTerrainPosition.x*21.+vTerrainPosition.y*14.))*.029;
+ float gapWave=sin(inkWarp.x*26.+sin(inkWarp.z*15.)*2.3)
+   *sin(inkWarp.y*31.-inkWarp.z*23.);
+ float tracePhase=dot(inkWarp,vec3(69.,31.,-53.))
+   +sin(inkWarp.y*19.+inkWarp.z*25.)*1.7;
+ float iceCrevasse=pow(1.-abs(sin(tracePhase)),20.)
+   *smoothstep(.42,.79,gapWave);
+ float duneRipple=sin(inkWarp.x*101.+inkWarp.z*57.
+   +sin(inkWarp.y*33.+inkWarp.z*17.)*2.1);
+ float fineGrain=(rockGrain(vTerrainPosition)*(1.-vTerrainBiome.y*.82)
+   +duneRipple*vTerrainBiome.x*.29-iceCrevasse*vTerrainBiome.y*.15)*grainFilter;
  float roughHeight=fineGrain*detailAmount*(.00018+vTerrainBiome.x*.00023+vTerrainBiome.y*.00029);
  vec3 dp1=dFdx(vTerrainViewPosition),dp2=dFdy(vTerrainViewPosition);
  vec3 r1=cross(dp2,normal),r2=cross(normal,dp1);
@@ -257,25 +267,21 @@ export function surfaceMaterial() {
  float terrainBand=floor(terrainLum*4.+.5)/4.;
  outgoingLight*=mix(1.,clamp(terrainBand/max(terrainLum,.001),.68,1.32),.32+closeInk*.38);
  if(closeInk>.008){
- // Broad broken ink fields connect the small props to the ground.
+ // Irregular pigment fields break up the ground without drawing the mesh grid.
  float broadGrain=sin(vTerrainPosition.x*53.+sin(vTerrainPosition.z*17.)*2.1)
    *sin(vTerrainPosition.y*49.-vTerrainPosition.z*33.);
- float landInk=smoothstep(.17,.42,broadGrain)*(.12+vTerrainBiome.x*.07);
- float strata=sin((length(vTerrainPosition)-1.)*155.
-   +sin(vTerrainPosition.x*19.+vTerrainPosition.z*23.)*.34);
- float reliefEdge=smoothstep(.83,.95,abs(strata))
-   *smoothstep(.015,.08,length(fwidth(normal)))*.19;
- float colorEdge=smoothstep(.008,.032,length(fwidth(diffuseColor.rgb)))*.18;
- float duneHatch=(1.-smoothstep(.67,.88,duneRipple))
-   *vTerrainBiome.x*grainFilter*.16;
- float iceScratch=iceCrevasse*vTerrainBiome.y*grainFilter*.21;
+ float landInk=smoothstep(.26,.52,broadGrain)*(.09+vTerrainBiome.x*.07)
+   *(1.-vTerrainBiome.y*.9);
+ float duneHatch=smoothstep(.91,.985,duneRipple)
+   *smoothstep(.3,.7,gapWave)*vTerrainBiome.x*grainFilter*.07;
+ float iceScratch=iceCrevasse*vTerrainBiome.y*grainFilter*.065;
  float speckleFilter=1.-smoothstep(.58,1.08,length(fwidth(vTerrainPosition))*225.);
  float coarseDots=inkDots(vTerrainPosition,210.,mix(.53,.93,vTerrainBiome.x))
    *speckleFilter*(.31+vTerrainBiome.x*.19+vTerrainBiome.y*.13);
  float fineFilter=1.-smoothstep(.48,.92,length(fwidth(vTerrainPosition))*420.);
  float fineDots=inkDots(vTerrainPosition+3.7,380.,.78)*fineFilter
    *(.12+vTerrainBiome.x*.18);
- float ink=landInk+reliefEdge+colorEdge+duneHatch+iceScratch+coarseDots+fineDots;
+ float ink=landInk+duneHatch+iceScratch+coarseDots+fineDots;
  outgoingLight*=1.-closeInk*min(.68,ink);
  }
  outgoingLight*=1.+detailAmount*fineGrain*.028*grainFilter;
