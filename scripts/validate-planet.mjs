@@ -23,7 +23,7 @@ import { LANDMARKS } from "../src/landmarks.js"
 for (let lat = -89; lat <= 89; lat += 2) {
   const a = sampleLatLon(lat, -180),
     b = sampleLatLon(lat, 180)
-  for (const key of ["h", "moisture", "polar"])
+  for (const key of ["h", "moisture", "polar", "desert"])
     assert.ok(Math.abs(a[key] - b[key]) < 1e-8, `longitude seam ${lat}/${key}`)
 }
 for (const lat of [-90, 90])
@@ -52,7 +52,7 @@ assert.ok(
   [...edges.values()].every((x) => x === 2),
   "open global terrain edge",
 )
-for (const name of ["position", "normal", "color"])
+for (const name of ["position", "normal", "color", "terrainBiome"])
   assert.ok(
     g.attributes[name].array.every(Number.isFinite),
     `${name} must be finite`,
@@ -66,14 +66,13 @@ for (let i = 0; i < g.attributes.position.count; i += 31) {
 }
 for (const [id, z] of Object.entries(ZONES))
   assert.equal(zoneAt(sampleLatLon(z.lat, z.lon)), id, `zone binding ${id}`)
-// Each principal landmass has a broad elevation range and visible woodland,
-// including continents away from the original western mountain belt.
+// Desert belts retain their terrain; other continents preserve their forests.
 const mainlands = [
   [17, -27], [-20, 28], [49, 2], [21, 6],
   [0, 10], [-9, 157], [31, -148],
 ]
 for (const [latitude, longitude] of mainlands) {
-  let min = Infinity, max = -Infinity, woodland = 0, landSamples = 0
+  let min = Infinity, max = -Infinity, woodland = 0, dryland = 0, landSamples = 0
   for (let lat = latitude - 12; lat <= latitude + 12; lat += 2)
     for (let lon = longitude - 12; lon <= longitude + 12; lon += 2) {
       const s = sampleLatLon(lat, lon)
@@ -82,9 +81,16 @@ for (const [latitude, longitude] of mainlands) {
       min = Math.min(min, s.h)
       max = Math.max(max, s.h)
       if (s.forest > 0.3) woodland++
+      if (s.desert > 0.55) dryland++
     }
   assert.ok(max - min > 0.02, `flat mainland ${latitude}/${longitude}`)
-  assert.ok(woodland / landSamples > 0.13, `forestless mainland ${latitude}/${longitude}`)
+  if (longitude === -148)
+    assert.ok(dryland / landSamples > 0.7, "red sand continent lacks desert")
+  else if (longitude === -27) {
+    assert.ok(dryland / landSamples > 0.3, "western arid belt is too small")
+    assert.ok(woodland / landSamples > 0.05, "western woodland edge vanished")
+  } else
+    assert.ok(woodland / landSamples > 0.13, `forestless mainland ${latitude}/${longitude}`)
 }
 for (let k = 0; k < RIVERS.length; k++) {
   const r = RIVERS[k]
@@ -109,6 +115,7 @@ assert.equal(near.index.count / 3, 327680)
 const local = makeLocalTerrain(direction(ZONES.muscle.lat, ZONES.muscle.lon))
 assert.equal(local.index.count / 3, 524288)
 assert.ok(local.attributes.position.array.every(Number.isFinite))
+assert.ok(local.attributes.terrainBiome.array.every(Number.isFinite))
 for (let i = 0; i < local.attributes.position.count; i += 999) {
   p.fromBufferAttribute(local.attributes.position, i)
   const radius = p.length()
@@ -117,11 +124,20 @@ for (let i = 0; i < local.attributes.position.count; i += 999) {
     Math.abs(radius - 1 - sample(p.x, p.y, p.z).h) < 1e-6,
     "patch height mismatch",
   )
+  assert.ok(
+    Math.abs(local.attributes.terrainBiome.getX(i) - sample(p.x, p.y, p.z).desert) < 1e-6,
+    "patch biome mismatch",
+  )
 }
+assert.ok(sampleLatLon(31, -148).desert > 0.9)
+assert.ok(sampleLatLon(12, -39).desert > 0.9)
+assert.ok(sampleLatLon(-20, 28).desert < 0.05)
+assert.ok(LANDMARKS.some((l) => l.id === "red-sand-continent"))
 const eco = addEcology(new T.Group())
 assert.ok(eco.treeCount >= 1000 && eco.treeCount <= 3000)
 assert.ok(eco.shrubCount >= 3000 && eco.shrubCount <= 8000)
 for (const [lat, lon] of mainlands) {
+  if (lon === -148) continue
   const center = new T.Vector3(...direction(lat, lon))
   let canopy = 0
   for (const mesh of eco.trees) {
@@ -148,6 +164,11 @@ const shader = {
 surfaceMaterial().onBeforeCompile(shader)
 assert.equal(surfaceMaterial().isMeshLambertMaterial, true, "terrain must stay matte")
 assert.ok(shader.fragmentShader.includes("uniform vec3 patchCenter;"))
+assert.ok(shader.vertexShader.includes("attribute vec2 terrainBiome;"))
+assert.ok(shader.fragmentShader.includes("float textureFootprint="))
+assert.ok(shader.fragmentShader.includes("iceCrevasse="))
+assert.ok(shader.fragmentShader.includes("duneRipple="))
+assert.ok(shader.vertexShader.includes("vTerrainViewPosition=mvPosition.xyz;"))
 assert.ok(shader.vertexShader.includes("vTerrainPosition=transformed;"))
 assert.ok(shader.vertexShader.includes("uniform float reliefAmount;"))
 assert.ok(shader.vertexShader.includes("mix(1.,length(position),reliefAmount)"))
@@ -192,6 +213,9 @@ assert.equal(orbit.shrubs, 0)
 assert.equal(orbit.landmarks, 0)
 assert.equal(orbit.progress, 0)
 assert.ok(orbit.relief < 0.3)
+assert.equal(orbit.grain, 0)
+assert.ok(detailWeights(VIEW_LEVELS[2].distance).grain > 0)
+assert.equal(surface.grain, 1)
 assert.equal(detailWeights(4.2 - 0.63 * (4.2 - 1.53)).relief, 1)
 assert.ok(orbit.clouds > 0.95)
 assert.equal(surface.trees, 1)

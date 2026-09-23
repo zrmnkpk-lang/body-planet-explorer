@@ -25,6 +25,18 @@ export const LANDMARKS = [
     description: "季风森林覆盖的南部大陆",
   },
   {
+    id: "red-sand-continent",
+    name: "赤砂大陆",
+    type: "desert",
+    latitude: 31,
+    longitude: -148,
+    minDetailLevel: 1,
+    maxDetailLevel: 1,
+    priority: 96,
+    labelKind: "region",
+    description: "风蚀高原和沙漠台地形成的干旱大陆",
+  },
+  {
     id: "basalt-ridge",
     name: "层岩山脊",
     type: "desert",

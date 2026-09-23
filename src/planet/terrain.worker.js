@@ -9,6 +9,7 @@ self.onmessage = ({ data: { detail, center, zone } }) => {
       position: g.attributes.position.array,
       normal: g.attributes.normal.array,
       color: g.attributes.color.array,
+      terrainBiome: g.attributes.terrainBiome.array,
       index: g.index.array,
       coastline: detail === 63 ? coastlinePositions(g) : undefined,
     }

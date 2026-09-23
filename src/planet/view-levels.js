@@ -68,7 +68,7 @@ export function detailWeights(distance) {
     tributaries: reveal(progress, 0.54, 0.72),
     flow: reveal(progress, 0.62, 0.84),
     landmarks: reveal(progress, 0.84, 0.97),
-    grain: reveal(progress, 0.73, 0.94),
+    grain: reveal(progress, 0.37, 0.94),
   }
 }
 const levelProgress = [0, 0.28, 0.53, 0.78, 1]

@@ -3,6 +3,8 @@ import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 import { sample, noise, smooth, clamp } from "./field.js"
 const palette = {
   sand: new T.Color("#bfa388"),
+  dune: new T.Color("#c6a17a"),
+  redSand: new T.Color("#a97866"),
   forest: new T.Color("#39776a"),
   forestEdge: new T.Color("#57937b"),
   grass: new T.Color("#7ca888"),
@@ -10,6 +12,7 @@ const palette = {
   strata: new T.Color("#aa9584"),
   snow: new T.Color("#d8e6de"),
   ice: new T.Color("#91b9e2"),
+  iceCrack: new T.Color("#668ea7"),
   wet: new T.Color("#277f85"),
   deep: new T.Color("#192e55"),
 }
@@ -93,7 +96,9 @@ function bakeTerrain(g) {
   const p = g.attributes.position,
     colors = new Float32Array(p.count * 3),
     normals = new Float32Array(p.count * 3),
+    biomes = new Float32Array(p.count * 2),
     color = new T.Color(),
+    duneColor = new T.Color(),
     forestColor = new T.Color(),
     rock = new T.Color()
   const v = new T.Vector3(),
@@ -121,6 +126,11 @@ function bakeTerrain(g) {
     if (n.dot(v) < 0) n.negate()
     const slope = 1 - clamp(n.dot(v))
     color.copy(palette.sand).lerp(palette.grass, smooth(0.008, 0.035, s.h))
+    duneColor.copy(palette.dune).lerp(
+      palette.redSand,
+      smooth(0.24, 0.7, 0.5 + 0.5 * noise(v.x * 18, v.y * 18, v.z * 18)) * 0.46,
+    )
+    color.lerp(duneColor, s.desert * 0.96)
     forestColor.copy(palette.forestEdge).lerp(palette.forest, smooth(0.3, 0.8, s.forest))
     color.lerp(forestColor, smooth(0.08, 0.75, s.forest) * 0.94)
     const strata =
@@ -132,7 +142,7 @@ function bakeTerrain(g) {
       s.mountains * smooth(0.065, 0.115, s.h) * 0.7,
       s.plateau * smooth(0.085, 0.12, s.h) * 0.45,
     )
-    color.lerp(rock, rockAmount * (1 - s.forest * 0.68))
+    color.lerp(rock, rockAmount * (1 - s.forest * 0.68) * (1 - s.desert * 0.35))
     color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
     const snow =
       smooth(0.135, 0.165, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.003) *
@@ -140,15 +150,20 @@ function bakeTerrain(g) {
     color.lerp(palette.snow, snow)
     color.lerp(palette.ice, s.polar)
     color.lerp(palette.snow, s.polar * smooth(0.041, 0.058, s.h))
+    const iceScar = smooth(0.22, 0.47, Math.abs(noise(v.x * 48, v.y * 48, v.z * 48)))
+    color.lerp(palette.iceCrack, s.polar * iceScar * 0.23)
     if (s.h < 0) color.copy(palette.deep)
     // Fine color grain aliases at globe scale; retain detail in the near shader.
     color.multiplyScalar(0.99 + 0.015 * noise(v.x * 32, v.y * 32, v.z * 32))
     p.setXYZ(i, v.x * (1 + s.h), v.y * (1 + s.h), v.z * (1 + s.h))
     color.toArray(colors, i * 3)
     n.toArray(normals, i * 3)
+    biomes[i * 2] = s.desert
+    biomes[i * 2 + 1] = s.polar
   }
   g.setAttribute("color", new T.BufferAttribute(colors, 3))
   g.setAttribute("normal", new T.BufferAttribute(normals, 3))
+  g.setAttribute("terrainBiome", new T.BufferAttribute(biomes, 2))
   g.computeBoundingSphere()
   return g
 }
@@ -173,7 +188,7 @@ export function surfaceMaterial() {
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vTerrainPosition;\nuniform float reliefAmount;",
+        "#include <common>\nattribute vec2 terrainBiome;\nvarying vec2 vTerrainBiome;\nvarying vec3 vTerrainPosition;\nvarying vec3 vTerrainViewPosition;\nuniform float reliefAmount;",
       )
       .replace(
         "#include <beginnormal_vertex>",
@@ -181,16 +196,22 @@ export function surfaceMaterial() {
       )
       .replace(
         "#include <begin_vertex>",
-        "#include <begin_vertex>\ntransformed=normalize(position)*mix(1.,length(position),reliefAmount);\nvTerrainPosition=transformed;",
+        "#include <begin_vertex>\ntransformed=normalize(position)*mix(1.,length(position),reliefAmount);\nvTerrainPosition=transformed;\nvTerrainBiome=terrainBiome;",
+      )
+      .replace(
+        "#include <project_vertex>",
+        "#include <project_vertex>\nvTerrainViewPosition=mvPosition.xyz;",
       )
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
         `#include <common>
  varying vec3 vTerrainPosition;
+ varying vec3 vTerrainViewPosition;
+ varying vec2 vTerrainBiome;
  uniform float detailAmount;
  uniform vec3 patchCenter;uniform float patchCos;uniform float patchMode;
- float rockGrain(vec3 p){return sin(p.x*483.+sin(p.z*173.))*sin(p.y*367.+sin(p.x*233.));}
+ float rockGrain(vec3 p){return sin(p.x*163.+sin(p.z*57.))*sin(p.y*151.+sin(p.x*61.));}
  `,
       )
       .replace(
@@ -202,11 +223,29 @@ export function surfaceMaterial() {
  `,
       )
       .replace(
+        "#include <normal_fragment_maps>",
+        `#include <normal_fragment_maps>
+ // Screen-space filtering avoids shimmer while the planet is zoomed out.
+ float textureFootprint=length(fwidth(vTerrainPosition))*163.;
+ float grainFilter=1.-smoothstep(.65,1.6,textureFootprint);
+ float duneRipple=sin(vTerrainPosition.x*139.+vTerrainPosition.z*84.+sin(vTerrainPosition.y*33.)*2.5);
+ float iceCrevasse=pow(1.-abs(sin(vTerrainPosition.x*104.+vTerrainPosition.y*39.-vTerrainPosition.z*71.)),10.);
+ float fineGrain=(rockGrain(vTerrainPosition)*(1.-vTerrainBiome.y*.4)
+   +duneRipple*vTerrainBiome.x*.42-iceCrevasse*vTerrainBiome.y*.72)*grainFilter;
+ float roughHeight=fineGrain*detailAmount*(.00009+vTerrainBiome.x*.00012+vTerrainBiome.y*.00018);
+ vec3 dp1=dFdx(vTerrainViewPosition),dp2=dFdy(vTerrainViewPosition);
+ vec3 r1=cross(dp2,normal),r2=cross(normal,dp1);
+ float det=dot(dp1,r1);
+ normal=normalize(abs(det)*normal-sign(det)*(dFdx(roughHeight)*r1+dFdy(roughHeight)*r2));
+ `,
+      )
+      .replace(
         "#include <opaque_fragment>",
         `float terrainLum=dot(outgoingLight,vec3(.2126,.7152,.0722));
  float terrainBand=floor(terrainLum*4.+.5)/4.;
  outgoingLight*=mix(1.,terrainBand/max(terrainLum,.001),.22);
- outgoingLight*=1.+detailAmount*rockGrain(vTerrainPosition)*.012;
+ float broadGrain=sin(vTerrainPosition.x*47.+vTerrainPosition.z*29.)*sin(vTerrainPosition.y*53.-vTerrainPosition.z*19.);
+ outgoingLight*=1.+detailAmount*(fineGrain*.037+broadGrain*.018)*(1.+vTerrainBiome.x*.6+vTerrainBiome.y*.9);
  #include <opaque_fragment>`,
       )
   }

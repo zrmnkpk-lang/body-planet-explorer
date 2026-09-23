@@ -83,6 +83,13 @@ const centers = [
   w,
   mainland: r > 12,
 }))
+const aridRegions = [
+  { d: direction(31, -148), inner: 11, outer: 27 },
+  { d: direction(12, -39), inner: 8, outer: 24 },
+].map((region) => ({
+  ...region,
+  cutoff: Math.cos(((region.outer + 6) * Math.PI) / 180),
+}))
 export const RIVERS = [
   {
     north: 64,
@@ -147,6 +154,17 @@ export function sample(x, y, z) {
     0.035 * noise(x * 28, y * 28, z * 28)
   const polar = smooth(56, 73, lat + 0.9 * noise(x * 22, y * 22, z * 22))
   const land = smooth(-0.015, 0.15, continental)
+  let desert = 0
+  let dryWarp
+  for (const region of aridRegions) {
+    const dot = clamp(x * region.d[0] + y * region.d[1] + z * region.d[2], -1, 1)
+    if (dot < region.cutoff) continue
+    if (dryWarp === undefined)
+      dryWarp = 3.2 * fbm(x * 8 + 4, y * 8 - 7, z * 8, 3)
+    const angle = Math.acos(dot) * 180 / Math.PI
+    desert = Math.max(desert, 1 - smooth(region.inner, region.outer, angle + dryWarp))
+  }
+  desert *= land * (1 - polar)
   // Long rolling ridges and broad plateau shoulders; avoid high-frequency spires.
   const broad = fbm(x * 5.5 + warp, y * 5.5 - warp, z * 5.5 + warp, 3)
   const ridge = 1 - Math.abs(fbm(x * 9.5 + warp, y * 9.5, z * 9.5 - warp, 3))
@@ -167,8 +185,11 @@ export function sample(x, y, z) {
     land * (0.032 + Math.max(0, continental) * 0.038) +
     mountains * (0.016 + smooth(0.34, 0.87, ridge) * 0.039) +
     inland * plateau * 0.014 +
-    land * 0.0013 * fbm(x * 37, y * 37, z * 37, 2)
-  h = Math.max(h, -0.018 + polar * (0.06 + 0.012 * ridge))
+    land * (0.0013 * fbm(x * 37, y * 37, z * 37, 2) +
+      0.0011 * fbm(x * 75, y * 75, z * 75, 2))
+  h = Math.max(h, -0.018 + polar * (0.06 + 0.012 * ridge)) +
+    polar * (0.0017 * fbm(x * 64, y * 64, z * 64, 3) +
+      0.0009 * noise(x * 112, y * 112, z * 112))
   const river = riverInfo(lat, lon),
     water = waterHeight(lat, river.index)
   if (river.distance < 7) {
@@ -186,7 +207,8 @@ export function sample(x, y, z) {
     0.63 +
       0.48 * fbm(x * 5 - 20, y * 5, z * 5, 4) +
       0.13 * fbm(x * 12 + 3, y * 12, z * 12, 2) -
-      0.12 * mountains +
+      0.12 * mountains -
+      0.41 * desert +
       0.16 * (1 - smooth(2, 8, river.distance)),
   )
   const forest =
@@ -196,7 +218,8 @@ export function sample(x, y, z) {
     smooth(0.012, 0.042, h) *
     (1 - smooth(0.075, 0.125, h)) *
     smooth(-0.2, 0.12, fbm(x * 8 + 12, y * 8, z * 8 - 6, 3)) *
-    (1 - mountains * 0.38)
+    (1 - mountains * 0.38) *
+    (1 - desert * 0.96)
   return {
     h,
     lat,
@@ -205,6 +228,7 @@ export function sample(x, y, z) {
     polar,
     mountains,
     moisture,
+    desert,
     forest,
     plateau,
     ridge,

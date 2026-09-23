@@ -156,6 +156,7 @@ try {
     const g = new T.BufferGeometry()
     for (const name of ["position", "normal", "color"])
       g.setAttribute(name, new T.BufferAttribute(d[name], 3))
+    g.setAttribute("terrainBiome", new T.BufferAttribute(d.terrainBiome, 2))
     g.setIndex(new T.BufferAttribute(d.index, 1))
     g.computeBoundingSphere()
     if (d.zone) {
