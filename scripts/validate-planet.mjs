@@ -409,6 +409,17 @@ for (const [lat, lon] of climate.stormCenters) {
 assert.equal(climate.windRibbonCount, 120)
 assert.equal(climate.polarVortexCount, 2)
 assert.ok(climate.polarCloudCount > 350 && climate.polarCloudCount < 500)
+const { cycloneState } = await import("../src/planet/climate.js")
+const cyclonePeriod = 1 / 0.024
+let activeTime = 0
+for (let t = 0; t < cyclonePeriod; t += 0.1)
+  if (cycloneState(t, 0).pulse > 0.05) activeTime += 0.1
+assert.ok(activeTime / cyclonePeriod < 0.45, "cyclones need a longer disappearance interval")
+const firstAppearance = cycloneState((0.18 - 0.17) / 0.024, 0)
+const nextAppearance = cycloneState((0.18 - 0.17) / 0.024 + cyclonePeriod, 0)
+assert.ok(firstAppearance.distance > 0.02 && nextAppearance.distance > 0.02)
+assert.ok(Math.abs(firstAppearance.heading - nextAppearance.heading) > 0.01,
+  "each cyclone appearance needs a fresh movement direction")
 assert.equal(climate.lightningCount, 24)
 const cycloneClouds = climateRoot.children[2], thinWind = climateRoot.children[3],
   monsoon = climateRoot.children[4], vortices = climateRoot.children[5],
@@ -416,9 +427,15 @@ const cycloneClouds = climateRoot.children[2], thinWind = climateRoot.children[3
 assert.ok(climate.windRibbonCount < climate.windParticleCount / 3)
 assert.ok(cycloneClouds.isInstancedMesh && cycloneClouds.count === climate.polarCloudCount)
 assert.equal(cycloneClouds.geometry.attributes.aVortexCenter.count, cycloneClouds.count)
+assert.equal(cycloneClouds.geometry.attributes.aVortexSite.count, cycloneClouds.count)
+assert.equal(vortices.geometry.attributes.aSite.count, vortices.geometry.attributes.aCycle.count)
 assert.equal(new Set(cycloneClouds.geometry.attributes.aVortexCycle.array).size, 2)
-assert.ok(cycloneClouds.material.vertexShader.includes("cross(aVortexCenter,offset)*s"))
-assert.ok(cycloneClouds.material.vertexShader.includes("fract(uTime*0.042+aVortexCycle)"))
+assert.ok(cycloneClouds.material.vertexShader.includes("cross(center,offset)*s"))
+assert.ok(cycloneClouds.material.vertexShader.includes("uTime*0.024+aVortexCycle"))
+assert.ok(cycloneClouds.material.vertexShader.includes("float angle=-uTime*0.13"))
+assert.ok(cycloneClouds.material.vertexShader.includes("cycloneRandom(seed)*6.2831853"))
+assert.ok(vortices.material.vertexShader.includes("aArm+aTrail*4.8-uTime*0.13"))
+assert.ok(vortices.material.vertexShader.includes("cycloneRandom(seed)*6.2831853"))
 let closestToEye = Infinity, farthestFromEye = 0
 const cloudDirection = new T.Vector3(), eyeDirection = new T.Vector3(),
   vortexMatrix = new T.Matrix4()

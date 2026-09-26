@@ -3,7 +3,27 @@ import { direction, sample, seeded } from "./field.js"
 
 const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160]]
 const POLAR_CYCLONES = [[79, -55], [76, 105]]
-const cycloneCycle = (site) => 0.07 + site * 0.48
+const CYCLONE_RATE = 0.024
+const cycloneCycle = (site) => 0.17 + site * 0.33
+const smoothPulse = (a, b, value) => {
+  const t = T.MathUtils.clamp((value - a) / (b - a), 0, 1)
+  return t * t * (3 - 2 * t)
+}
+const cycloneHash = (value) => {
+  const raw = Math.sin(value * 127.1 + 311.7) * 43758.5453
+  return raw - Math.floor(raw)
+}
+export function cycloneState(time, site) {
+  const phase = time * CYCLONE_RATE + cycloneCycle(site)
+  const cycle = Math.floor(phase), event = phase - cycle
+  const pulse = smoothPulse(0.035, 0.11, event) *
+    (1 - smoothPulse(0.30, 0.39, event))
+  const seed = cycle * 7.13 + site * 19.19
+  const heading = cycloneHash(seed) * Math.PI * 2
+  const travel = smoothPulse(0.08, 0.30, event)
+  const distance = (0.035 + cycloneHash(seed + 11.7) * 0.035) * travel
+  return { event, pulse, cycle, heading, distance }
+}
 
 const cloudVertexShader = `
 uniform float uTime;
@@ -263,21 +283,30 @@ attribute float aTrail;
 attribute float aSide;
 attribute float aWidth;
 attribute float aCycle;
+attribute float aSite;
 varying float vAlpha;
+float cycloneRandom(float value){return fract(sin(value*127.1+311.7)*43758.5453);}
 void main(){
-  float angle=aArm+aTrail*4.8+uTime*0.13;
+  float cyclePhase=uTime*0.024+aCycle;
+  float cycleIndex=floor(cyclePhase);
+  float event=fract(cyclePhase);
+  float seed=cycleIndex*7.13+aSite*19.19;
+  float heading=cycloneRandom(seed)*6.2831853;
+  float travel=smoothstep(0.08,0.30,event);
+  float distance=(0.035+cycloneRandom(seed+11.7)*0.035)*travel;
+  vec3 center=normalize(aCenter+(cos(heading)*aEast+sin(heading)*aNorth)*distance);
+  float angle=aArm+aTrail*4.8-uTime*0.13;
   vec3 outward=cos(angle)*aEast+sin(angle)*aNorth;
   float radius=0.055+aTrail*0.15+aSide*aWidth;
-  vec3 p=normalize(aCenter+outward*radius)*1.187;
-  float event=fract(uTime*0.042+aCycle);
-  float pulse=smoothstep(0.06,0.19,event)*(1.0-smoothstep(0.72,0.9,event));
+  vec3 p=normalize(center+outward*radius)*1.187;
+  float pulse=smoothstep(0.035,0.11,event)*(1.0-smoothstep(0.30,0.39,event));
   vAlpha=uOpacity*pulse*sin(3.14159265*aTrail);
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
 
 function gpuPolarVortices(rand) {
   const positions = [], centers = [], easts = [], norths = [],
-    arms = [], trails = [], sides = [], widths = [], cycles = [], indices = []
+    arms = [], trails = [], sides = [], widths = [], cycles = [], sites = [], indices = []
   POLAR_CYCLONES.forEach(([latitude, longitude], site) => {
     const center = new T.Vector3(...direction(latitude, longitude)),
       east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
@@ -299,6 +328,7 @@ function gpuPolarVortices(rand) {
           sides.push(side)
           widths.push(width)
           cycles.push(cycle)
+          sites.push(site)
         }
         if (step < 18) {
           const n = base + step * 2
@@ -312,7 +342,7 @@ function gpuPolarVortices(rand) {
   for (const [name, values, size] of [
     ["aCenter", centers, 3], ["aEast", easts, 3], ["aNorth", norths, 3],
     ["aArm", arms, 1], ["aTrail", trails, 1], ["aSide", sides, 1],
-    ["aWidth", widths, 1], ["aCycle", cycles, 1],
+    ["aWidth", widths, 1], ["aCycle", cycles, 1], ["aSite", sites, 1],
   ]) geometry.setAttribute(name, new T.Float32BufferAttribute(values, size))
   geometry.setIndex(indices)
   const mesh = new T.Mesh(geometry, particleMaterial(polarWindVertexShader, 0xffffff))
@@ -326,8 +356,12 @@ function gpuPolarVortices(rand) {
 // each exposed eye. Instancing keeps the extra volume to a single draw call.
 const cycloneCloudVertexShader = `
 uniform float uTime;
+float cycloneRandom(float value){return fract(sin(value*127.1+311.7)*43758.5453);}
 attribute vec3 aVortexCenter;
+attribute vec3 aVortexEast;
+attribute vec3 aVortexNorth;
 attribute float aVortexCycle;
+attribute float aVortexSite;
 varying vec3 vCloudNormal;
 varying float vPulse;
 void main(){
@@ -340,15 +374,22 @@ void main(){
       dot(basis[1],basis[1]),dot(basis[2],basis[2]));
     n=basis*(n/scaleSquared);
   #endif
-  float angle=uTime*0.13;
+  float cyclePhase=uTime*0.024+aVortexCycle;
+  float cycleIndex=floor(cyclePhase);
+  float event=fract(cyclePhase);
+  float seed=cycleIndex*7.13+aVortexSite*19.19;
+  float heading=cycloneRandom(seed)*6.2831853;
+  float travel=smoothstep(0.08,0.30,event);
+  float distance=(0.035+cycloneRandom(seed+11.7)*0.035)*travel;
+  vec3 center=normalize(aVortexCenter+(cos(heading)*aVortexEast+
+    sin(heading)*aVortexNorth)*distance);
+  float angle=-uTime*0.13;
   float c=cos(angle),s=sin(angle);
   vec3 offset=p-aVortexCenter*1.161;
-  p=aVortexCenter*1.161+offset*c+cross(aVortexCenter,offset)*s
-    +aVortexCenter*dot(aVortexCenter,offset)*(1.0-c);
-  n=n*c+cross(aVortexCenter,n)*s
-    +aVortexCenter*dot(aVortexCenter,n)*(1.0-c);
-  float event=fract(uTime*0.042+aVortexCycle);
-  vPulse=smoothstep(0.06,0.19,event)*(1.0-smoothstep(0.72,0.9,event));
+  p=center*1.161+offset*c+cross(center,offset)*s
+    +center*dot(center,offset)*(1.0-c);
+  n=n*c+cross(center,n)*s+center*dot(center,n)*(1.0-c);
+  vPulse=smoothstep(0.035,0.11,event)*(1.0-smoothstep(0.30,0.39,event));
   vCloudNormal=normalize(normalMatrix*n);
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
@@ -385,18 +426,21 @@ function gpuPolarCloudWalls(rand, baseGeometry) {
             .addScaledVector(east, Math.cos(angle) * radial)
             .addScaledVector(north, Math.sin(angle) * radial).normalize(),
           scale = (0.014 + (1 - t) * 0.009 + rand() * 0.009)
-        items.push({ center, v, site, scale })
+        items.push({ center, east, north, v, site, scale })
         if (step % 3 === 0) {
           const lobe = v.clone().addScaledVector(east, (rand() - 0.5) * scale)
             .addScaledVector(north, (rand() - 0.5) * scale).normalize()
-          items.push({ center, v: lobe, site, scale: scale * (0.63 + rand() * 0.27) })
+          items.push({ center, east, north, v: lobe, site, scale: scale * (0.63 + rand() * 0.27) })
         }
       }
     }
   })
   const geometry = baseGeometry.clone(),
     centers = new Float32Array(items.length * 3),
+    easts = new Float32Array(items.length * 3),
+    norths = new Float32Array(items.length * 3),
     cycles = new Float32Array(items.length),
+    sites = new Float32Array(items.length),
     material = new T.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 }, uOpacity: { value: 0 },
@@ -408,7 +452,7 @@ function gpuPolarCloudWalls(rand, baseGeometry) {
       depthWrite: false,
     }),
     mesh = new T.InstancedMesh(geometry, material, items.length)
-  items.forEach(({ center, v, site, scale }, i) => {
+  items.forEach(({ center, east, north, v, site, scale }, i) => {
     helper.position.copy(v).multiplyScalar(1.161 + (rand() - 0.5) * 0.012)
     helper.quaternion.setFromUnitVectors(up, v)
     helper.rotateY(rand() * Math.PI * 2)
@@ -417,10 +461,16 @@ function gpuPolarCloudWalls(rand, baseGeometry) {
     helper.updateMatrix()
     mesh.setMatrixAt(i, helper.matrix)
     center.toArray(centers, i * 3)
+    east.toArray(easts, i * 3)
+    north.toArray(norths, i * 3)
     cycles[i] = cycloneCycle(site)
+    sites[i] = site
   })
   geometry.setAttribute("aVortexCenter", new T.InstancedBufferAttribute(centers, 3))
+  geometry.setAttribute("aVortexEast", new T.InstancedBufferAttribute(easts, 3))
+  geometry.setAttribute("aVortexNorth", new T.InstancedBufferAttribute(norths, 3))
   geometry.setAttribute("aVortexCycle", new T.InstancedBufferAttribute(cycles, 1))
+  geometry.setAttribute("aVortexSite", new T.InstancedBufferAttribute(sites, 1))
   mesh.instanceMatrix.needsUpdate = true
   mesh.frustumCulled = false
   mesh.renderOrder = 4
