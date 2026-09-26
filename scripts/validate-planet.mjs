@@ -254,6 +254,23 @@ assert.ok(sampleLatLon(31, -148).desert > 0.9)
 assert.ok(sampleLatLon(12, -39).desert > 0.9)
 assert.ok(sampleLatLon(-20, 28).desert < 0.05)
 assert.ok(LANDMARKS.some((l) => l.id === "red-sand-continent"))
+const namedLandforms = new Map(LANDMARKS.map((l) => [l.id, l]))
+for (const id of [
+  "cloudcut-ridge", "emberwind-terrace", "red-canyon-river", "windshadow-basin",
+  "cape-twin-headlands", "falling-star-delta", "southwind-river-valley",
+  "eastmist-river-valley", "eastmist-cloud-steps", "monsoon-green-ridge",
+  "far-dawn-fjord", "silver-arc-fjord", "shardlight-fjord", "coldstar-channel",
+]) assert.ok(namedLandforms.has(id), `missing named landform ${id}`)
+for (const id of ["red-canyon-river", "southwind-river-valley", "eastmist-river-valley"]) {
+  const l = namedLandforms.get(id)
+  assert.ok(sampleLatLon(l.latitude, l.longitude).river < 1.7, `${id} label must sit on its river`)
+}
+for (const id of ["far-dawn-fjord", "silver-arc-fjord", "shardlight-fjord", "coldstar-channel"]) {
+  const l = namedLandforms.get(id)
+  assert.ok(sampleLatLon(l.latitude, l.longitude).polar > 0.4, `${id} must sit at the ice edge`)
+}
+assert.ok(sampleLatLon(-24, -132).h > 0.01, "cape headlands label must sit on land")
+assert.ok(sampleLatLon(39, 108).h > 0.01, "eastmist plateau label must sit on land")
 const eco = addEcology(new T.Group())
 assert.ok(eco.treeCount >= 1000 && eco.treeCount <= 3000)
 assert.ok(eco.shrubCount >= 3000 && eco.shrubCount <= 8000)
