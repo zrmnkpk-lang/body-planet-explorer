@@ -466,6 +466,14 @@ export default function App() {
       <main>
         {tab === "train" && !activeSession && (
           <section className="page page-train">
+            <div className="planet-app-view">
+              <iframe
+                title="可交互身体星球地图"
+                src="/planet.html?mode=app"
+                loading="eager"
+              />
+            </div>
+
             <div className="planet-progress-card">
               <div className="planet-copy">
                 <p className="eyebrow">WEEKLY TERRAFORM</p>
@@ -479,9 +487,6 @@ export default function App() {
                   <span style={{ width: `${progress}%` }} />
                 </div>
                 <strong className="progress-label">{progress}%</strong>
-              </div>
-              <div className="planet-visual" aria-hidden="true">
-                <div className="planet-sphere" />
               </div>
             </div>
 
@@ -720,4 +725,3 @@ export default function App() {
     </div>
   );
 }
-
