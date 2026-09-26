@@ -407,19 +407,44 @@ for (const [lat, lon] of climate.stormCenters) {
   assert.ok(sampleLatLon(lat, lon).desert < 0.1, `desert storm center ${lat}/${lon}`)
 }
 assert.equal(climate.windRibbonCount, 120)
-assert.equal(climate.polarVortexCount, 2)
+assert.equal(climate.cycloneCount, 2)
+assert.deepEqual(climate.cycloneCenters, [[79, -55], [5, -85]])
+assert.ok(sampleLatLon(79, -55).polar > 0.8, "ice cyclone must sit over the glacier")
+assert.ok(sampleLatLon(5, -85).h < 0, "tropical cyclone must sit over open ocean")
+assert.ok(sampleLatLon(5, -85).moisture > 0.6, "tropical ocean cyclone needs a wet setting")
 assert.ok(climate.polarCloudCount > 350 && climate.polarCloudCount < 500)
 const { cycloneState } = await import("../src/planet/climate.js")
-const cyclonePeriod = 1 / 0.024
+const cyclonePeriod = 30
 let activeTime = 0
 for (let t = 0; t < cyclonePeriod; t += 0.1)
   if (cycloneState(t, 0).pulse > 0.05) activeTime += 0.1
-assert.ok(activeTime / cyclonePeriod < 0.45, "cyclones need a longer disappearance interval")
-const firstAppearance = cycloneState((0.18 - 0.17) / 0.024, 0)
-const nextAppearance = cycloneState((0.18 - 0.17) / 0.024 + cyclonePeriod, 0)
+assert.ok(activeTime >= 13 && activeTime <= 16, "cyclones should appear for about 15 seconds per cycle")
+const firstAppearance = cycloneState((0.18 - 0.13) * cyclonePeriod, 0)
+const nextAppearance = cycloneState((0.18 - 0.13) * cyclonePeriod + cyclonePeriod, 0)
 assert.ok(firstAppearance.distance > 0.02 && nextAppearance.distance > 0.02)
 assert.ok(Math.abs(firstAppearance.heading - nextAppearance.heading) > 0.01,
   "each cyclone appearance needs a fresh movement direction")
+assert.ok(firstAppearance.distance <= 0.14 && nextAppearance.distance <= 0.14,
+  "doubled cyclone drift stays within the local weather region")
+const cycloneSites = [
+  { direction: [79, -55], polar: true },
+  { direction: [5, -85], polar: false },
+]
+for (const site of cycloneSites) {
+  const center = new T.Vector3(...direction(...site.direction)),
+    east = new T.Vector3(Math.cos(site.direction[1] * Math.PI / 180), 0,
+      -Math.sin(site.direction[1] * Math.PI / 180)),
+    north = new T.Vector3().crossVectors(center, east)
+  for (let i = 0; i < 24; i++) {
+    const angle = i * Math.PI / 12,
+      moved = center.clone()
+        .addScaledVector(east, Math.cos(angle) * 0.14)
+        .addScaledVector(north, Math.sin(angle) * 0.14).normalize(),
+      terrain = sample(moved.x, moved.y, moved.z)
+    assert.ok(site.polar ? terrain.polar > 0.4 : terrain.h < 0,
+      "random cyclone drift must stay over its glacier or ocean")
+  }
+}
 assert.equal(climate.lightningCount, 24)
 const cycloneClouds = climateRoot.children[2], thinWind = climateRoot.children[3],
   monsoon = climateRoot.children[4], vortices = climateRoot.children[5],
@@ -431,11 +456,15 @@ assert.equal(cycloneClouds.geometry.attributes.aVortexSite.count, cycloneClouds.
 assert.equal(vortices.geometry.attributes.aSite.count, vortices.geometry.attributes.aCycle.count)
 assert.equal(new Set(cycloneClouds.geometry.attributes.aVortexCycle.array).size, 2)
 assert.ok(cycloneClouds.material.vertexShader.includes("cross(center,offset)*s"))
-assert.ok(cycloneClouds.material.vertexShader.includes("uTime*0.024+aVortexCycle"))
-assert.ok(cycloneClouds.material.vertexShader.includes("float angle=-uTime*0.13"))
+assert.ok(cycloneClouds.material.vertexShader.includes("uTime*0.0333333333+aVortexCycle"))
+assert.ok(cycloneClouds.material.vertexShader.includes("float angle=-uTime*0.26"))
 assert.ok(cycloneClouds.material.vertexShader.includes("cycloneRandom(seed)*6.2831853"))
-assert.ok(vortices.material.vertexShader.includes("aArm+aTrail*4.8-uTime*0.13"))
+assert.ok(vortices.material.vertexShader.includes("aArm+aTrail*4.8-uTime*0.26"))
 assert.ok(vortices.material.vertexShader.includes("cycloneRandom(seed)*6.2831853"))
+assert.ok(cycloneClouds.material.fragmentShader.includes("iceTint=vec3(0.76,0.91,1.04)"))
+assert.ok(cycloneClouds.material.fragmentShader.includes("tropicalTint=vec3(0.96,0.76,0.73)"))
+assert.ok(cycloneClouds.material.fragmentShader.includes("float crystal="))
+assert.ok(vortices.material.fragmentShader.includes("vec3 tropical=vec3(0.82,0.67,0.66)"))
 let closestToEye = Infinity, farthestFromEye = 0
 const cloudDirection = new T.Vector3(), eyeDirection = new T.Vector3(),
   vortexMatrix = new T.Matrix4()
@@ -467,9 +496,17 @@ for (let i = 0; i < climate.windRibbonCount; i++) {
   assert.ok(Math.abs(anchor.getY(i * 14) - lat * Math.PI / 180) <= 8 * Math.PI / 180)
 }
 assert.ok(vortices.isMesh && vortices.geometry.index.count > 600)
-assert.ok(vortices.geometry.attributes.aCenter.array.every((_, i) =>
-  i % 3 !== 1 || vortices.geometry.attributes.aCenter.array[i] > 0.94))
+const glacierCyclone = new T.Vector3(...direction(79, -55)),
+  tropicalCyclone = new T.Vector3(...direction(5, -85)),
+  vortexCenter = new T.Vector3(), vortexCenters = vortices.geometry.attributes.aCenter
+for (let i = 0; i < vortexCenters.count; i++) {
+  vortexCenter.fromBufferAttribute(vortexCenters, i)
+  assert.ok(Math.min(vortexCenter.distanceTo(glacierCyclone),
+    vortexCenter.distanceTo(tropicalCyclone)) < 1e-6,
+  "spiral winds should belong to the glacier or tropical cyclone")
+}
 assert.equal(new Set(vortices.geometry.attributes.aCycle.array).size, 2)
+assert.equal(climate.cycloneCenters.length, 2, "use one glacier and one tropical cyclone")
 assert.ok(lightning.isMesh && lightning.geometry.index.count > 800)
 const boltVertices = lightning.geometry.attributes.position.array
 let highestBolt = 0

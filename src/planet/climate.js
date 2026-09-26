@@ -2,9 +2,10 @@ import * as T from "three"
 import { direction, sample, seeded } from "./field.js"
 
 const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160]]
-const POLAR_CYCLONES = [[79, -55], [76, 105]]
-const CYCLONE_RATE = 0.024
-const cycloneCycle = (site) => 0.17 + site * 0.33
+const CYCLONE_CENTERS = [[79, -55], [5, -85]]
+const CYCLONE_PERIOD = 30
+const CYCLONE_RATE = 1 / CYCLONE_PERIOD
+const cycloneCycle = (site) => 0.13 + site * 0.5
 const smoothPulse = (a, b, value) => {
   const t = T.MathUtils.clamp((value - a) / (b - a), 0, 1)
   return t * t * (3 - 2 * t)
@@ -16,12 +17,12 @@ const cycloneHash = (value) => {
 export function cycloneState(time, site) {
   const phase = time * CYCLONE_RATE + cycloneCycle(site)
   const cycle = Math.floor(phase), event = phase - cycle
-  const pulse = smoothPulse(0.035, 0.11, event) *
-    (1 - smoothPulse(0.30, 0.39, event))
+  const pulse = smoothPulse(0.025, 0.10, event) *
+    (1 - smoothPulse(0.45, 0.525, event))
   const seed = cycle * 7.13 + site * 19.19
   const heading = cycloneHash(seed) * Math.PI * 2
   const travel = smoothPulse(0.08, 0.30, event)
-  const distance = (0.035 + cycloneHash(seed + 11.7) * 0.035) * travel
+  const distance = (0.07 + cycloneHash(seed + 11.7) * 0.07) * travel
   return { event, pulse, cycle, heading, distance }
 }
 
@@ -285,29 +286,41 @@ attribute float aWidth;
 attribute float aCycle;
 attribute float aSite;
 varying float vAlpha;
+varying float vCycloneSite;
 float cycloneRandom(float value){return fract(sin(value*127.1+311.7)*43758.5453);}
 void main(){
-  float cyclePhase=uTime*0.024+aCycle;
+  float cyclePhase=uTime*0.0333333333+aCycle;
   float cycleIndex=floor(cyclePhase);
   float event=fract(cyclePhase);
   float seed=cycleIndex*7.13+aSite*19.19;
   float heading=cycloneRandom(seed)*6.2831853;
   float travel=smoothstep(0.08,0.30,event);
-  float distance=(0.035+cycloneRandom(seed+11.7)*0.035)*travel;
+  float distance=(0.07+cycloneRandom(seed+11.7)*0.07)*travel;
   vec3 center=normalize(aCenter+(cos(heading)*aEast+sin(heading)*aNorth)*distance);
-  float angle=aArm+aTrail*4.8-uTime*0.13;
+  float angle=aArm+aTrail*4.8-uTime*0.26;
   vec3 outward=cos(angle)*aEast+sin(angle)*aNorth;
   float radius=0.055+aTrail*0.15+aSide*aWidth;
   vec3 p=normalize(center+outward*radius)*1.187;
-  float pulse=smoothstep(0.035,0.11,event)*(1.0-smoothstep(0.30,0.39,event));
+  float pulse=smoothstep(0.025,0.10,event)*(1.0-smoothstep(0.45,0.525,event));
   vAlpha=uOpacity*pulse*sin(3.14159265*aTrail);
+  vCycloneSite=aSite;
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
+}`
+
+const vortexFragmentShader = `
+varying float vAlpha;
+varying float vCycloneSite;
+uniform vec3 uColor;
+void main(){
+  vec3 ice=vec3(0.69,0.86,1.0);
+  vec3 tropical=vec3(0.82,0.67,0.66);
+  gl_FragColor=vec4(uColor*mix(ice,tropical,vCycloneSite),vAlpha);
 }`
 
 function gpuPolarVortices(rand) {
   const positions = [], centers = [], easts = [], norths = [],
     arms = [], trails = [], sides = [], widths = [], cycles = [], sites = [], indices = []
-  POLAR_CYCLONES.forEach(([latitude, longitude], site) => {
+  CYCLONE_CENTERS.forEach(([latitude, longitude], site) => {
     const center = new T.Vector3(...direction(latitude, longitude)),
       east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
         -Math.sin(longitude * Math.PI / 180)).normalize(),
@@ -345,7 +358,9 @@ function gpuPolarVortices(rand) {
     ["aWidth", widths, 1], ["aCycle", cycles, 1], ["aSite", sites, 1],
   ]) geometry.setAttribute(name, new T.Float32BufferAttribute(values, size))
   geometry.setIndex(indices)
-  const mesh = new T.Mesh(geometry, particleMaterial(polarWindVertexShader, 0xffffff))
+  const material = particleMaterial(polarWindVertexShader, 0xffffff)
+  material.fragmentShader = vortexFragmentShader
+  const mesh = new T.Mesh(geometry, material)
   mesh.material.side = T.DoubleSide
   mesh.frustumCulled = false
   mesh.renderOrder = 5
@@ -364,6 +379,7 @@ attribute float aVortexCycle;
 attribute float aVortexSite;
 varying vec3 vCloudNormal;
 varying float vPulse;
+varying float vCycloneSite;
 void main(){
   vec3 p=position;
   vec3 n=normal;
@@ -374,23 +390,24 @@ void main(){
       dot(basis[1],basis[1]),dot(basis[2],basis[2]));
     n=basis*(n/scaleSquared);
   #endif
-  float cyclePhase=uTime*0.024+aVortexCycle;
+  float cyclePhase=uTime*0.0333333333+aVortexCycle;
   float cycleIndex=floor(cyclePhase);
   float event=fract(cyclePhase);
   float seed=cycleIndex*7.13+aVortexSite*19.19;
   float heading=cycloneRandom(seed)*6.2831853;
   float travel=smoothstep(0.08,0.30,event);
-  float distance=(0.035+cycloneRandom(seed+11.7)*0.035)*travel;
+  float distance=(0.07+cycloneRandom(seed+11.7)*0.07)*travel;
   vec3 center=normalize(aVortexCenter+(cos(heading)*aVortexEast+
     sin(heading)*aVortexNorth)*distance);
-  float angle=-uTime*0.13;
+  float angle=-uTime*0.26;
   float c=cos(angle),s=sin(angle);
   vec3 offset=p-aVortexCenter*1.161;
   p=center*1.161+offset*c+cross(center,offset)*s
     +center*dot(center,offset)*(1.0-c);
   n=n*c+cross(center,n)*s+center*dot(center,n)*(1.0-c);
-  vPulse=smoothstep(0.035,0.11,event)*(1.0-smoothstep(0.30,0.39,event));
+  vPulse=smoothstep(0.025,0.10,event)*(1.0-smoothstep(0.45,0.525,event));
   vCloudNormal=normalize(normalMatrix*n);
+  vCycloneSite=aVortexSite;
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
 
@@ -399,10 +416,17 @@ uniform float uOpacity;
 uniform vec3 uColor;
 varying vec3 vCloudNormal;
 varying float vPulse;
+varying float vCycloneSite;
 void main(){
   float light=dot(normalize(vCloudNormal),normalize(vec3(-0.35,0.72,0.58)))*0.5+0.5;
   float band=floor(light*4.0+0.5)/4.0;
-  vec3 color=mix(vec3(0.46,0.62,0.72),uColor,0.48+band*0.48);
+  vec3 iceTint=vec3(0.76,0.91,1.04);
+  vec3 tropicalTint=vec3(0.96,0.76,0.73);
+  vec3 tint=mix(iceTint,tropicalTint,vCycloneSite);
+  vec3 color=mix(vec3(0.46,0.62,0.72),uColor*tint,0.48+band*0.48);
+  float crystal=pow(max(0.0,dot(normalize(vCloudNormal),
+    normalize(vec3(0.22,0.86,0.46)))),18.0);
+  color+=(1.0-vCycloneSite)*crystal*vec3(0.07,0.14,0.22);
   gl_FragColor=vec4(color,uOpacity*vPulse*(0.68+band*0.27));
 }`
 
@@ -410,7 +434,7 @@ function gpuPolarCloudWalls(rand, baseGeometry) {
   const items = [],
     up = new T.Vector3(0, 1, 0),
     helper = new T.Object3D()
-  POLAR_CYCLONES.forEach(([latitude, longitude], site) => {
+  CYCLONE_CENTERS.forEach(([latitude, longitude], site) => {
     const center = new T.Vector3(...direction(latitude, longitude)),
       east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
         -Math.sin(longitude * Math.PI / 180)).normalize(),
@@ -685,7 +709,8 @@ export function addClimate(root) {
     stormCloudCount: stormCloudItems.length,
     stormCenters: STORM_CENTERS,
     windRibbonCount: monsoon.geometry.attributes.aAnchor.count / 14,
-    polarVortexCount: 2,
+    cycloneCount: CYCLONE_CENTERS.length,
+    cycloneCenters: CYCLONE_CENTERS,
     polarCloudCount: cycloneClouds.count,
     lightningCount: lightning.geometry.attributes.aPhase.count / 22,
     update(weights, now, reduced) {
