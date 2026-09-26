@@ -401,7 +401,24 @@ assert.deepEqual(climate.cloudSizeCounts, [10, 20, 38])
 assert.equal(climate.windParticleCount, 520)
 assert.equal(climate.rainParticleCount, 720)
 assert.ok(climate.stormCloudCount >= 50)
-assert.equal(climate.stormCenters.length, 3)
+assert.equal(climate.stormCenterCount, 5)
+assert.equal(climate.stormCenters.length, 5)
+assert.equal(climate.stormSchedules.length, 5)
+const { cycloneState, stormState } = await import("../src/planet/climate.js")
+assert.equal(new Set(climate.stormSchedules.map(({ period }) => period)).size, 5,
+  "storm cells need independent recurrence intervals")
+assert.equal(new Set(climate.stormSchedules.map(({ phase }) => phase)).size, 5,
+  "storm cells need independent start times")
+for (const [site, schedule] of climate.stormSchedules.entries()) {
+  assert.ok(schedule.period >= 20 && schedule.period <= 30)
+  let activeSeconds = 0
+  const start = 5 * schedule.period - schedule.phase
+  for (let t = start; t < start + schedule.period; t += 0.05) {
+    if (stormState(t, site).pulse > 0.05) activeSeconds += 0.05
+  }
+  assert.ok(activeSeconds >= 8.5 && activeSeconds <= 15.5,
+    "each storm should remain visible for roughly 10–15 seconds")
+}
 for (const [lat, lon] of climate.stormCenters) {
   assert.ok(sampleLatLon(lat, lon).moisture > 0.6, `dry storm center ${lat}/${lon}`)
   assert.ok(sampleLatLon(lat, lon).desert < 0.1, `desert storm center ${lat}/${lon}`)
@@ -413,7 +430,17 @@ assert.ok(sampleLatLon(79, -55).polar > 0.8, "ice cyclone must sit over the glac
 assert.ok(sampleLatLon(5, -85).h < 0, "tropical cyclone must sit over open ocean")
 assert.ok(sampleLatLon(5, -85).moisture > 0.6, "tropical ocean cyclone needs a wet setting")
 assert.ok(climate.polarCloudCount > 350 && climate.polarCloudCount < 500)
-const { cycloneState } = await import("../src/planet/climate.js")
+for (let site = 0; site < climate.cycloneCount; site++) {
+  const sizes = Array.from({ length: 16 }, (_, cycle) => cycloneState(cycle * 30 + 8, site).size)
+  assert.ok(sizes.every((size) => size >= 1 && size <= 1.5))
+  assert.ok(new Set(sizes).size > 1, "cyclone size should be rerolled each appearance")
+}
+for (let site = 0; site < climate.stormCenterCount; site++) {
+  const sizes = Array.from({ length: 16 }, (_, cycle) =>
+    stormState(cycle * climate.stormSchedules[site].period + 8, site).size)
+  assert.ok(sizes.every((size) => size >= 1 && size <= 1.5))
+  assert.ok(new Set(sizes).size > 1, "storm cloud size should be rerolled each appearance")
+}
 const cyclonePeriod = 30
 let activeTime = 0
 for (let t = 0; t < cyclonePeriod; t += 0.1)
@@ -445,11 +472,22 @@ for (const site of cycloneSites) {
       "random cyclone drift must stay over its glacier or ocean")
   }
 }
-assert.equal(climate.lightningCount, 24)
-const cycloneClouds = climateRoot.children[2], thinWind = climateRoot.children[3],
+assert.equal(climate.lightningCount, 25)
+const rainClouds = climateRoot.children[1], cycloneClouds = climateRoot.children[2],
+  thinWind = climateRoot.children[3],
   monsoon = climateRoot.children[4], vortices = climateRoot.children[5],
-  lightning = climateRoot.children[7]
+  rain = climateRoot.children[6], lightning = climateRoot.children[7]
 assert.ok(climate.windRibbonCount < climate.windParticleCount / 3)
+assert.ok(rainClouds.isInstancedMesh && rainClouds.count === climate.stormCloudCount)
+for (const attr of ["aStormCenter", "aStormPeriod", "aStormPhase", "aStormSeed"])
+  assert.equal(rainClouds.geometry.attributes[attr].count, rainClouds.count)
+assert.equal(new Set(rainClouds.geometry.attributes.aStormPeriod.array).size, 5)
+assert.equal(new Set(rain.geometry.attributes.aStormPeriod.array).size, 5)
+assert.equal(new Set(lightning.geometry.attributes.aStormPeriod.array).size, 5)
+assert.ok(climateRoot.children[0].material.vertexShader.includes("clearCycloneClouds"),
+  "ordinary clouds should clear out around an active cyclone")
+assert.ok(rainClouds.material.vertexShader.includes("duration=10.0+5.0*cycloneRandom"))
+assert.ok(rainClouds.material.vertexShader.includes("stormSize=1.0+0.5*cycloneRandom"))
 assert.ok(cycloneClouds.isInstancedMesh && cycloneClouds.count === climate.polarCloudCount)
 assert.equal(cycloneClouds.geometry.attributes.aVortexCenter.count, cycloneClouds.count)
 assert.equal(cycloneClouds.geometry.attributes.aVortexSite.count, cycloneClouds.count)
@@ -465,6 +503,12 @@ assert.ok(cycloneClouds.material.fragmentShader.includes("iceTint=vec3(0.76,0.91
 assert.ok(cycloneClouds.material.fragmentShader.includes("tropicalTint=vec3(0.96,0.76,0.73)"))
 assert.ok(cycloneClouds.material.fragmentShader.includes("float crystal="))
 assert.ok(vortices.material.fragmentShader.includes("vec3 tropical=vec3(0.82,0.67,0.66)"))
+assert.ok(vortices.material.fragmentShader.includes("vec3(0.035,0.052,0.073)"),
+  "a cyclone overlapping a storm should darken")
+assert.ok(rain.material.vertexShader.includes("stormPulse"))
+assert.ok(lightning.material.vertexShader.includes("stormPulse"))
+assert.ok(rain.material.vertexShader.includes("1.0+0.8*uCycloneStorm"))
+assert.ok(lightning.material.vertexShader.includes("1.0+0.8*uCycloneStorm"))
 let closestToEye = Infinity, farthestFromEye = 0
 const cloudDirection = new T.Vector3(), eyeDirection = new T.Vector3(),
   vortexMatrix = new T.Matrix4()
@@ -506,7 +550,7 @@ assert.ok(monsoon.material.vertexShader.includes("fract(uTime*0.028+aLifetime)")
 assert.ok(new Set(thinWind.geometry.attributes.aLifetime.array).size > 400)
 assert.ok(new Set(monsoon.geometry.attributes.aLifetime.array).size > 100)
 for (let i = 0; i < climate.windRibbonCount; i++) {
-  const [lat, lon] = climate.stormCenters[i % 3],
+  const [lat, lon] = climate.stormCenters[i % climate.stormCenters.length],
     anchor = monsoon.geometry.attributes.aAnchor
   assert.ok(Math.abs(anchor.getX(i * 14) - lon * Math.PI / 180) <= 15 * Math.PI / 180)
   assert.ok(Math.abs(anchor.getY(i * 14) - lat * Math.PI / 180) <= 8 * Math.PI / 180)
@@ -523,6 +567,19 @@ for (let i = 0; i < vortexCenters.count; i++) {
 }
 assert.equal(new Set(vortices.geometry.attributes.aCycle.array).size, 2)
 assert.equal(climate.cycloneCenters.length, 2, "use one glacier and one tropical cyclone")
+let stormLinkedCyclone = false
+for (let t = 0; t <= 180; t += 0.5) {
+  climate.update(detailWeights(VIEW_LEVELS[2].distance), t * 1000, false)
+  const intensity = Math.max(vortices.material.uniforms.uCycloneStorm0.value,
+    vortices.material.uniforms.uCycloneStorm1.value)
+  if (intensity > 0.05) {
+    stormLinkedCyclone = true
+    assert.ok(rain.material.uniforms.uCycloneStorm.value > 0.05)
+    assert.ok(lightning.material.uniforms.uCycloneStorm.value > 0.05)
+    break
+  }
+}
+assert.ok(stormLinkedCyclone, "nearby active storm clouds should link to a cyclone")
 assert.ok(lightning.isMesh && lightning.geometry.index.count > 800)
 const boltVertices = lightning.geometry.attributes.position.array
 let highestBolt = 0

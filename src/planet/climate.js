@@ -1,7 +1,7 @@
 import * as T from "three"
 import { direction, sample, seeded } from "./field.js"
 
-const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160]]
+const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160], [-20, -125], [45, -50]]
 const CYCLONE_CENTERS = [[79, -55], [5, -85]]
 const CYCLONE_PERIOD = 30
 const CYCLONE_RATE = 1 / CYCLONE_PERIOD
@@ -15,6 +15,14 @@ const cycloneHash = (value) => {
   const raw = Math.sin(value * 127.1 + 311.7) * 43758.5453
   return raw - Math.floor(raw)
 }
+const STORM_SCHEDULES = STORM_CENTERS.map((_, site) => {
+  const seed = 73.17 + site * 21.31
+  return {
+    period: 20 + cycloneHash(seed) * 10,
+    phase: cycloneHash(seed + 8.3) * 30,
+    seed,
+  }
+})
 export function cycloneState(time, site) {
   const phase = time * CYCLONE_RATE + cycloneCycle(site)
   const cycle = Math.floor(phase), event = phase - cycle
@@ -24,29 +32,102 @@ export function cycloneState(time, site) {
   const heading = cycloneHash(seed) * Math.PI * 2
   const travel = smoothPulse(0.08, 0.30, event)
   const distance = (0.07 + cycloneHash(seed + 11.7) * 0.07) * travel
-  return { event, pulse, cycle, heading, distance }
+  const size = 1 + 0.5 * cycloneHash(seed + 23.6)
+  return { event, pulse, cycle, heading, distance, size }
+}
+export function stormState(time, site) {
+  const schedule = STORM_SCHEDULES[site]
+  const phase = (time + schedule.phase) / schedule.period
+  const cycle = Math.floor(phase)
+  const elapsed = (phase - cycle) * schedule.period
+  const duration = 10 + 5 * cycloneHash(schedule.seed + cycle * 31.7 + 7.9)
+  const pulse = smoothPulse(0.15, 1.15, elapsed) *
+    (1 - smoothPulse(duration - 1.25, duration, elapsed))
+  const size = 1 + 0.5 * cycloneHash(schedule.seed + cycle * 13.7 + 61.1)
+  return { cycle, elapsed, duration, pulse, size, period: schedule.period, phaseOffset: schedule.phase }
 }
 
 const cloudVertexShader = `
 uniform float uTime;
 uniform float uDrift;
+uniform float uStormClouds;
+uniform vec3 uCycloneCenter0;
+uniform vec3 uCycloneEast0;
+uniform vec3 uCycloneNorth0;
+uniform vec3 uCycloneCenter1;
+uniform vec3 uCycloneEast1;
+uniform vec3 uCycloneNorth1;
+attribute vec3 aStormCenter;
+attribute float aStormPeriod;
+attribute float aStormPhase;
+attribute float aStormSeed;
 varying vec3 vCloudNormal;
 varying vec3 vCloudPosition;
+varying float vStormPulse;
+varying float vCycloneClearance;
+float cycloneRandom(float value){return fract(sin(value*127.1+311.7)*43758.5453);}
+void weatherCyclone(vec3 baseCenter,vec3 east,vec3 north,float cycleOffset,float site,
+  out vec3 center,out float pulse,out float size){
+  float cyclePhase=uTime*0.0333333333+cycleOffset;
+  float cycleIndex=floor(cyclePhase);
+  float event=fract(cyclePhase);
+  float seed=cycleIndex*7.13+site*19.19;
+  float cycloneSize=1.0+0.5*cycloneRandom(seed+23.6);
+  float heading=cycloneRandom(seed)*6.2831853;
+  float travel=smoothstep(0.08,0.30,event);
+  float drift=(0.07+cycloneRandom(seed+11.7)*0.07)*travel;
+  center=normalize(baseCenter+(cos(heading)*east+sin(heading)*north)*drift);
+  pulse=smoothstep(0.025,0.10,event)*(1.0-smoothstep(0.45,0.525,event));
+  size=1.0+0.5*cycloneRandom(seed+23.6);
+}
+float clearCycloneClouds(vec3 cloudDirection){
+  vec3 center0,center1;
+  float pulse0,pulse1,size0,size1;
+  weatherCyclone(uCycloneCenter0,uCycloneEast0,uCycloneNorth0,0.13,0.0,
+    center0,pulse0,size0);
+  weatherCyclone(uCycloneCenter1,uCycloneEast1,uCycloneNorth1,0.63,1.0,
+    center1,pulse1,size1);
+  float distance0=acos(clamp(dot(cloudDirection,center0),-1.0,1.0));
+  float distance1=acos(clamp(dot(cloudDirection,center1),-1.0,1.0));
+  float radius0=0.615*size0;
+  float radius1=0.615*size1;
+  float cut0=1.0-smoothstep(radius0*0.78,radius0,distance0);
+  float cut1=1.0-smoothstep(radius1*0.78,radius1,distance1);
+  return (1.0-pulse0*cut0)*(1.0-pulse1*cut1);
+}
 void main(){
   vec4 localPosition=vec4(position,1.0);
+  vec3 instanceCenter=vec3(0.0);
   vec3 localNormal=normal;
   #ifdef USE_INSTANCING
     localPosition=instanceMatrix*localPosition;
+    instanceCenter=instanceMatrix[3].xyz;
     mat3 cloudBasis=mat3(instanceMatrix);
     vec3 normalScale=vec3(dot(cloudBasis[0],cloudBasis[0]),
       dot(cloudBasis[1],cloudBasis[1]),dot(cloudBasis[2],cloudBasis[2]));
     localNormal=cloudBasis*(localNormal/normalScale);
   #endif
+  vStormPulse=1.0;
+  vCycloneClearance=1.0;
+  if(uStormClouds>0.5){
+    float stormTime=uTime+aStormPhase;
+    float stormCycle=floor(stormTime/aStormPeriod);
+    float elapsed=mod(stormTime,aStormPeriod);
+    float duration=10.0+5.0*cycloneRandom(aStormSeed+stormCycle*31.7+7.9);
+    float stormSize=1.0+0.5*cycloneRandom(aStormSeed+stormCycle*13.7+61.1);
+    vStormPulse=smoothstep(0.15,1.15,elapsed)*
+      (1.0-smoothstep(duration-1.25,duration,elapsed));
+    vec3 stormAnchor=normalize(aStormCenter)*1.136;
+    localPosition.xyz=stormAnchor+(localPosition.xyz-stormAnchor)*stormSize;
+    instanceCenter=stormAnchor+(instanceCenter-stormAnchor)*stormSize;
+  }
   float angle=uTime*uDrift;
   float c=cos(angle),s=sin(angle);
   mat2 rotation=mat2(c,-s,s,c);
   localPosition.xz=rotation*localPosition.xz;
+  instanceCenter.xz=rotation*instanceCenter.xz;
   localNormal.xz=rotation*localNormal.xz;
+  if(uStormClouds<0.5)vCycloneClearance=clearCycloneClouds(normalize(instanceCenter));
   vec4 viewPosition=modelViewMatrix*localPosition;
   vCloudNormal=normalize(normalMatrix*localNormal);
   vCloudPosition=localPosition.xyz;
@@ -59,6 +140,8 @@ uniform float uOpacity;
 uniform vec3 uColor;
 varying vec3 vCloudNormal;
 varying vec3 vCloudPosition;
+varying float vStormPulse;
+varying float vCycloneClearance;
 void main(){
   vec3 normalDirection=normalize(vCloudNormal);
   float light=dot(normalDirection,normalize(vec3(-0.35,0.72,0.58)))*0.5+0.5;
@@ -66,17 +149,29 @@ void main(){
   float bands=floor((light+grain*0.045)*4.0+0.5)/4.0;
   float rim=pow(1.0-abs(normalDirection.z),2.2);
   vec3 color=uColor*(0.58+bands*0.44)+vec3(0.025,0.047,0.06)*rim;
-  float alpha=uOpacity*(0.76+bands*0.2+rim*0.12);
+  float alpha=uOpacity*(0.76+bands*0.2+rim*0.12)*vStormPulse*vCycloneClearance;
   gl_FragColor=vec4(color,alpha);
 }`
 
-function cloudMaterial(color, drift) {
+function cloudMaterial(color, drift, stormClouds = false) {
+  const cycloneUniforms = {}
+  CYCLONE_CENTERS.forEach(([latitude, longitude], site) => {
+    const center = new T.Vector3(...direction(latitude, longitude)),
+      east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
+        -Math.sin(longitude * Math.PI / 180)).normalize(),
+      north = new T.Vector3().crossVectors(center, east).normalize()
+    cycloneUniforms[`uCycloneCenter${site}`] = { value: center }
+    cycloneUniforms[`uCycloneEast${site}`] = { value: east }
+    cycloneUniforms[`uCycloneNorth${site}`] = { value: north }
+  })
   return new T.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
       uDrift: { value: drift },
       uOpacity: { value: 0 },
+      uStormClouds: { value: stormClouds ? 1 : 0 },
       uColor: { value: new T.Color(color) },
+      ...cycloneUniforms,
     },
     vertexShader: cloudVertexShader,
     fragmentShader: cloudFragmentShader,
@@ -118,7 +213,7 @@ vec3 applyCycloneFlow(vec3 point, vec3 baseCenter, vec3 east, vec3 north,
   vec3 direction=normalize(point);
   float cosine=clamp(dot(direction,center),-1.0,1.0);
   float distance=acos(cosine);
-  float influence=(1.0-smoothstep(0.0,uCycloneInfluenceRadius,distance))*pulse;
+  float influence=(1.0-smoothstep(0.0,uCycloneInfluenceRadius*cycloneSize,distance))*pulse;
   vec3 tangent=direction-center*cosine;
   float tangentLength=length(tangent);
   if(influence<=0.001||tangentLength<0.00001)return point;
@@ -146,19 +241,31 @@ void main(){
 const rainVertexShader = `
 uniform float uTime;
 uniform float uOpacity;
+uniform float uCycloneStorm;
 attribute float aPhase;
 attribute float aSpeed;
 attribute float aTail;
 attribute float aGround;
+attribute float aStormPeriod;
+attribute float aStormPhase;
+attribute float aStormSeed;
 varying float vAlpha;
+float cycloneRandom(float value){return fract(sin(value*127.1+311.7)*43758.5453);}
 void main(){
   float progress=fract(aPhase+uTime*aSpeed);
   float radius=mix(1.16,aGround,progress)+aTail*0.014;
+  float stormTime=uTime+aStormPhase;
+  float stormCycle=floor(stormTime/aStormPeriod);
+  float stormElapsed=mod(stormTime,aStormPeriod);
+  float stormDuration=10.0+5.0*cycloneRandom(aStormSeed+stormCycle*31.7+7.9);
+  float stormPulse=smoothstep(0.15,1.15,stormElapsed)*
+    (1.0-smoothstep(stormDuration-1.25,stormDuration,stormElapsed));
   float angle=uTime*0.011;
   float c=cos(angle),s=sin(angle);
   vec3 p=position*radius;
   p.xz=mat2(c,-s,s,c)*p.xz;
-  vAlpha=uOpacity*mix(1.0,0.12,aTail)*(0.55+0.45*sin(aPhase*31.0)*sin(aPhase*31.0));
+  vAlpha=uOpacity*mix(1.0,0.12,aTail)*(0.55+0.45*sin(aPhase*31.0)*sin(aPhase*31.0))*
+    stormPulse*(1.0+0.8*uCycloneStorm);
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
 
@@ -341,13 +448,14 @@ void main(){
   float cycleIndex=floor(cyclePhase);
   float event=fract(cyclePhase);
   float seed=cycleIndex*7.13+aSite*19.19;
+  float cycloneSize=1.0+0.5*cycloneRandom(seed+23.6);
   float heading=cycloneRandom(seed)*6.2831853;
   float travel=smoothstep(0.08,0.30,event);
   float distance=(0.07+cycloneRandom(seed+11.7)*0.07)*travel;
   vec3 center=normalize(aCenter+(cos(heading)*aEast+sin(heading)*aNorth)*distance);
   float angle=aArm+aTrail*4.8-uTime*0.26;
   vec3 outward=cos(angle)*aEast+sin(angle)*aNorth;
-  float radius=0.055+aTrail*0.15+aSide*aWidth;
+  float radius=(0.055+aTrail*0.15)*cycloneSize+aSide*aWidth*cycloneSize;
   vec3 p=normalize(center+outward*radius)*1.187;
   float pulse=smoothstep(0.025,0.10,event)*(1.0-smoothstep(0.45,0.525,event));
   vAlpha=uOpacity*pulse*sin(3.14159265*aTrail);
@@ -359,10 +467,14 @@ const vortexFragmentShader = `
 varying float vAlpha;
 varying float vCycloneSite;
 uniform vec3 uColor;
+uniform float uCycloneStorm0;
+uniform float uCycloneStorm1;
 void main(){
   vec3 ice=vec3(0.69,0.86,1.0);
   vec3 tropical=vec3(0.82,0.67,0.66);
-  gl_FragColor=vec4(uColor*mix(ice,tropical,vCycloneSite),vAlpha);
+  float storm=mix(uCycloneStorm0,uCycloneStorm1,step(0.5,vCycloneSite));
+  vec3 color=mix(uColor*mix(ice,tropical,vCycloneSite),vec3(0.035,0.052,0.073),storm);
+  gl_FragColor=vec4(color,vAlpha*(1.0+0.22*storm));
 }`
 
 function gpuPolarVortices(rand) {
@@ -408,6 +520,8 @@ function gpuPolarVortices(rand) {
   geometry.setIndex(indices)
   const material = particleMaterial(polarWindVertexShader, 0xffffff)
   material.fragmentShader = vortexFragmentShader
+  material.uniforms.uCycloneStorm0 = { value: 0 }
+  material.uniforms.uCycloneStorm1 = { value: 0 }
   const mesh = new T.Mesh(geometry, material)
   mesh.material.side = T.DoubleSide
   mesh.frustumCulled = false
@@ -442,6 +556,7 @@ void main(){
   float cycleIndex=floor(cyclePhase);
   float event=fract(cyclePhase);
   float seed=cycleIndex*7.13+aVortexSite*19.19;
+  float cycloneSize=1.0+0.5*cycloneRandom(seed+23.6);
   float heading=cycloneRandom(seed)*6.2831853;
   float travel=smoothstep(0.08,0.30,event);
   float distance=(0.07+cycloneRandom(seed+11.7)*0.07)*travel;
@@ -450,6 +565,7 @@ void main(){
   float angle=-uTime*0.26;
   float c=cos(angle),s=sin(angle);
   vec3 offset=p-aVortexCenter*1.161;
+  offset*=cycloneSize;
   p=center*1.161+offset*c+cross(center,offset)*s
     +center*dot(center,offset)*(1.0-c);
   n=n*c+cross(center,n)*s+center*dot(center,n)*(1.0-c);
@@ -462,6 +578,8 @@ void main(){
 const cycloneCloudFragmentShader = `
 uniform float uOpacity;
 uniform vec3 uColor;
+uniform float uCycloneStorm0;
+uniform float uCycloneStorm1;
 varying vec3 vCloudNormal;
 varying float vPulse;
 varying float vCycloneSite;
@@ -475,7 +593,9 @@ void main(){
   float crystal=pow(max(0.0,dot(normalize(vCloudNormal),
     normalize(vec3(0.22,0.86,0.46)))),18.0);
   color+=(1.0-vCycloneSite)*crystal*vec3(0.07,0.14,0.22);
-  gl_FragColor=vec4(color,uOpacity*vPulse*(0.68+band*0.27));
+  float storm=mix(uCycloneStorm0,uCycloneStorm1,step(0.5,vCycloneSite));
+  color=mix(color,vec3(0.028,0.042,0.062)*(0.72+band*0.4),storm);
+  gl_FragColor=vec4(color,uOpacity*vPulse*(0.68+band*0.27)*(1.0+0.22*storm));
 }`
 
 function gpuPolarCloudWalls(rand, baseGeometry) {
@@ -517,6 +637,8 @@ function gpuPolarCloudWalls(rand, baseGeometry) {
       uniforms: {
         uTime: { value: 0 }, uOpacity: { value: 0 },
         uColor: { value: new T.Color(0xf1f8fa) },
+        uCycloneStorm0: { value: 0 },
+        uCycloneStorm1: { value: 0 },
       },
       vertexShader: cycloneCloudVertexShader,
       fragmentShader: cycloneCloudFragmentShader,
@@ -552,24 +674,40 @@ function gpuPolarCloudWalls(rand, baseGeometry) {
 const lightningVertexShader = `
 uniform float uTime;
 uniform float uOpacity;
+uniform float uCycloneStorm;
 attribute float aPhase;
 attribute float aRate;
 attribute float aProgress;
+attribute float aStormPeriod;
+attribute float aStormPhase;
+attribute float aStormSeed;
 varying float vAlpha;
+float cycloneRandom(float value){return fract(sin(value*127.1+311.7)*43758.5453);}
 void main(){
   float angle=uTime*0.011;
   float c=cos(angle),s=sin(angle);
   vec3 p=position;
   p.xz=mat2(c,-s,s,c)*p.xz;
   float flash=pow(max(0.0,sin(uTime*aRate+aPhase)),28.0);
-  vAlpha=uOpacity*flash*(1.0-0.55*aProgress);
+  float stormTime=uTime+aStormPhase;
+  float stormCycle=floor(stormTime/aStormPeriod);
+  float stormElapsed=mod(stormTime,aStormPeriod);
+  float stormDuration=10.0+5.0*cycloneRandom(aStormSeed+stormCycle*31.7+7.9);
+  float stormPulse=smoothstep(0.15,1.15,stormElapsed)*
+    (1.0-smoothstep(stormDuration-1.25,stormDuration,stormElapsed));
+  vAlpha=uOpacity*flash*(1.0-0.55*aProgress)*stormPulse*(1.0+0.8*uCycloneStorm);
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
 
-function gpuLightning(rand, rainItems, count = 24) {
-  const positions = [], phases = [], rates = [], progresses = [], indices = []
+function gpuLightning(rand, rainItems, count = 25) {
+  const positions = [], phases = [], rates = [], progresses = [],
+    stormPeriods = [], stormPhases = [], stormSeeds = [], indices = []
   for (let i = 0; i < count; i++) {
-    const center = rainItems[(i * 7) % rainItems.length].v,
+    const stormSite = i % STORM_CENTERS.length,
+      candidates = rainItems.filter((item) => item.stormSite === stormSite),
+      stormAnchor = candidates[(i * 7) % candidates.length],
+      schedule = STORM_SCHEDULES[stormSite],
+      center = stormAnchor.v,
       axis = new T.Vector3(0, 1, 0).cross(center).normalize(),
       across = center.clone().cross(axis).normalize(),
       ground = 1 + Math.max(0, sample(center.x, center.y, center.z).h) + 0.005,
@@ -590,6 +728,9 @@ function gpuLightning(rand, rainItems, count = 24) {
         phases.push(phase)
         rates.push(rate)
         progresses.push(progress)
+        stormPeriods.push(schedule.period)
+        stormPhases.push(schedule.phase)
+        stormSeeds.push(schedule.seed)
       }
       if (j < 10) {
         const n = base + 2 * j
@@ -602,8 +743,13 @@ function gpuLightning(rand, rainItems, count = 24) {
   geometry.setAttribute("aPhase", new T.Float32BufferAttribute(phases, 1))
   geometry.setAttribute("aRate", new T.Float32BufferAttribute(rates, 1))
   geometry.setAttribute("aProgress", new T.Float32BufferAttribute(progresses, 1))
+  geometry.setAttribute("aStormPeriod", new T.Float32BufferAttribute(stormPeriods, 1))
+  geometry.setAttribute("aStormPhase", new T.Float32BufferAttribute(stormPhases, 1))
+  geometry.setAttribute("aStormSeed", new T.Float32BufferAttribute(stormSeeds, 1))
   geometry.setIndex(indices)
-  const mesh = new T.Mesh(geometry, particleMaterial(lightningVertexShader, 0xe2ffff))
+  const material = particleMaterial(lightningVertexShader, 0xe2ffff)
+  material.uniforms.uCycloneStorm = { value: 0 }
+  const mesh = new T.Mesh(geometry, material)
   mesh.material.side = T.DoubleSide
   mesh.frustumCulled = false
   mesh.renderOrder = 7
@@ -615,7 +761,7 @@ function gpuRain(rand, rainItems, count = 720) {
     phases = [],
     speeds = [],
     tails = [],
-    grounds = []
+    grounds = [], stormPeriods = [], stormPhases = [], stormSeeds = []
   for (let i = 0; i < count; i++) {
     const item = rainItems[i % rainItems.length],
       jitter = new T.Vector3(rand() - 0.5, rand() - 0.5, rand() - 0.5)
@@ -624,13 +770,17 @@ function gpuRain(rand, rainItems, count = 720) {
         .normalize(),
       phase = rand(),
       speed = 0.34 + rand() * 0.52,
-      ground = 1 + Math.max(0, sample(jitter.x, jitter.y, jitter.z).h) + 0.004
+      ground = 1 + Math.max(0, sample(jitter.x, jitter.y, jitter.z).h) + 0.004,
+      schedule = STORM_SCHEDULES[item.stormSite]
     for (const tail of [0, 1]) {
       positions.push(jitter.x, jitter.y, jitter.z)
       phases.push(phase)
       speeds.push(speed)
       tails.push(tail)
       grounds.push(ground)
+      stormPeriods.push(schedule.period)
+      stormPhases.push(schedule.phase)
+      stormSeeds.push(schedule.seed)
     }
   }
   const geometry = new T.BufferGeometry()
@@ -639,8 +789,12 @@ function gpuRain(rand, rainItems, count = 720) {
   geometry.setAttribute("aSpeed", new T.Float32BufferAttribute(speeds, 1))
   geometry.setAttribute("aTail", new T.Float32BufferAttribute(tails, 1))
   geometry.setAttribute("aGround", new T.Float32BufferAttribute(grounds, 1))
-  const material = particleMaterial(rainVertexShader, 0xa8dff7),
-    lines = new T.LineSegments(geometry, material)
+  geometry.setAttribute("aStormPeriod", new T.Float32BufferAttribute(stormPeriods, 1))
+  geometry.setAttribute("aStormPhase", new T.Float32BufferAttribute(stormPhases, 1))
+  geometry.setAttribute("aStormSeed", new T.Float32BufferAttribute(stormSeeds, 1))
+  const material = particleMaterial(rainVertexShader, 0xa8dff7)
+  material.uniforms.uCycloneStorm = { value: 0 }
+  const lines = new T.LineSegments(geometry, material)
   lines.frustumCulled = false
   lines.renderOrder = 4
   return lines
@@ -652,7 +806,40 @@ export function addClimate(root) {
     helper = new T.Object3D(),
     cloudGeometry = new T.SphereGeometry(1, 12, 8),
     cloudItems = [],
-    rainItems = []
+    rainItems = [],
+    stormDirections = STORM_CENTERS.map(([latitude, longitude]) =>
+      new T.Vector3(...direction(latitude, longitude))),
+    cycloneFrames = CYCLONE_CENTERS.map(([latitude, longitude]) => {
+      const center = new T.Vector3(...direction(latitude, longitude)),
+        east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
+          -Math.sin(longitude * Math.PI / 180)).normalize(),
+        north = new T.Vector3().crossVectors(center, east).normalize()
+      return { center, east, north }
+    })
+
+  function cycloneStormLevels(time) {
+    const levels = [0, 0]
+    cycloneFrames.forEach(({ center, east, north }, site) => {
+      const cyclone = cycloneState(time, site)
+      if (cyclone.pulse <= 0) return
+      const movingCenter = center.clone()
+        .addScaledVector(east, Math.cos(cyclone.heading) * cyclone.distance)
+        .addScaledVector(north, Math.sin(cyclone.heading) * cyclone.distance)
+        .normalize()
+      STORM_SCHEDULES.forEach((_, stormSite) => {
+        const storm = stormState(time, stormSite)
+        if (storm.pulse <= 0) return
+        const movingStormCenter = stormDirections[stormSite].clone()
+          .applyAxisAngle(up, -time * 0.011)
+        const reach = CYCLONE_WIND_INFLUENCE_RADIUS * cyclone.size + 0.18 * storm.size,
+          separation = movingCenter.angleTo(movingStormCenter),
+          proximity = 1 - smoothPulse(reach * 0.55, reach, separation),
+          overlap = cyclone.pulse * storm.pulse * proximity
+        levels[site] = Math.max(levels[site], overlap)
+      })
+    })
+    return levels
+  }
 
   // Distinct large, medium, and small banks; rounded lobes vary in height
   // as well as footprint so they read as cloud volumes from the horizon.
@@ -661,8 +848,8 @@ export function addClimate(root) {
     { count: 20, min: 0.063, range: 0.037, lobes: 3 },
     { count: 38, min: 0.024, range: 0.032, lobes: 1 },
   ]
-  function addCloudCluster(items, v, scale, lobes) {
-    items.push({ v, scale, lift: 0 })
+  function addCloudCluster(items, v, scale, lobes, metadata = {}) {
+    items.push({ v, scale, lift: 0, ...metadata })
     const tangent = new T.Vector3().crossVectors(v, up)
     if (tangent.lengthSq() < 0.01) tangent.set(1, 0, 0)
     tangent.normalize()
@@ -679,6 +866,7 @@ export function addClimate(root) {
         v: lobe,
         scale: scale * (0.43 + rand() * 0.39),
         lift: scale * (rand() - 0.36) * 0.19,
+        ...metadata,
       })
     }
   }
@@ -700,25 +888,54 @@ export function addClimate(root) {
     if (++inBand >= size.count) { band++; inBand = 0 }
   }
 
-  // Three wet mainland and island systems share the dark banks, rain, and
-  // electrical activity. Keep the dry continents free of storm coverage.
+  // Five separated storm cells share their own schedule with local rain and
+  // lightning. Their activity and size vary independently on every cycle.
   const stormCloudItems = []
-  for (const [lat, lon] of STORM_CENTERS) {
+  for (let stormSite = 0; stormSite < STORM_CENTERS.length; stormSite++) {
+    const [lat, lon] = STORM_CENTERS[stormSite],
+      schedule = STORM_SCHEDULES[stormSite]
     const center = new T.Vector3(...direction(lat, lon))
-    for (let i = 0; i < 24; i++) {
+    const metadata = {
+      stormCenter: center,
+      stormSite,
+      stormPeriod: schedule.period,
+      stormPhase: schedule.phase,
+      stormSeed: schedule.seed,
+    }
+    for (let i = 0; i < 26; i++) {
       const v = center.clone().add(new T.Vector3(
         rand() - 0.5, rand() - 0.5, rand() - 0.5,
-      ).multiplyScalar(i < 4 ? 0.07 : 0.18)).normalize()
+      ).multiplyScalar(i < 6 ? 0.075 : 0.18)).normalize()
       const terrain = sample(v.x, v.y, v.z)
       if (terrain.desert > 0.24 || terrain.polar > 0.35) continue
-      const scale = i < 4 ? 0.076 + rand() * 0.035 : 0.032 + rand() * 0.048
-      addCloudCluster(stormCloudItems, v, scale, i < 4 ? 2 : i % 3 === 0 ? 1 : 0)
-      if (i % 2 === 0) rainItems.push({ v })
+      const scale = i < 6 ? 0.082 + rand() * 0.038 : 0.036 + rand() * 0.052
+      addCloudCluster(stormCloudItems, v, scale,
+        i < 6 ? 2 : i % 3 === 0 ? 1 : 0, metadata)
+      if (i % 2 === 0) rainItems.push({ v, stormSite })
     }
+    if (!rainItems.some((item) => item.stormSite === stormSite))
+      rainItems.push({ v: center, stormSite })
   }
 
-  function cloudMesh(items, material, altitude) {
-    const mesh = new T.InstancedMesh(cloudGeometry, material, items.length)
+  function cloudMesh(items, material, altitude, stormClouds = false) {
+    const geometry = cloudGeometry.clone()
+    if (stormClouds) {
+      const centers = new Float32Array(items.length * 3),
+        periods = new Float32Array(items.length),
+        phases = new Float32Array(items.length),
+        seeds = new Float32Array(items.length)
+      items.forEach(({ stormCenter, stormPeriod, stormPhase, stormSeed }, i) => {
+        stormCenter.toArray(centers, i * 3)
+        periods[i] = stormPeriod
+        phases[i] = stormPhase
+        seeds[i] = stormSeed
+      })
+      geometry.setAttribute("aStormCenter", new T.InstancedBufferAttribute(centers, 3))
+      geometry.setAttribute("aStormPeriod", new T.InstancedBufferAttribute(periods, 1))
+      geometry.setAttribute("aStormPhase", new T.InstancedBufferAttribute(phases, 1))
+      geometry.setAttribute("aStormSeed", new T.InstancedBufferAttribute(seeds, 1))
+    }
+    const mesh = new T.InstancedMesh(geometry, material, items.length)
     items.forEach(({ v, scale, lift }, i) => {
       helper.position.copy(v).multiplyScalar(altitude + lift)
       helper.quaternion.setFromUnitVectors(up, v)
@@ -733,12 +950,13 @@ export function addClimate(root) {
     })
     mesh.instanceMatrix.needsUpdate = true
     mesh.computeBoundingSphere()
+    if (stormClouds) mesh.frustumCulled = false
     mesh.renderOrder = 3
     return mesh
   }
 
   const clouds = cloudMesh(cloudItems, cloudMaterial(0xf1f7f5, 0.008), 1.095),
-    rainClouds = cloudMesh(stormCloudItems, cloudMaterial(0x4d6373, 0.011), 1.136),
+    rainClouds = cloudMesh(stormCloudItems, cloudMaterial(0x374a59, 0.011, true), 1.136, true),
     wind = gpuWind(rand),
     monsoon = gpuMonsoonBands(rand),
     vortices = gpuPolarVortices(rand),
@@ -759,10 +977,13 @@ export function addClimate(root) {
     windRibbonCount: monsoon.geometry.attributes.aAnchor.count / 14,
     cycloneCount: CYCLONE_CENTERS.length,
     cycloneCenters: CYCLONE_CENTERS,
+    stormCenterCount: STORM_CENTERS.length,
+    stormSchedules: STORM_SCHEDULES,
     polarCloudCount: cycloneClouds.count,
     lightningCount: lightning.geometry.attributes.aPhase.count / 22,
     update(weights, now, reduced) {
       const time = reduced ? 0 : now * 0.001
+      const cycloneStorm = cycloneStormLevels(time), stormIntensity = Math.max(...cycloneStorm)
       clouds.material.uniforms.uTime.value = time
       clouds.material.uniforms.uOpacity.value = weights.clouds * 0.43
       rainClouds.material.uniforms.uTime.value = time
@@ -770,6 +991,8 @@ export function addClimate(root) {
       cycloneClouds.visible = weights.weather > 0.01
       cycloneClouds.material.uniforms.uTime.value = time
       cycloneClouds.material.uniforms.uOpacity.value = weights.weather * 0.52
+      cycloneClouds.material.uniforms.uCycloneStorm0.value = cycloneStorm[0]
+      cycloneClouds.material.uniforms.uCycloneStorm1.value = cycloneStorm[1]
       wind.visible = weights.weather > 0.01
       wind.material.uniforms.uTime.value = time
       wind.material.uniforms.uOpacity.value = weights.weather * 0.48
@@ -779,12 +1002,16 @@ export function addClimate(root) {
       vortices.visible = weights.weather > 0.01
       vortices.material.uniforms.uTime.value = time
       vortices.material.uniforms.uOpacity.value = weights.weather * 0.16
+      vortices.material.uniforms.uCycloneStorm0.value = cycloneStorm[0]
+      vortices.material.uniforms.uCycloneStorm1.value = cycloneStorm[1]
       rain.visible = weights.weather > 0.01
       rain.material.uniforms.uTime.value = time
       rain.material.uniforms.uOpacity.value = weights.weather * 0.46
+      rain.material.uniforms.uCycloneStorm.value = stormIntensity
       lightning.visible = weights.weather > 0.01 && !reduced
       lightning.material.uniforms.uTime.value = time
       lightning.material.uniforms.uOpacity.value = weights.weather * 0.92
+      lightning.material.uniforms.uCycloneStorm.value = stormIntensity
     },
   }
 }
