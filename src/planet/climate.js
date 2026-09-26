@@ -1,11 +1,12 @@
 import * as T from "three"
 import { direction, sample, seeded } from "./field.js"
 
-const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160], [-20, -125], [45, -50]]
+const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160], [-20, -125]]
 const CYCLONE_CENTERS = [[79, -55], [5, -85]]
 const CYCLONE_PERIOD = 30
 const CYCLONE_RATE = 1 / CYCLONE_PERIOD
 const CYCLONE_WIND_INFLUENCE_RADIUS = 0.615
+const GLACIER_STORM_CLEAR_RADIUS = 0.615
 const cycloneCycle = (site) => 0.13 + site * 0.5
 const smoothPulse = (a, b, value) => {
   const t = T.MathUtils.clamp((value - a) / (b - a), 0, 1)
@@ -51,6 +52,7 @@ const cloudVertexShader = `
 uniform float uTime;
 uniform float uDrift;
 uniform float uStormClouds;
+uniform float uGlacierStormClearRadius;
 uniform vec3 uCycloneCenter0;
 uniform vec3 uCycloneEast0;
 uniform vec3 uCycloneNorth0;
@@ -127,7 +129,19 @@ void main(){
   localPosition.xz=rotation*localPosition.xz;
   instanceCenter.xz=rotation*instanceCenter.xz;
   localNormal.xz=rotation*localNormal.xz;
-  if(uStormClouds<0.5)vCycloneClearance=clearCycloneClouds(normalize(instanceCenter));
+  if(uStormClouds>0.5){
+    vec3 glacierCenter;
+    float glacierPulse,glacierSize;
+    weatherCyclone(uCycloneCenter0,uCycloneEast0,uCycloneNorth0,0.13,0.0,
+      glacierCenter,glacierPulse,glacierSize);
+    glacierCenter.xz=rotation*glacierCenter.xz;
+    float glacierDistance=acos(clamp(dot(normalize(instanceCenter),
+      normalize(glacierCenter)),-1.0,1.0));
+    vCycloneClearance=smoothstep(uGlacierStormClearRadius*glacierSize*0.78,
+      uGlacierStormClearRadius*glacierSize+0.12,glacierDistance);
+  }else{
+    vCycloneClearance=clearCycloneClouds(normalize(instanceCenter));
+  }
   vec4 viewPosition=modelViewMatrix*localPosition;
   vCloudNormal=normalize(normalMatrix*localNormal);
   vCloudPosition=localPosition.xyz;
@@ -170,6 +184,7 @@ function cloudMaterial(color, drift, stormClouds = false) {
       uDrift: { value: drift },
       uOpacity: { value: 0 },
       uStormClouds: { value: stormClouds ? 1 : 0 },
+      uGlacierStormClearRadius: { value: GLACIER_STORM_CLEAR_RADIUS },
       uColor: { value: new T.Color(color) },
       ...cycloneUniforms,
     },
@@ -205,6 +220,7 @@ vec3 applyCycloneFlow(vec3 point, vec3 baseCenter, vec3 east, vec3 north,
   float cycleIndex=floor(cyclePhase);
   float event=fract(cyclePhase);
   float seed=cycleIndex*7.13+site*19.19;
+  float cycloneSize=1.0+0.5*cycloneRandom(seed+23.6);
   float heading=cycloneRandom(seed)*6.2831853;
   float travel=smoothstep(0.08,0.30,event);
   float drift=(0.07+cycloneRandom(seed+11.7)*0.07)*travel;
@@ -820,6 +836,9 @@ export function addClimate(root) {
   function cycloneStormLevels(time) {
     const levels = [0, 0]
     cycloneFrames.forEach(({ center, east, north }, site) => {
+      // Keep the glacier vortex blue and clear; only tropical weather cells
+      // can turn a cyclone dark or intensify its rain and lightning.
+      if (site === 0) return
       const cyclone = cycloneState(time, site)
       if (cyclone.pulse <= 0) return
       const movingCenter = center.clone()
@@ -888,7 +907,7 @@ export function addClimate(root) {
     if (++inBand >= size.count) { band++; inBand = 0 }
   }
 
-  // Five separated storm cells share their own schedule with local rain and
+  // Four separated storm cells share their own schedule with local rain and
   // lightning. Their activity and size vary independently on every cycle.
   const stormCloudItems = []
   for (let stormSite = 0; stormSite < STORM_CENTERS.length; stormSite++) {
@@ -974,6 +993,7 @@ export function addClimate(root) {
     rainParticleCount: rain.geometry.attributes.position.count / 2,
     stormCloudCount: stormCloudItems.length,
     stormCenters: STORM_CENTERS,
+    glacierStormClearRadius: GLACIER_STORM_CLEAR_RADIUS,
     windRibbonCount: monsoon.geometry.attributes.aAnchor.count / 14,
     cycloneCount: CYCLONE_CENTERS.length,
     cycloneCenters: CYCLONE_CENTERS,
@@ -982,7 +1002,9 @@ export function addClimate(root) {
     polarCloudCount: cycloneClouds.count,
     lightningCount: lightning.geometry.attributes.aPhase.count / 22,
     update(weights, now, reduced) {
-      const time = reduced ? 0 : now * 0.001
+      // Keep the atmosphere moving under reduced-motion preferences; only
+      // lightning flashes are suppressed below.
+      const time = now * 0.001
       const cycloneStorm = cycloneStormLevels(time), stormIntensity = Math.max(...cycloneStorm)
       clouds.material.uniforms.uTime.value = time
       clouds.material.uniforms.uOpacity.value = weights.clouds * 0.43
