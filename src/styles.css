@@ -44,7 +44,7 @@ html.app-mode header,.app-mode .zoom-map,.app-mode .hint,.app-mode .caption,.app
 .app-mode nav button{min-height:46px;gap:7px;padding:8px 5px;font-size:12px}
 .app-mode nav i{width:6px;height:19px}
 .app-mode nav small{font-size:10px;margin-top:3px}
-.app-mode .view-tools{right:12px;bottom:82px;gap:5px}
+.app-mode .view-tools{right:12px;top:56px;bottom:auto;gap:5px}
 .app-mode .view-tools button{width:38px;height:38px}
 .app-mode #level{font-size:11px}
 .app-mode #card{top:auto;right:12px;bottom:92px;width:min(250px,calc(100% - 24px));max-height:50dvh;overflow:auto;padding:16px;background:#14253df2}
@@ -53,4 +53,4 @@ html.app-mode header,.app-mode .zoom-map,.app-mode .hint,.app-mode .caption,.app
 .app-mode .separator{margin:12px 0}
 .app-mode #description{font-size:13px;line-height:1.65;margin:10px 0}
 .app-mode .sample-note{font-size:10px;margin-top:9px}
-@media(max-width:760px){.app-mode .top-right{top:8px;right:8px}.app-mode .top-right button{padding:6px 9px}.app-mode footer{bottom:8px;width:calc(100% - 14px)}.app-mode nav button{min-height:44px;gap:5px;padding:7px 3px;font-size:11px}.app-mode nav small{font-size:9px}.app-mode .view-tools{right:9px;bottom:75px}.app-mode .view-tools button{width:36px;height:36px}.app-mode #card{right:8px;bottom:82px;max-height:48dvh;width:min(245px,calc(100% - 16px));padding:13px}.app-mode h1{font-size:19px}.app-mode #description{font-size:12px}}
+@media(max-width:760px){.app-mode .top-right{top:8px;right:8px}.app-mode .top-right button{padding:6px 9px}.app-mode footer{bottom:8px;width:calc(100% - 14px)}.app-mode nav button{min-height:44px;gap:5px;padding:7px 3px;font-size:11px}.app-mode nav small{font-size:9px}.app-mode .view-tools{right:8px;top:50px;bottom:auto}.app-mode .view-tools button{width:36px;height:36px}.app-mode #card{right:8px;bottom:82px;max-height:48dvh;width:min(245px,calc(100% - 16px));padding:13px}.app-mode h1{font-size:19px}.app-mode #description{font-size:12px}}
