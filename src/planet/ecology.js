@@ -197,7 +197,11 @@ export function addEcology(root) {
     shrubs = [],
     rocks = [],
     ice = []
-  for (let i = 0; i < 62000; i++) {
+  // Concave coasts leave more ocean: keep sampling until the vegetation budget
+  // is filled, with a bounded initialization cost and unchanged biome filters.
+  for (let i = 0; i < 125000; i++) {
+    if (shrubs.length >= 4400 && treeGroups.every(group => group.length > 0) &&
+        treeGroups.reduce((n, group) => n + group.length, 0) >= 2400) break
     const y = rand() * 2 - 1,
       a = rand() * Math.PI * 2,
       d = Math.sqrt(1 - y * y),

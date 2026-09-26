@@ -110,6 +110,16 @@ for (const [lat, lon] of [
   [18, 111],
 ])
   assert.ok(sampleLatLon(lat, lon).h > 0.008, `ocean island ${lat}/${lon}`)
+// Large-scale bays must stay open while their adjacent capes stay on land.
+// These geography probes guard against regressing to overlapping round disks.
+for (const [lat, lon] of [[32, -57], [24, -132], [-13, -13]])
+  assert.ok(sampleLatLon(lat, lon).h < 0, `bay filled in ${lat}/${lon}`)
+for (const [lat, lon] of [[44, -52], [-43, 29], [-32, 169]])
+  assert.ok(sampleLatLon(lat, lon).h > 0.015, `peninsula lost ${lat}/${lon}`)
+// Tributaries remain within their watersheds after redrawing the shore.
+for (const r of RIVERS)
+  for (let lat = r.south + 2; lat < r.north - 2; lat += 1)
+    assert.ok(sampleLatLon(lat, r.lon(lat)).land > 0.8, `river outside mainland ${lat}`)
 const near = makeTerrain(127)
 assert.equal(near.index.count / 3, 327680)
 const local = makeLocalTerrain(direction(ZONES.muscle.lat, ZONES.muscle.lon))

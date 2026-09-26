@@ -1,3 +1,5 @@
+import { continentalShape } from "./continents.js"
+
 // All sampling takes place in 3D, so neither poles nor longitude seams exist.
 export const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v))
 export const smooth = (a, b, v) => {
@@ -60,29 +62,6 @@ export function coordinates(x, y, z) {
     (Math.atan2(x, z) * 180) / Math.PI,
   ]
 }
-const centers = [
-  [17, -27, 37, 1.1],
-  [-20, 28, 39, 1.12],
-  [49, 2, 22, 0.72],
-  [21, 6, 27, 0.9],
-  [0, 10, 32, 0.8],
-  [-9, 157, 32, 1.12],
-  [31, -148, 29, 1.1],
-  [-62, -8, 10, 0.92],
-  // Oceanic island arcs: small radii keep open water while breaking up oversized basins.
-  [8, 83, 9, 0.55],
-  [-7, 96, 6, 0.48],
-  [18, 111, 8, 0.52],
-  [-24, 122, 7, 0.5],
-  [34, 75, 6, 0.46],
-  [-31, -92, 8, 0.5],
-  [12, -104, 5.5, 0.44],
-].map(([lat, lon, r, w]) => ({
-  d: direction(lat, lon),
-  r: (r * Math.PI) / 180,
-  w,
-  mainland: r > 12,
-}))
 const aridRegions = [
   { d: direction(31, -148), inner: 11, outer: 27 },
   { d: direction(12, -39), inner: 8, outer: 24 },
@@ -141,14 +120,7 @@ export function waterHeight(lat, index = 0) {
 export function sample(x, y, z) {
   const [lat, lon] = coordinates(x, y, z)
   const warp = fbm(x * 3 + 9, y * 3, z * 3, 3)
-  let continental = -1
-  let mainland = -1
-  for (const c of centers) {
-    const angle = Math.acos(clamp(x * c.d[0] + y * c.d[1] + z * c.d[2], -1, 1))
-    const shape = (1 - angle / c.r) * c.w
-    continental = Math.max(continental, shape)
-    if (c.mainland) mainland = Math.max(mainland, shape)
-  }
+  let { continental, mainland } = continentalShape(x, y, z)
   continental +=
     0.14 * fbm(x * 7 + warp, y * 7 - warp, z * 7 + warp, 4) +
     0.035 * noise(x * 28, y * 28, z * 28)
