@@ -32,3 +32,25 @@ footer{bottom:22px;width:min(700px,calc(100% - 32px))}.caption{font-size:12px;le
 .landmark__label{font-size:13px;font-weight:500;line-height:1.25;background:#142b43cc;border-color:#7199b34d;color:#e3f3f3;letter-spacing:.03em}.landmark--region{gap:10px}.landmark--region .landmark__label{background:#11213aad;border-color:#93b8c957;font-size:15px;font-weight:600;letter-spacing:.16em;padding:9px 13px}.landmark--region .landmark__marker{height:7px;width:7px;border-radius:1px;transform:rotate(45deg)}.landmark--forest .landmark__marker{background:#52c0a5}.landmark--desert .landmark__marker{background:#e89a76}.landmark--glacier .landmark__marker{background:#aadbf1}.landmark--river .landmark__marker{background:#65e4d1}
 @media(max-width:1100px){.zoom-map{left:22px;width:145px}.zoom-steps button{gap:12px;padding-right:8px}#zoom-summary{font-size:13px}#zoom-next{font-size:12px}}
 @media(max-width:760px){.zoom-map{left:16px;right:16px;top:124px;width:auto}.zoom-eyebrow,#zoom-next{display:none}.zoom-steps{display:flex;gap:3px;justify-content:center;background:#11243bbb;border:1px solid #739bb438;border-radius:10px;padding:4px}.zoom-steps:before{display:none}.zoom-steps button{flex:1;font-size:13px;justify-content:center;padding:7px 3px;gap:6px}.zoom-steps button>span{width:20px;height:20px;font-size:11px}#zoom-summary{text-align:center;margin:7px 0 0;font-size:12px}.landmark--region .landmark__label{font-size:13px;padding:6px 8px}.view-tools{bottom:170px}}
+
+/* APP embed: reserve the full viewport for the globe and its metric controls. */
+html.app-mode,html.app-mode body{width:100%;height:100%;min-height:0;overflow:hidden}
+html.app-mode #app{width:100%;height:100dvh;min-height:0}
+html.app-mode header,.app-mode .zoom-map,.app-mode .hint,.app-mode .caption,.app-mode .sample,.app-mode .quality-label{display:none!important}
+.app-mode .top-right{top:10px;right:12px;gap:8px}
+.app-mode .top-right button{padding:7px 10px;font-size:12px;background:#142238d9;backdrop-filter:blur(10px)}
+.app-mode footer{bottom:10px;width:calc(100% - 20px)}
+.app-mode nav{padding:5px;gap:3px;border-radius:10px}
+.app-mode nav button{min-height:46px;gap:7px;padding:8px 5px;font-size:12px}
+.app-mode nav i{width:6px;height:19px}
+.app-mode nav small{font-size:10px;margin-top:3px}
+.app-mode .view-tools{right:12px;bottom:82px;gap:5px}
+.app-mode .view-tools button{width:38px;height:38px}
+.app-mode #level{font-size:11px}
+.app-mode #card{top:auto;right:12px;bottom:92px;width:min(250px,calc(100% - 24px));max-height:50dvh;overflow:auto;padding:16px;background:#14253df2}
+.app-mode h1{font-size:21px;margin:9px 0 13px}
+.app-mode #value{font-size:34px}
+.app-mode .separator{margin:12px 0}
+.app-mode #description{font-size:13px;line-height:1.65;margin:10px 0}
+.app-mode .sample-note{font-size:10px;margin-top:9px}
+@media(max-width:760px){.app-mode .top-right{top:8px;right:8px}.app-mode .top-right button{padding:6px 9px}.app-mode footer{bottom:8px;width:calc(100% - 14px)}.app-mode nav button{min-height:44px;gap:5px;padding:7px 3px;font-size:11px}.app-mode nav small{font-size:9px}.app-mode .view-tools{right:9px;bottom:75px}.app-mode .view-tools button{width:36px;height:36px}.app-mode #card{right:8px;bottom:82px;max-height:48dvh;width:min(245px,calc(100% - 16px));padding:13px}.app-mode h1{font-size:19px}.app-mode #description{font-size:12px}}

@@ -16,6 +16,8 @@ import {
   revealMesh,
 } from "./planet/view-levels.js"
 import "./styles.css"
+const appMode = new URLSearchParams(location.search).get("mode") === "app"
+document.documentElement.classList.toggle("app-mode", appMode)
 const $ = (s) => document.querySelector(s),
   host = $("#scene"),
   data = structuredClone(ZONES)

@@ -2,7 +2,7 @@
 
 ## Project purpose
 
-This repository is the Portal Fitness prototype. Its current React entry point is a workout logger with plans, a broad exercise library, local persistence, and a local Credit calculation. It also contains a separate Three.js body-planet exploration prototype that is not yet mounted by the React entry point.
+This repository is the Portal Fitness prototype. Its React entry point provides workout logging, plans, a broad exercise library, local persistence, and a local Credit calculation. The training home embeds the Three.js body-planet scene from `planet.html?mode=app`; the same scene remains available as a standalone full-controls preview.
 
 The product target and interaction rules live in `docs/product-spec.md` and `docs/interaction-spec.md`. Keep the distinction clear: those documents describe the target MVP; the current implementation status is recorded in `README.md` and `docs/reference-gap-analysis.md`.
 
@@ -16,14 +16,14 @@ npm run build
 
 A change is complete only when `npm run build` succeeds. Changes to the standalone planet scene must also keep the globe usable with mouse and touch input.
 
-For React workout changes, verify the training flows and localStorage behavior in `src/App.tsx`. For globe changes, verify the standalone scene only when its HTML host is present; `index.html` currently mounts `src/main.tsx`, not `src/app.js`.
+For React workout changes, verify the training flows and localStorage behavior in `src/App.tsx`. For globe changes, verify both the standalone scene and its `mode=app` embedded layout when the HTML host is present. `index.html` mounts the React app; the iframe on its training home loads the shared `planet.html` scene.
 
 ## File ownership
 
 - `src/App.tsx`: React workout, plans, exercise picker, history, and local Credit prototype.
 - `src/exerciseLibrary.ts`: sole source of truth for exercise IDs and tracking modes.
 - `src/main.tsx`: React mount and error boundary; keep business state out of this file.
-- `src/app.js`: standalone Three.js planet scene; do not treat it as the React screen.
+- `src/app.js`: Three.js planet scene shared by standalone preview and the React app's iframe; keep its `mode=app` layout in sync with `src/App.tsx`.
 - `src/landmarks.js`: sole source of truth for globe landmark names, coordinates, and detail levels.
 - `public/assets/`: runtime images; update `docs/assets.md` whenever an asset is added, replaced, resized, or removed.
 - `docs/product-spec.md`: product rules and MVP acceptance criteria.
