@@ -7,6 +7,7 @@ import {
   RIVERS,
   waterHeight,
   sampleLatLon,
+  FJORDS,
 } from "./field.js"
 import { installReveal, revealMesh } from "./view-levels.js"
 export const point = (lat, lon, r = 1) =>
@@ -79,13 +80,15 @@ export function addWater(root) {
       const lat = T.MathUtils.lerp(r.north, r.south, i / steps),
         lon = r.lon(lat)
       for (const side of [-1, 1]) {
-        const ll =
-          lon +
-          (side * r.width * 0.68) /
-            Math.max(0.35, Math.cos((lat * Math.PI) / 180))
-        verts.push(
-          ...point(lat, ll, 1 + waterHeight(lat, k) - 0.0001).toArray(),
-        )
+        const deltaProgress = r.delta ? (r.north - lat) / (r.north - r.south) : 0
+        const halfWidth = r.width * 0.68 * (r.delta ? 0.7 + deltaProgress * 0.55 : 1)
+        const shoreLon = lon +
+          (side * halfWidth) / Math.max(0.35, Math.cos((lat * Math.PI) / 180))
+        // Estuary channels rise to sea level as they fan into the delta.
+        const level = r.delta
+          ? 0.0015 + (waterHeight(lat, k) - 0.0015) * (1 - deltaProgress * 0.72)
+          : waterHeight(lat, k)
+        verts.push(...point(lat, shoreLon, 1 + level + 0.00015).toArray())
       }
       if (i < steps) {
         const n = i * 2
@@ -125,6 +128,34 @@ export function addWater(root) {
   const lake = installReveal(new T.Mesh(g, mat))
   primaryWater.push(lake)
   root.add(lake)
+  // Drowned glacial valleys share the carved terrain paths and ocean level.
+  const fjordMeshes = []
+  for (const path of FJORDS) {
+    const vertices = [], indices = [], steps = 240
+    for (let i = 0; i <= steps; i++) {
+      const progress = i / steps * (path.length - 1), segment = Math.min(path.length - 2, Math.floor(progress))
+      const t = progress - segment
+      const lat = T.MathUtils.lerp(path[segment][0], path[segment + 1][0], t)
+      const lon = path[segment][1] +
+        (((path[segment + 1][1] - path[segment][1] + 540) % 360) - 180) * t
+      const width = 0.12 + 0.08 * Math.sin(Math.PI * i / steps)
+      for (const side of [-1, 1]) {
+        const edgeLon = lon + side * width / Math.max(0.35, Math.cos(lat * Math.PI / 180))
+        vertices.push(...point(lat, edgeLon, 1.00035).toArray())
+      }
+      if (i < steps) {
+        const n = i * 2
+        indices.push(n, n + 1, n + 2, n + 1, n + 3, n + 2)
+      }
+    }
+    const geometry = new T.BufferGeometry()
+    geometry.setAttribute("position", new T.Float32BufferAttribute(vertices, 3))
+    geometry.setIndex(indices)
+    geometry.computeVertexNormals()
+    const fjord = installReveal(new T.Mesh(geometry, mat.clone()))
+    root.add(fjord)
+    fjordMeshes.push(fjord)
+  }
   // Short tapered flow marks follow the river's longitudinal direction.
   const marks = []
   for (let lat = -38; lat < 61; lat += 4) {
@@ -147,11 +178,14 @@ export function addWater(root) {
   return {
     ocean,
     marks,
+    riverMeshes: [...primaryWater, ...tributaries],
+    fjordMeshes,
     update(weights, now, reduced) {
       ocean.material.userData.time.value = reduced ? 0 : now * 0.001
       ocean.material.userData.current.value = 0.035 + weights.weather * 0.085
       for (const m of primaryWater) revealMesh(m, weights.rivers)
       for (const m of tributaries) revealMesh(m, weights.tributaries)
+      for (const m of fjordMeshes) revealMesh(m, weights.rivers)
       for (let i = 0; i < marks.length; i++) {
         marks[i].visible = weights.flow > 0.01
         marks[i].material.opacity =

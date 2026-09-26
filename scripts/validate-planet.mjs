@@ -14,6 +14,8 @@ import {
   zoneAt,
   RIVERS,
   waterHeight,
+  FJORDS,
+  riverInfo,
 } from "../src/planet/field.js"
 import { addEcology, addWater } from "../src/planet/ecology.js"
 import { addClimate } from "../src/planet/climate.js"
@@ -116,10 +118,39 @@ for (const [lat, lon] of [[32, -57], [24, -132], [-13, -13]])
   assert.ok(sampleLatLon(lat, lon).h < 0, `bay filled in ${lat}/${lon}`)
 for (const [lat, lon] of [[44, -52], [-43, 29], [-32, 169]])
   assert.ok(sampleLatLon(lat, lon).h > 0.015, `peninsula lost ${lat}/${lon}`)
-// Tributaries remain within their watersheds after redrawing the shore.
-for (const r of RIVERS)
-  for (let lat = r.south + 2; lat < r.north - 2; lat += 1)
-    assert.ok(sampleLatLon(lat, r.lon(lat)).land > 0.8, `river outside mainland ${lat}`)
+// Trunks remain in terrestrial watersheds; distributaries reach the coast.
+for (let i = 0; i < RIVERS.length; i++) {
+  const r = RIVERS[i]
+  for (let lat = r.south + 2; lat < r.north - 1; lat += 1) {
+    const s = sampleLatLon(lat, r.lon(lat))
+    if (!r.delta && lat < r.north - 3 && lat > r.south + 4)
+      assert.ok(s.land > 0.55, `river outside watershed ${i}/${lat}`)
+    assert.ok(s.river < 7, `river valley missed ${i}/${lat}`)
+    if (i >= 3 && !r.delta && lat < r.north - 3 && lat > r.south + 3) {
+      const flank = sampleLatLon(lat, r.lon(lat) + 1)
+      assert.ok(s.h < flank.h, `river channel not carved ${i}/${lat}`)
+    }
+  }
+}
+// Every delta has three braided distributaries with falling water levels.
+const deltas = RIVERS.map((river, index) => ({ river, index })).filter(({ river }) => river.delta)
+assert.equal(deltas.length, 12)
+for (const { river, index } of deltas) {
+  const startLevel = waterHeight(river.north, index)
+  const mouthLevel = waterHeight(river.south, index)
+  const mouth = sampleLatLon(river.south, river.lon(river.south))
+  assert.ok(startLevel > mouthLevel, "delta flow must descend toward the sea")
+  assert.ok(mouth.river < 1.7, "delta mouth missing from water classifier")
+}
+// Fjord beds cut through ice into the tide level and remain selectable as water.
+assert.equal(FJORDS.length, 4)
+for (const path of FJORDS) {
+  for (const [lat, lon] of path) {
+    const s = sampleLatLon(lat, lon)
+    assert.ok(s.h <= -0.02, `fjord not carved at ${lat}/${lon}`)
+    assert.equal(zoneAt(s), "water", "fjord should map to water")
+  }
+}
 // Small continents are real raised landforms with surrounding ocean passages.
 for (const [lat, lon] of [[-28, -130], [-44, 83], [36, 104]]) {
   const center = sampleLatLon(lat, lon)
@@ -389,6 +420,11 @@ const waterRoot = new T.Group(),
 waterSystem.ocean.material.onBeforeCompile(oceanShader)
 assert.equal(waterSystem.ocean.material.isMeshLambertMaterial, true, "ocean must stay matte")
 assert.ok(oceanShader.fragmentShader.includes("float oceanCurrent="))
+assert.equal(waterSystem.riverMeshes.length, RIVERS.length + 1)
+assert.equal(waterSystem.fjordMeshes.length, FJORDS.length)
+for (const channel of [...waterSystem.riverMeshes, ...waterSystem.fjordMeshes])
+  assert.ok(channel.geometry.attributes.position.array.every(Number.isFinite),
+    "river, delta, or fjord mesh has invalid coordinates")
 console.log(
   "PASS: five map levels, islands, GPU climate particles, cloud and ocean shaders, hysteresis and labels",
 )
