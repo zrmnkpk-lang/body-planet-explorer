@@ -483,9 +483,25 @@ assert.equal(thinWind.material.uniforms.uColor.value.getHex(), 0xffffff)
 assert.equal(monsoon.material.uniforms.uColor.value.getHex(), 0xffffff)
 assert.equal(climateRoot.children[6].material.uniforms.uColor.value.getHex(), 0xa8dff7)
 assert.ok(thinWind.geometry.attributes.aWidth.array.every((width) => width <= 0.0019))
+assert.ok(Math.abs(thinWind.material.uniforms.uCycloneInfluenceRadius.value - 0.615) < 1e-6,
+  "fine wind should respond within three times the cyclone's outer radius")
+for (let site = 0; site < 2; site++) {
+  const expectedCenter = new T.Vector3(...direction(...climate.cycloneCenters[site]))
+  assert.ok(thinWind.material.uniforms[`uCycloneCenter${site}`].value.distanceTo(expectedCenter) < 1e-6)
+  assert.ok(Math.abs(thinWind.material.uniforms[`uCycloneEast${site}`].value.length() - 1) < 1e-6)
+  assert.ok(Math.abs(thinWind.material.uniforms[`uCycloneNorth${site}`].value.length() - 1) < 1e-6)
+}
 assert.ok(monsoon.isMesh && monsoon.geometry.index.count > 3000)
 assert.ok(monsoon.geometry.attributes.aWidth.array.every((width) => width <= 0.0035))
 assert.ok(thinWind.material.vertexShader.includes("fract(uTime*0.067+aLifetime)"))
+assert.ok(thinWind.material.vertexShader.includes("applyCycloneFlow"))
+assert.ok(thinWind.material.vertexShader.includes("uTime*0.0333333333+cycleOffset"))
+assert.ok(thinWind.material.vertexShader.includes("angle=azimuth-0.26*activeSeconds*influence"),
+  "fine wind must rotate clockwise with the cyclone")
+assert.ok(thinWind.material.vertexShader.includes("1.0-0.42*influence"),
+  "fine wind must contract inward toward the eye")
+assert.ok(!monsoon.material.vertexShader.includes("applyCycloneFlow"),
+  "cyclone flow should affect thin global wind only")
 assert.ok(monsoon.material.vertexShader.includes("fract(uTime*0.028+aLifetime)"))
 assert.ok(new Set(thinWind.geometry.attributes.aLifetime.array).size > 400)
 assert.ok(new Set(monsoon.geometry.attributes.aLifetime.array).size > 100)

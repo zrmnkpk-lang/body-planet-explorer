@@ -5,6 +5,7 @@ const STORM_CENTERS = [[15, 12], [-25, 39], [5, 160]]
 const CYCLONE_CENTERS = [[79, -55], [5, -85]]
 const CYCLONE_PERIOD = 30
 const CYCLONE_RATE = 1 / CYCLONE_PERIOD
+const CYCLONE_WIND_INFLUENCE_RADIUS = 0.615
 const cycloneCycle = (site) => 0.13 + site * 0.5
 const smoothPulse = (a, b, value) => {
   const t = T.MathUtils.clamp((value - a) / (b - a), 0, 1)
@@ -87,6 +88,13 @@ function cloudMaterial(color, drift) {
 const windVertexShader = `
 uniform float uTime;
 uniform float uOpacity;
+uniform float uCycloneInfluenceRadius;
+uniform vec3 uCycloneCenter0;
+uniform vec3 uCycloneEast0;
+uniform vec3 uCycloneNorth0;
+uniform vec3 uCycloneCenter1;
+uniform vec3 uCycloneEast1;
+uniform vec3 uCycloneNorth1;
 attribute float aPhase;
 attribute float aSpeed;
 attribute float aTail;
@@ -95,6 +103,33 @@ attribute float aWidth;
 attribute float aStrength;
 attribute float aLifetime;
 varying float vAlpha;
+float cycloneRandom(float value){return fract(sin(value*127.1+311.7)*43758.5453);}
+vec3 applyCycloneFlow(vec3 point, vec3 baseCenter, vec3 east, vec3 north,
+  float site, float cycleOffset){
+  float cyclePhase=uTime*0.0333333333+cycleOffset;
+  float cycleIndex=floor(cyclePhase);
+  float event=fract(cyclePhase);
+  float seed=cycleIndex*7.13+site*19.19;
+  float heading=cycloneRandom(seed)*6.2831853;
+  float travel=smoothstep(0.08,0.30,event);
+  float drift=(0.07+cycloneRandom(seed+11.7)*0.07)*travel;
+  vec3 center=normalize(baseCenter+(cos(heading)*east+sin(heading)*north)*drift);
+  float pulse=smoothstep(0.025,0.10,event)*(1.0-smoothstep(0.45,0.525,event));
+  vec3 direction=normalize(point);
+  float cosine=clamp(dot(direction,center),-1.0,1.0);
+  float distance=acos(cosine);
+  float influence=(1.0-smoothstep(0.0,uCycloneInfluenceRadius,distance))*pulse;
+  vec3 tangent=direction-center*cosine;
+  float tangentLength=length(tangent);
+  if(influence<=0.001||tangentLength<0.00001)return point;
+  vec3 radial=tangent/tangentLength;
+  float azimuth=atan(dot(radial,north),dot(radial,east));
+  float activeSeconds=clamp((event-0.025)/0.5,0.0,1.0)*15.0;
+  float angle=azimuth-0.26*activeSeconds*influence;
+  float contractedDistance=distance*(1.0-0.42*influence*clamp(activeSeconds/15.0,0.0,1.0));
+  vec3 inward=cos(angle)*east+sin(angle)*north;
+  return normalize(center*cos(contractedDistance)+inward*sin(contractedDistance))*length(point);
+}
 void main(){
   float angle=aPhase+uTime*aSpeed-sign(aSpeed)*aTail*(0.048+abs(aSpeed)*0.17);
   float lat=asin(position.y)+sin(angle*3.0+position.y*11.0)*0.008
@@ -102,6 +137,8 @@ void main(){
   vec3 p=vec3(sin(angle)*cos(lat),sin(lat),cos(angle)*cos(lat))*1.09;
   float event=fract(uTime*0.067+aLifetime);
   float pulse=smoothstep(0.05,0.2,event)*(1.0-smoothstep(0.62,0.79,event));
+  p=applyCycloneFlow(p,uCycloneCenter0,uCycloneEast0,uCycloneNorth0,0.0,0.13);
+  p=applyCycloneFlow(p,uCycloneCenter1,uCycloneEast1,uCycloneNorth1,1.0,0.63);
   vAlpha=uOpacity*aStrength*pulse*(0.23+0.77*sin(3.14159265*aTail));
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`
@@ -193,7 +230,18 @@ function gpuWind(rand, count = 520) {
   geometry.setAttribute("aStrength", new T.Float32BufferAttribute(strengths, 1))
   geometry.setAttribute("aLifetime", new T.Float32BufferAttribute(lifetimes, 1))
   geometry.setIndex(indices)
-  const mesh = new T.Mesh(geometry, particleMaterial(windVertexShader, 0xffffff))
+  const material = particleMaterial(windVertexShader, 0xffffff)
+  material.uniforms.uCycloneInfluenceRadius = { value: CYCLONE_WIND_INFLUENCE_RADIUS }
+  CYCLONE_CENTERS.forEach(([latitude, longitude], site) => {
+    const center = new T.Vector3(...direction(latitude, longitude)),
+      east = new T.Vector3(Math.cos(longitude * Math.PI / 180), 0,
+        -Math.sin(longitude * Math.PI / 180)).normalize(),
+      north = new T.Vector3().crossVectors(center, east).normalize()
+    material.uniforms[`uCycloneCenter${site}`] = { value: center }
+    material.uniforms[`uCycloneEast${site}`] = { value: east }
+    material.uniforms[`uCycloneNorth${site}`] = { value: north }
+  })
+  const mesh = new T.Mesh(geometry, material)
   mesh.material.side = T.DoubleSide
   mesh.frustumCulled = false
   mesh.renderOrder = 5
