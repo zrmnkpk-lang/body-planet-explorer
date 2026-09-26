@@ -30,6 +30,29 @@ const outlines = [
     [158,-40],[156,-30],[147,-25],[142,-18],[132,-20],[126,-12],
     [128,-3],[139,1],[142,8],[134,10],
   ] },
+  // Smaller continents occupy separate ocean basins, with open straits around them.
+  { center: [-28, -130], points: [
+    [-149,-18],[-140,-13],[-130,-16],[-124,-12],[-116,-18],
+    [-111,-27],[-119,-31],[-124,-28],[-127,-35],[-137,-43],
+    [-141,-36],[-139,-29],[-148,-26],
+  ] },
+  { center: [-44, 83], points: [
+    [66,-36],[76,-31],[84,-34],[93,-32],[99,-39],[93,-44],
+    [88,-42],[88,-49],[79,-56],[73,-52],[73,-44],[65,-42],
+  ] },
+  { center: [36, 104], points: [
+    [89,44],[100,49],[109,46],[113,41],[122,38],[118,32],
+    [111,34],[109,27],[101,25],[96,30],[100,36],[91,38],
+  ] },
+  // A polar chart remains well-defined at the pole and across +/-180 degrees.
+  { center: [90, 0], ice: true, points: [
+    [-180,68],[-166,64],[-152,63],[-141,67],[-132,72],[-121,74],
+    [-113,67],[-99,60],[-85,58],[-74,63],[-67,70],[-56,69],
+    [-45,62],[-31,59],[-19,61],[-8,55],[3,54],[14,60],
+    [25,65],[36,68],[47,73],[58,71],[68,65],[79,59],
+    [90,57],[101,61],[108,68],[119,71],[128,69],[141,61],
+    [152,60],[164,65],
+  ] },
 ]
 
 function signedDistance(x, y, points) {
@@ -43,7 +66,7 @@ function signedDistance(x, y, points) {
   }
   return Math.sqrt(distance2) * (inside ? 1 : -1)
 }
-function chart({ center: [lat, lon], points }) {
+function chart({ center: [lat, lon], points, ice = false }) {
   const center = direction(lat, lon)
   const east = [Math.cos(lon * RAD), 0, -Math.sin(lon * RAD)]
   const north = [-Math.sin(lat * RAD) * Math.sin(lon * RAD), Math.cos(lat * RAD), -Math.sin(lat * RAD) * Math.cos(lon * RAD)]
@@ -58,7 +81,7 @@ function chart({ center: [lat, lon], points }) {
   const data = new Float32Array(SIZE * SIZE)
   for (let j = 0; j < SIZE; j++) for (let i = 0; i < SIZE; i++)
     data[j * SIZE + i] = signedDistance(minX + i * dx, minY + j * dy, polygon) / 28
-  return { center, east, north, minX, minY, dx, dy, data }
+  return { center, east, north, minX, minY, dx, dy, data, ice }
 }
 const charts = outlines.map(chart)
 const islands = [
@@ -72,7 +95,7 @@ const islands = [
   length,width,cos:Math.cos(rotation),sin:Math.sin(rotation),
 }))
 export function continentalShape(x, y, z) {
-  let mainland = -1, continental = -1
+  let mainland = -1, continental = -1, ice = -1
   for (const c of charts) {
     const facing = x*c.center[0]+y*c.center[1]+z*c.center[2]
     if (facing < 0.25) continue
@@ -81,7 +104,8 @@ export function continentalShape(x, y, z) {
     if (u < 0 || v < 0 || u >= SIZE-1 || v >= SIZE-1) continue
     const i = Math.floor(u), j = Math.floor(v), a = u-i, b = v-j, k = j*SIZE+i
     const value = (c.data[k]*(1-a)+c.data[k+1]*a)*(1-b)+(c.data[k+SIZE]*(1-a)+c.data[k+SIZE+1]*a)*b
-    mainland = Math.max(mainland, value)
+    if (c.ice) ice = Math.max(ice, value)
+    else mainland = Math.max(mainland, value)
   }
   continental = mainland
   for (const c of islands) {
@@ -93,5 +117,5 @@ export function continentalShape(x, y, z) {
     const across = (-u*c.sin+v*c.cos)/c.width + 0.26*Math.sin(along*3)
     continental = Math.max(continental, (1-Math.hypot(along,across))*0.55)
   }
-  return { continental, mainland }
+  return { continental, mainland, ice }
 }

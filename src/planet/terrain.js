@@ -149,7 +149,10 @@ function bakeTerrain(g) {
       (1 - smooth(0.5, 0.85, slope))
     color.lerp(palette.snow, snow)
     color.lerp(palette.ice, s.polar)
-    color.lerp(palette.snow, s.polar * smooth(0.041, 0.058, s.h))
+    color.lerp(palette.snow, s.polar * smooth(0.045, 0.082, s.h) *
+      (1 - smooth(0.07, 0.32, slope)))
+    // Blue-gray exposed slopes distinguish glacier valleys from ivory summits.
+    color.lerp(palette.iceCrack, s.polar * smooth(0.055, 0.3, slope) * 0.32)
     const iceScar = smooth(0.22, 0.47, Math.abs(noise(v.x * 48, v.y * 48, v.z * 48)))
     color.lerp(palette.iceCrack, s.polar * iceScar * 0.23)
     if (s.h < 0) color.copy(palette.deep)

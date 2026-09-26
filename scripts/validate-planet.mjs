@@ -120,6 +120,35 @@ for (const [lat, lon] of [[44, -52], [-43, 29], [-32, 169]])
 for (const r of RIVERS)
   for (let lat = r.south + 2; lat < r.north - 2; lat += 1)
     assert.ok(sampleLatLon(lat, r.lon(lat)).land > 0.8, `river outside mainland ${lat}`)
+// Small continents are real raised landforms with surrounding ocean passages.
+for (const [lat, lon] of [[-28, -130], [-44, 83], [36, 104]]) {
+  const center = sampleLatLon(lat, lon)
+  assert.ok(center.h > 0.015 && center.land > 0.8, `small continent ${lat}/${lon}`)
+  const heights = []
+  for (let a = lat - 5; a <= lat + 5; a += 1)
+    for (let b = lon - 5; b <= lon + 5; b += 1)
+      heights.push(sampleLatLon(a, b).h)
+  assert.ok(Math.max(...heights) - Math.min(...heights) > 0.015, "flat small continent")
+}
+for (const [lat, lon] of [[-13, -112], [-29, 80], [22, 92]])
+  assert.ok(sampleLatLon(lat, lon).h < 0, `small-continent strait ${lat}/${lon}`)
+// Deep polar bays stay open and are selectable as water; ice tongues extend south.
+for (const [lat, lon] of [[66, 48], [70, -122]]) {
+  const bay = sampleLatLon(lat, lon)
+  assert.ok(bay.h < 0 && bay.polar < 0.1, "polar bay filled in")
+  assert.equal(zoneAt(bay), "water", "high-latitude ocean misclassified as ice")
+}
+for (const [lat, lon] of [[63, 85], [65, 0], [67, -85]])
+  assert.ok(sampleLatLon(lat, lon).polar > 0.8, "ice tongue missing")
+let iceLow = Infinity, iceHigh = -Infinity
+for (let lat = 78; lat <= 88; lat += 2)
+  for (let lon = -180; lon < 180; lon += 6) {
+    const s = sampleLatLon(lat, lon)
+    assert.ok(s.polar > 0.95 && s.h > 0.01, "polar interior gap")
+    iceLow = Math.min(iceLow, s.h)
+    iceHigh = Math.max(iceHigh, s.h)
+  }
+assert.ok(iceHigh - iceLow > 0.035 && iceHigh < 0.13, "glacier needs broad moderate relief")
 const near = makeTerrain(127)
 assert.equal(near.index.count / 3, 327680)
 const local = makeLocalTerrain(direction(ZONES.muscle.lat, ZONES.muscle.lon))

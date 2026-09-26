@@ -120,11 +120,13 @@ export function waterHeight(lat, index = 0) {
 export function sample(x, y, z) {
   const [lat, lon] = coordinates(x, y, z)
   const warp = fbm(x * 3 + 9, y * 3, z * 3, 3)
-  let { continental, mainland } = continentalShape(x, y, z)
+  let { continental, mainland, ice } = continentalShape(x, y, z)
   continental +=
     0.14 * fbm(x * 7 + warp, y * 7 - warp, z * 7 + warp, 4) +
     0.035 * noise(x * 28, y * 28, z * 28)
-  const polar = smooth(56, 73, lat + 0.9 * noise(x * 22, y * 22, z * 22))
+  // Polar shore follows an asymmetric ice landmass, with small coastal inlets.
+  const polar = smooth(-0.025, 0.16,
+    ice + 0.045 * fbm(x * 23, y * 23, z * 23, 3))
   const land = smooth(-0.015, 0.15, continental)
   let desert = 0
   let dryWarp
@@ -159,9 +161,19 @@ export function sample(x, y, z) {
     inland * plateau * 0.014 +
     land * (0.0013 * fbm(x * 37, y * 37, z * 37, 2) +
       0.0011 * fbm(x * 75, y * 75, z * 75, 2))
-  h = Math.max(h, -0.018 + polar * (0.06 + 0.012 * ridge)) +
-    polar * (0.0017 * fbm(x * 64, y * 64, z * 64, 3) +
-      0.0009 * noise(x * 112, y * 112, z * 112))
+  if (polar > 0) {
+    // Wide ice plateaus and rounded ridges, carved by a meandering glacial trough.
+    // Displacement belongs to the shared height field at every zoom level.
+    const icePlateau = smooth(-0.22, 0.28, fbm(x * 5 + 7, y * 5 - 3, z * 5, 3))
+    const iceRidge = 1 - smooth(0.08, 0.55,
+      Math.abs(fbm(x * 14 + warp, y * 14, z * 14 - warp, 3)))
+    const iceValley = 1 - smooth(0.012, 0.065,
+      Math.abs(x + z * 0.35 + 0.07 * fbm(x * 11, y * 11, z * 11, 3)))
+    const relief = 0.028 * icePlateau + 0.025 * iceRidge - 0.022 * iceValley
+    h = Math.max(h, -0.018 + polar * (0.056 + relief)) +
+      polar * (0.0017 * fbm(x * 64, y * 64, z * 64, 3) +
+        0.0009 * noise(x * 112, y * 112, z * 112))
+  }
   const river = riverInfo(lat, lon),
     water = waterHeight(lat, river.index)
   if (river.distance < 7) {
@@ -213,7 +225,7 @@ export function sampleLatLon(lat, lon) {
   return sample(...direction(lat, lon))
 }
 export function zoneAt(s) {
-  if (s.polar > 0.4 || s.lat > 62) return "bone"
+  if (s.polar > 0.4) return "bone"
   if (s.river < 1.7 || s.lake < 1 || s.h < 0.002) return "water"
   return s.mountains > 0.22 || s.moisture < 0.42 ? "muscle" : "fat"
 }
