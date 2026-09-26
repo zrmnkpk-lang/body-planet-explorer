@@ -135,6 +135,21 @@ for (let i = 0; i < RIVERS.length; i++) {
 // Every delta has three braided distributaries with falling water levels.
 const deltas = RIVERS.map((river, index) => ({ river, index })).filter(({ river }) => river.delta)
 assert.equal(deltas.length, 12)
+const riverOrders = RIVERS.reduce((counts, river) => {
+  counts[river.order || 0] = (counts[river.order || 0] || 0) + 1
+  return counts
+}, {})
+assert.ok(riverOrders[1] >= 25 && riverOrders[2] >= 6, "watersheds need dense tributaries")
+assert.ok(RIVERS.some((river) => river.order === 3), "watersheds need fine headwaters")
+for (let index = 0; index < RIVERS.length; index++) {
+  const river = RIVERS[index]
+  if (!river.parentIndex && river.parentIndex !== 0) continue
+  const parent = RIVERS[river.parentIndex]
+  const [joinLat, joinLon] = river.join || river.path.at(-1)
+  assert.ok(Math.abs(parent.lon(joinLat) - joinLon) < 0.02, "tributary misses its confluence")
+  assert.ok(Math.abs(waterHeight(joinLat, index) - waterHeight(joinLat, river.parentIndex)) < 1e-9,
+    "tributary water level does not meet its parent")
+}
 for (const { river, index } of deltas) {
   const startLevel = waterHeight(river.north, index)
   const mouthLevel = waterHeight(river.south, index)

@@ -96,10 +96,10 @@ export const RIVERS = [
     },
   },
 ]
-function makeRiver(points, width, drop = 0.04, delta = false) {
+function makeRiver(points, width, drop = 0.04, delta = false, mouthWater = 0.001, order = 0) {
   const north = points[0][0], south = points.at(-1)[0]
   return {
-    north, south, width, drop, delta, path: points,
+    north, south, width, drop, delta, mouthWater, order, path: points,
     lon(lat) {
       for (let i = 0; i < points.length - 1; i++) {
         const [aLat, aLon] = points[i], [bLat, bLon] = points[i + 1]
@@ -112,24 +112,112 @@ function makeRiver(points, width, drop = 0.04, delta = false) {
     },
   }
 }
-function deltaBranches(outlet, spread) {
+function deltaBranches(outlet, spread, mouthWater) {
   const [lat, lon] = outlet
   return [-1, 0, 1].map((side) => makeRiver([
     [lat, lon], [lat - 0.7, lon + side * spread * 0.32],
     [lat - 1.5, lon + side * spread * 0.72],
     [lat - 2.4, lon + side * spread],
-  ], 0.14, 0.004, true))
+  ], 0.11, 0.0009, true, mouthWater, 1))
 }
-const additionalRivers = [
-  makeRiver([[-16,-143],[-21,-138],[-27,-132],[-32,-132],[-36,-134],[-38,-136]], 0.34, 0.045),
-  makeRiver([[-36,74],[-39,78],[-42,80],[-46,81],[-49,80],[-51,80]], 0.3, 0.04),
-  makeRiver([[44,98],[42,100],[40,102],[38,104],[36,105],[34,105],[32,104],[30,104],[29,105]], 0.25, 0.038),
-  makeRiver([[49,-159],[43,-154],[37,-150],[31,-145],[25,-141],[21,-143],[19,-142],[18,-141],[16,-142],[14,-140],[12,-134],[10,-131],[7,-130],[4,-130],[3,-130]], 0.32, 0.05),
+function tributary(parentIndex, points, width, drop = 0.018, order = 1) {
+  const parent = RIVERS[parentIndex], join = points.at(-1)
+  const stream = makeRiver(
+    points, width, drop, false, waterHeight(join[0], parentIndex), order)
+  stream.parentIndex = parentIndex
+  stream.join = join
+  return stream
+}
+const watersheds = [
+  {
+    trunk: makeRiver([[-16,-143],[-21,-138],[-27,-132],[-32,-132],[-36,-134],[-38,-136]], 0.34, 0.045),
+    tributaries: [
+      [[-18,-140],[-22,-140],[-27,-132]],
+      [[-21,-125],[-24,-128],[-30,-132]],
+      [[-27,-136],[-32,-137],[-36,-134]],
+      [[-30,-130],[-32,-132],[-34,-133]],
+    ],
+    feeders: [{ parent: 0, points: [[-18,-143],[-20,-142],[-22,-140]] }],
+    headwater: [[-17,-140],[-18,-141],[-20,-142]],
+    mouth: 3.4,
+  },
+  {
+    trunk: makeRiver([[-36,74],[-39,78],[-42,80],[-46,81],[-49,80],[-51,80]], 0.3, 0.04),
+    tributaries: [
+      [[-35,74],[-37,76],[-39,78]],
+      [[-38,84],[-39,82],[-40,78.667]],
+      [[-43,77],[-46,79],[-48,80.333]],
+      [[-44,84],[-46,83],[-49,80]],
+    ],
+    feeders: [{ parent: 0, points: [[-34,78],[-35,77],[-37,76]] }],
+    headwater: [[-34,77.5],[-34.5,77],[-35,77]],
+    mouth: 2.8,
+  },
+  {
+    trunk: makeRiver([[44,98],[42,100],[40,102],[38,104],[36,105],[34,105],[32,104],[30,104],[29,105]], 0.25, 0.038),
+    tributaries: [
+      [[43,95],[41,99],[39,103]],
+      [[42,107],[40,106],[38,104]],
+      [[36,104],[34,104],[32,104]],
+      [[34,110],[32,108],[30,104]],
+    ],
+    feeders: [{ parent: 0, points: [[44,100],[42,100],[41,99]] }],
+    headwater: [[44,102],[43,101],[42,100]],
+    mouth: 2.6,
+  },
+  {
+    trunk: makeRiver([[49,-159],[43,-154],[37,-150],[31,-145],[25,-141],[21,-143],[19,-142],[18,-141],[16,-142],[14,-140],[12,-134],[10,-131],[7,-130],[4,-130],[3,-130]], 0.32, 0.05),
+    tributaries: [
+      [[44,-169],[39,-160],[35,-148.3333333333]],
+      [[40,-130],[35,-134],[31,-145]],
+      [[34,-163],[29,-151],[25,-141]],
+      [[22,-151],[18,-145],[16,-142]],
+      [[13,-138],[11,-134],[9,-130.667]],
+    ],
+    feeders: [
+      { parent: 0, points: [[44,-169],[40,-160],[37,-154.1666666667]] },
+      { parent: 2, points: [[34,-168],[31,-160],[29,-151]] },
+    ],
+    headwater: [[44,-163],[42,-161],[40,-160]],
+    mouth: 3.4,
+  },
 ]
-for (const r of additionalRivers) {
-  RIVERS.push(r)
-  RIVERS.push(...deltaBranches([r.south, r.lon(r.south)], r.width > 0.32 ? 3.4 : 2.4))
+for (const basin of watersheds) {
+  basin.trunk.order = 0
+  const trunkIndex = RIVERS.length
+  RIVERS.push(basin.trunk)
+  const firstOrder = basin.tributaries.map((points) =>
+    tributary(trunkIndex, points, 0.105, 0.018, 1))
+  const firstStart = RIVERS.length
+  RIVERS.push(...firstOrder)
+  const secondOrder = (basin.feeders || []).map(({ parent, points }) =>
+    tributary(firstStart + parent, points, 0.064, 0.011, 2))
+  const secondStart = RIVERS.length
+  RIVERS.push(...secondOrder)
+  RIVERS.push(tributary(secondStart, basin.headwater, 0.043, 0.008, 3))
+  const branches = deltaBranches(
+    [basin.trunk.south, basin.trunk.lon(basin.trunk.south)], basin.mouth,
+    waterHeight(basin.trunk.south, trunkIndex))
+  for (const branch of branches) {
+    branch.parentIndex = trunkIndex
+    branch.join = [basin.trunk.south, basin.trunk.lon(basin.trunk.south)]
+  }
+  RIVERS.push(...branches)
 }
+RIVERS[0].order = 0
+RIVERS[1].order = RIVERS[2].order = 1
+const centralBranches = [
+  [[52,-12],[48,-6],[44,RIVERS[0].lon(44)]],
+  [[35,-14],[30,-5],[24,RIVERS[0].lon(24)]],
+  [[9,34],[3,25],[-2,RIVERS[0].lon(-2)]],
+  [[-6,38],[-16,33],[-26,RIVERS[0].lon(-26)]],
+].map(points => tributary(0, points, 0.13, 0.02, 1))
+const centralStart = RIVERS.length
+RIVERS.push(...centralBranches)
+RIVERS.push(
+  tributary(centralStart, [[54,-10],[51,-8],[48,-6]], 0.075, 0.012, 2),
+  tributary(centralStart + 1, [[34,-12],[32,-8],[30,-5]], 0.075, 0.012, 2),
+)
 // Four deeply incised, tide-filled channels cut inland from the polar coast.
 export const FJORDS = [
   [[58,-151],[61,-144],[65,-138],[69,-135],[73,-130]],
@@ -174,7 +262,9 @@ export function waterHeight(lat, index = 0) {
   const r = RIVERS[index]
   if (r.path) {
     const progress = clamp((r.north - lat) / (r.north - r.south))
-    return (r.delta ? 0.0015 : 0.001) + r.drop * (1 - progress)
+    return r.delta
+      ? r.mouthWater - r.drop * progress
+      : r.mouthWater + r.drop * (1 - progress)
   }
   const end = waterHeight(r.south)
   return end + ((lat - r.south) / (r.north - r.south)) * 0.025

@@ -75,7 +75,9 @@ export function addWater(root) {
     const r = RIVERS[k],
       verts = [],
       idx = []
-    const steps = 640
+    const steps = r.path
+      ? Math.max(64, Math.ceil((r.north - r.south) * 8))
+      : 640
     for (let i = 0; i <= steps; i++) {
       const lat = T.MathUtils.lerp(r.north, r.south, i / steps),
         lon = r.lon(lat)
@@ -84,10 +86,8 @@ export function addWater(root) {
         const halfWidth = r.width * 0.68 * (r.delta ? 0.7 + deltaProgress * 0.55 : 1)
         const shoreLon = lon +
           (side * halfWidth) / Math.max(0.35, Math.cos((lat * Math.PI) / 180))
-        // Estuary channels rise to sea level as they fan into the delta.
-        const level = r.delta
-          ? 0.0015 + (waterHeight(lat, k) - 0.0015) * (1 - deltaProgress * 0.72)
-          : waterHeight(lat, k)
+        // River branches retain the parent level at confluences and descend downstream.
+        const level = waterHeight(lat, k)
         verts.push(...point(lat, shoreLon, 1 + level + 0.00015).toArray())
       }
       if (i < steps) {
@@ -99,7 +99,18 @@ export function addWater(root) {
     g.setAttribute("position", new T.Float32BufferAttribute(verts, 3))
     g.setIndex(idx)
     g.computeVertexNormals()
-    const m = new T.Mesh(g, k === 0 ? mat : mat.clone())
+    const channelMaterial = k === 0 ? mat : mat.clone()
+    if (r.order === 1) channelMaterial.color.set(0x54b8b4)
+    if (r.order === 2) channelMaterial.color.set(0x4d9ea5)
+    if (r.order >= 3) channelMaterial.color.set(0x568d9a)
+    if (r.order >= 2) {
+      channelMaterial.transparent = true
+      channelMaterial.opacity = r.order === 2 ? 0.88 : 0.76
+      channelMaterial.depthWrite = false
+    }
+    const m = new T.Mesh(g, channelMaterial)
+    m.userData.channelOrder = r.order
+    m.userData.channelWidth = r.width
     if (k > 0) tributaries.push(installReveal(m))
     else primaryWater.push(installReveal(m))
     root.add(m)
