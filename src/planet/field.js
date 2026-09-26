@@ -105,7 +105,20 @@ function makeRiver(points, width, drop = 0.04, delta = false, mouthWater = 0.001
         const [aLat, aLon] = points[i], [bLat, bLon] = points[i + 1]
         if (lat <= aLat && lat >= bLat) {
           const t = (aLat - lat) / (aLat - bLat)
-          return aLon + deltaLon(bLon, aLon) * t
+          const span = aLat - bLat, d = deltaLon(bLon, aLon)
+          const before = points[Math.max(0, i - 1)]
+          const after = points[Math.min(points.length - 1, i + 2)]
+          const m0 = deltaLon(bLon, before[1]) / (before[0] - bLat) * span
+          const m1 = deltaLon(after[1], aLon) / (aLat - after[0]) * span
+          const t2 = t * t, t3 = t2 * t
+          const curve = aLon + (-2 * t3 + 3 * t2) * d +
+            (t3 - 2 * t2 + t) * m0 + (t3 - t2) * m1
+          // Unequal, smoothly joined bends; no repeated zig-zag at control points.
+          const phase = aLon * 0.73 + aLat * 0.41
+          const amplitude = Math.min(delta ? 0.16 : order ? 0.48 : 0.85, span * 0.2)
+          const bends = Math.sin(Math.PI * t) ** 2 *
+            Math.sin(t * Math.PI * (2.4 + span * 0.21) + phase)
+          return curve + amplitude * bends
         }
       }
       return points[lat > north ? 0 : points.length - 1][1]
@@ -118,10 +131,15 @@ function deltaBranches(outlet, spread, mouthWater) {
     [lat, lon], [lat - 0.7, lon + side * spread * 0.32],
     [lat - 1.5, lon + side * spread * 0.72],
     [lat - 2.4, lon + side * spread],
+    [lat - 4, lon + side * spread * 1.05],
+    [lat - 6, lon + side * spread * 1.25],
   ], 0.11, 0.0009, true, mouthWater, 1))
 }
 function tributary(parentIndex, points, width, drop = 0.018, order = 1) {
-  const parent = RIVERS[parentIndex], join = points.at(-1)
+  const parent = RIVERS[parentIndex]
+  points = points.map(p => [...p])
+  const join = points.at(-1)
+  join[1] = parent.lon(join[0])
   const stream = makeRiver(
     points, width, drop, false, waterHeight(join[0], parentIndex), order)
   stream.parentIndex = parentIndex
@@ -220,36 +238,38 @@ RIVERS.push(
 )
 // Four deeply incised, tide-filled channels cut inland from the polar coast.
 export const FJORDS = [
-  [[58,-151],[61,-144],[65,-138],[69,-135],[73,-130]],
+  [[58,-151],[61,-144],[65,-138],[69,-135],[73,-130],[76,-133],[77.3,-138]],
   [[58,-77],[61,-72],[64,-68],[68,-64],[71,-59]],
   [[56,4],[60,8],[64,12],[68,18],[71,22]],
   [[59,119],[62,125],[66,130],[70,136],[73,143]],
 ]
-function pathDistance(points, lat, lon) {
-  let nearest = Infinity
-  for (let i = 0; i < points.length - 1; i++) {
-    const [aLat, aLon] = points[i], [bLat, bLon] = points[i + 1]
-    const cosLat = Math.cos(((aLat + bLat + lat) / 3) * Math.PI / 180)
-    const ax = deltaLon(aLon, lon) * cosLat, ay = aLat - lat
-    const bx = deltaLon(bLon, lon) * cosLat, by = bLat - lat
-    const dx = bx - ax, dy = by - ay
-    const t = clamp(-(ax * dx + ay * dy) / (dx * dx + dy * dy))
-    nearest = Math.min(nearest, Math.hypot(ax + dx * t, ay + dy * t))
-  }
-  return nearest
+const fjordCurves = FJORDS.map(points => makeRiver([...points].reverse(), 0.4))
+export function fjordCenter(index, lat) {
+  return fjordCurves[index].lon(lat)
+}
+export function fjordWidth(index, lat, side = 0) {
+  const n = noise(lat * 0.43, index * 5.7, 3.1)
+  return 0.5 + 0.21 * n + 0.12 * Math.sin(lat * 1.13 + index * 2.7) +
+    side * 0.08 * noise(lat * 0.72, index * 3.4, 8)
 }
 export function riverInfo(lat, lon) {
   let distance = 100,
     index = 0
   for (let i = 0; i < RIVERS.length; i++) {
     const r = RIVERS[i]
-    if (lat > r.north + 1e-6 || lat < r.south - 1e-6) continue
-    const d = r.path
-      ? lat < r.south - 2 || lat > r.north + 2
-        ? 100
-        : pathDistance(r.path, lat, lon) /
-          (r.width * (r.delta ? 0.85 + 0.55 * (r.north - lat) / (r.north - r.south) : 1))
-      : (Math.abs(lon - r.lon(lat)) * Math.cos((lat * Math.PI) / 180)) / r.width
+    if (lat > r.north + r.width * 7 || lat < r.south - r.width * 7) continue
+    const routeLat = clamp(lat, r.south, r.north)
+    const center = r.lon(routeLat), cosLat = Math.max(0.1, Math.cos(lat * Math.PI / 180))
+    if (Math.abs(deltaLon(lon, center)) * cosLat > r.width * 16) continue
+    const slope = deltaLon(r.lon(Math.min(r.north, routeLat + 0.025)),
+      r.lon(Math.max(r.south, routeLat - 0.025))) * cosLat /
+      Math.max(0.001, Math.min(r.north, routeLat + 0.025) - Math.max(r.south, routeLat - 0.025))
+    const lateral = Math.abs(deltaLon(lon, center)) * cosLat
+    const distanceToPath = lat === routeLat ? lateral / Math.sqrt(1 + slope * slope) :
+      Math.hypot(lateral, lat - routeLat)
+    const d = distanceToPath /
+      (r.width *
+        (r.delta ? 0.85 + 0.55 * (r.north - lat) / (r.north - r.south) : 1))
     if (d < distance) {
       distance = d
       index = i
@@ -260,6 +280,7 @@ export function riverInfo(lat, lon) {
 export function waterHeight(lat, index = 0) {
   if (index === 0) return 0.006 + smooth(-43, 64, lat) * 0.074
   const r = RIVERS[index]
+  lat = clamp(lat, r.south, r.north)
   if (r.path) {
     const progress = clamp((r.north - lat) / (r.north - r.south))
     return r.delta
@@ -269,13 +290,17 @@ export function waterHeight(lat, index = 0) {
   const end = waterHeight(r.south)
   return end + ((lat - r.south) / (r.north - r.south)) * 0.025
 }
-export function sample(x, y, z) {
+export function sample(x, y, z, hydrology = true) {
   const [lat, lon] = coordinates(x, y, z)
   const warp = fbm(x * 3 + 9, y * 3, z * 3, 3)
   let { continental, mainland, ice } = continentalShape(x, y, z)
   continental +=
     0.14 * fbm(x * 7 + warp, y * 7 - warp, z * 7 + warp, 4) +
     0.035 * noise(x * 28, y * 28, z * 28)
+  const coastalDetail = 0.065 * fbm(x * 19 + warp * 2, y * 19 - 4, z * 19 + warp, 3) +
+    0.021 * noise(x * 53 + 8, y * 53, z * 53)
+  continental += coastalDetail * (1 - smooth(0.06, 0.24, Math.abs(continental)))
+  ice += coastalDetail * (1 - smooth(0.05, 0.22, Math.abs(ice)))
   // Polar shore follows an asymmetric ice landmass, with small coastal inlets.
   const polar = smooth(-0.025, 0.16,
     ice + 0.045 * fbm(x * 23, y * 23, z * 23, 3))
@@ -328,18 +353,24 @@ export function sample(x, y, z) {
   }
   // Fjords are narrow drowned valleys; their carved beds meet the open ocean.
   let fjordDistance = Infinity
-  for (const path of FJORDS) {
-    if (lat < 53 || lat > 77) continue
-    fjordDistance = Math.min(fjordDistance, pathDistance(path, lat, lon))
+  if (lat >= 56 && lat <= 80) for (let i = 0; i < FJORDS.length; i++) {
+    const path = FJORDS[i]
+    if (lat < path[0][0] || lat > path.at(-1)[0]) continue
+    const dx = deltaLon(lon, fjordCenter(i, lat)) * Math.cos(lat * Math.PI / 180)
+    fjordDistance = Math.min(fjordDistance, Math.abs(dx) / fjordWidth(i, lat, Math.sign(dx)))
   }
-  if (fjordDistance < 1.2)
-    h = mix(h, -0.028, 1 - smooth(0.16, 0.78, fjordDistance))
-  const river = riverInfo(lat, lon),
-    water = waterHeight(lat, river.index)
+  if (fjordDistance < 1.8)
+    h = mix(h, -0.028, (1 - smooth(0.2, 1.65, fjordDistance)) *
+      smooth(-0.018, 0.002, h))
+  if (!hydrology) return { h, land, polar }
+  const naturalHeight = h
+  const river = naturalHeight > 0 ? riverInfo(lat, lon) : { distance: 100, index: 0 }
+  const water = waterHeight(lat, river.index)
   if (river.distance < 7) {
     const valley = 1 - smooth(1, 7, river.distance)
-    h = mix(h, water + 0.014, valley)
-    h = mix(h, water - 0.004, 1 - smooth(0.7, 1.6, river.distance))
+    // Never raise a coast or sea bed to the elevation of an inland river.
+    h = mix(h, Math.min(h, water + 0.014), valley)
+    h = mix(h, Math.min(h - 0.003, water - 0.004), 1 - smooth(0.7, 1.6, river.distance))
   }
   const lakeAngle = Math.atan2((lon - RIVERS[0].lon(2)) / 3.3, (lat - 2) / 2.4)
   const lake =
@@ -393,5 +424,27 @@ export function seeded(seed = 941) {
   return () => {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
     return seed / 4294967296
+  }
+}
+
+// Compute each estuary once against the uncarved terrain, not its own river bed.
+// Bisection pins the outlet to the shoreline; no offshore continuation or re-entry.
+for (const r of RIVERS) {
+  if (!r.delta) continue
+  let previous = r.north
+  for (let lat = r.north - 0.04; lat >= r.south; lat -= 0.04) {
+    if (sample(...direction(lat, r.lon(lat)), false).h <= 0) {
+      let land = previous, sea = lat
+      for (let j = 0; j < 18; j++) {
+        const mid = (land + sea) / 2
+        if (sample(...direction(mid, r.lon(mid)), false).h > 0) land = mid
+        else sea = mid
+      }
+      r.south = land
+      r.drop = r.mouthWater
+      r.coastalOutlet = true
+      break
+    }
+    previous = lat
   }
 }

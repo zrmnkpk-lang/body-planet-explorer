@@ -8,6 +8,8 @@ import {
   waterHeight,
   sampleLatLon,
   FJORDS,
+  fjordCenter,
+  fjordWidth,
 } from "./field.js"
 import { installReveal, revealMesh } from "./view-levels.js"
 export const point = (lat, lon, r = 1) =>
@@ -74,26 +76,37 @@ export function addWater(root) {
   for (let k = 0; k < RIVERS.length; k++) {
     const r = RIVERS[k],
       verts = [],
-      idx = []
+      idx = [],
+      onLand = []
     const steps = r.path
       ? Math.max(64, Math.ceil((r.north - r.south) * 8))
       : 640
     for (let i = 0; i <= steps; i++) {
       const lat = T.MathUtils.lerp(r.north, r.south, i / steps),
         lon = r.lon(lat)
+      const cosLat = Math.max(0.2, Math.cos(lat * Math.PI / 180))
+      const dLat = Math.min(r.north, lat + 0.02) - Math.max(r.south, lat - 0.02)
+      const dx = (r.lon(Math.min(r.north, lat + 0.02)) -
+        r.lon(Math.max(r.south, lat - 0.02))) * cosLat
+      const tangentLength = Math.hypot(dLat, dx)
       for (const side of [-1, 1]) {
-        const deltaProgress = r.delta ? (r.north - lat) / (r.north - r.south) : 0
-        const halfWidth = r.width * 0.68 * (r.delta ? 0.7 + deltaProgress * 0.55 : 1)
-        const shoreLon = lon +
-          (side * halfWidth) / Math.max(0.35, Math.cos((lat * Math.PI) / 180))
-        // River branches retain the parent level at confluences and descend downstream.
+        const progress = (r.north - lat) / (r.north - r.south)
+        const halfWidth = r.width * 0.62 * (r.delta ? 0.7 + progress * 0.55 : 1)
+        // Cross sections follow the local tangent, including tight meanders.
+        const edgeLat = lat - side * halfWidth * dx / tangentLength
+        const edgeLon = lon + side * halfWidth * dLat / tangentLength / cosLat
         const level = waterHeight(lat, k)
-        verts.push(...point(lat, shoreLon, 1 + level + 0.00015).toArray())
+        verts.push(...point(edgeLat, edgeLon, 1 + level + 0.00015).toArray())
+        onLand.push(sample(...direction(edgeLat, edgeLon), false).h > 0)
       }
-      if (i < steps) {
-        const n = i * 2
-        idx.push(n, n + 1, n + 2, n + 1, n + 3, n + 2)
-      }
+    }
+    for (let i = 0; i < steps; i++) {
+      const n = i * 2
+      // Both banks and the intervening midpoint must remain on natural land.
+      const midLat = T.MathUtils.lerp(r.north, r.south, (i + 0.5) / steps)
+      if (sample(...direction(midLat, r.lon(midLat)), false).h <= 0) continue
+      for (const triangle of [[n, n + 1, n + 2], [n + 1, n + 3, n + 2]])
+        if (triangle.every(v => onLand[v])) idx.push(...triangle)
     }
     const g = new T.BufferGeometry()
     g.setAttribute("position", new T.Float32BufferAttribute(verts, 3))
@@ -109,6 +122,7 @@ export function addWater(root) {
       channelMaterial.depthWrite = false
     }
     const m = new T.Mesh(g, channelMaterial)
+    m.userData.riverIndex = k
     m.userData.channelOrder = r.order
     m.userData.channelWidth = r.width
     if (k > 0) tributaries.push(installReveal(m))
@@ -141,21 +155,21 @@ export function addWater(root) {
   root.add(lake)
   // Drowned glacial valleys share the carved terrain paths and ocean level.
   const fjordMeshes = []
-  for (const path of FJORDS) {
-    const vertices = [], indices = [], steps = 240
+  for (let f = 0; f < FJORDS.length; f++) {
+    const path = FJORDS[f], vertices = [], indices = [], onIce = [], steps = 240
     for (let i = 0; i <= steps; i++) {
-      const progress = i / steps * (path.length - 1), segment = Math.min(path.length - 2, Math.floor(progress))
-      const t = progress - segment
-      const lat = T.MathUtils.lerp(path[segment][0], path[segment + 1][0], t)
-      const lon = path[segment][1] +
-        (((path[segment + 1][1] - path[segment][1] + 540) % 360) - 180) * t
-      const width = 0.12 + 0.08 * Math.sin(Math.PI * i / steps)
+      const lat = T.MathUtils.lerp(path[0][0], path.at(-1)[0], i / steps)
+      const lon = fjordCenter(f, lat)
+      const width = fjordWidth(f, lat) * 0.15
+      // Only tint the drowned valley within the ice coast. The sea supplies
+      // the continuous water surface outside it, avoiding offshore cyan stripes.
+      onIce.push(sample(...direction(lat, lon), false).polar > 0.15)
       for (const side of [-1, 1]) {
-        const edgeLon = lon + side * width / Math.max(0.35, Math.cos(lat * Math.PI / 180))
-        vertices.push(...point(lat, edgeLon, 1.00035).toArray())
+        const edgeLon = lon + side * width / Math.max(0.25, Math.cos(lat * Math.PI / 180))
+        vertices.push(...point(lat, edgeLon, 1.00015).toArray())
       }
-      if (i < steps) {
-        const n = i * 2
+      if (i && onIce[i - 1] && onIce[i]) {
+        const n = (i - 1) * 2
         indices.push(n, n + 1, n + 2, n + 1, n + 3, n + 2)
       }
     }
@@ -163,7 +177,9 @@ export function addWater(root) {
     geometry.setAttribute("position", new T.Float32BufferAttribute(vertices, 3))
     geometry.setIndex(indices)
     geometry.computeVertexNormals()
-    const fjord = installReveal(new T.Mesh(geometry, mat.clone()))
+    const fjordMaterial = mat.clone()
+    fjordMaterial.color.set(0x508da2)
+    const fjord = installReveal(new T.Mesh(geometry, fjordMaterial))
     root.add(fjord)
     fjordMeshes.push(fjord)
   }
@@ -175,6 +191,7 @@ export function addWater(root) {
       const a = lat + j * 0.16
       points.push(point(a, RIVERS[0].lon(a), 1 + waterHeight(a) + 0.0006))
     }
+    if (points.some(p => sample(...p.clone().normalize().toArray(), false).h <= 0)) continue
     const line = new T.Line(
       new T.BufferGeometry().setFromPoints(points),
       new T.LineBasicMaterial({

@@ -16,6 +16,8 @@ import {
   waterHeight,
   FJORDS,
   riverInfo,
+  fjordCenter,
+  fjordWidth,
 } from "../src/planet/field.js"
 import { addEcology, addWater } from "../src/planet/ecology.js"
 import { addClimate } from "../src/planet/climate.js"
@@ -127,8 +129,8 @@ for (let i = 0; i < RIVERS.length; i++) {
       assert.ok(s.land > 0.55, `river outside watershed ${i}/${lat}`)
     assert.ok(s.river < 7, `river valley missed ${i}/${lat}`)
     if (i >= 3 && !r.delta && lat < r.north - 3 && lat > r.south + 3) {
-      const flank = sampleLatLon(lat, r.lon(lat) + 1)
-      assert.ok(s.h < flank.h, `river channel not carved ${i}/${lat}`)
+      const natural = sample(...direction(lat, r.lon(lat)), false)
+      assert.ok(s.h < natural.h - 0.002, `river channel not carved ${i}/${lat}`)
     }
   }
 }
@@ -155,14 +157,48 @@ for (const { river, index } of deltas) {
   const mouthLevel = waterHeight(river.south, index)
   const mouth = sampleLatLon(river.south, river.lon(river.south))
   assert.ok(startLevel > mouthLevel, "delta flow must descend toward the sea")
-  assert.ok(mouth.river < 1.7, "delta mouth missing from water classifier")
+  assert.ok(river.coastalOutlet, "distributary must reach its coastline")
+  assert.ok(Math.abs(mouthLevel) < 1e-9, "estuary must meet sea level")
+  const naturalMouth = sample(...direction(river.south, river.lon(river.south)), false)
+  assert.ok(Math.abs(naturalMouth.h) < 1e-7, "estuary must terminate on natural shore")
+  const offshoreLat = river.south - 0.03, offshoreLon = river.lon(offshoreLat)
+  const offshore = sampleLatLon(offshoreLat, offshoreLon)
+  const naturalSea = sample(...direction(offshoreLat, offshoreLon), false)
+  if (naturalSea.h <= 0) {
+    assert.equal(offshore.h, naturalSea.h, "river must never raise an offshore bed")
+    assert.ok(offshore.river >= 7, "open ocean classified as a river")
+  }
+}
+// Curves bend between authored points and retain every pinned control point.
+let windingChannels = 0
+for (const r of RIVERS.filter(r => r.path && !r.delta)) {
+  let bends = 0
+  for (let i = 0; i < r.path.length - 1; i++) {
+    const a = r.path[i], b = r.path[i + 1]
+    assert.ok(Math.abs(r.lon(a[0]) - a[1]) < 1e-8, "curve moved a control point")
+    for (const t of [0.25, 0.5, 0.75])
+      bends = Math.max(bends, Math.abs(r.lon(a[0] + (b[0] - a[0]) * t) -
+        (a[1] + (b[1] - a[1]) * t)))
+  }
+  if (bends > 0.1) windingChannels++
+}
+assert.ok(windingChannels >= 30, "river network needs visible, non-linear meanders")
+for (let i = 0; i < FJORDS.length; i++) {
+  const widths = []
+  for (let lat = FJORDS[i][0][0]; lat <= FJORDS[i].at(-1)[0]; lat += 0.2) {
+    widths.push(fjordWidth(i, lat))
+    const bed = sampleLatLon(lat, fjordCenter(i, lat))
+    assert.ok(bed.h <= 0, "curved fjord must remain water")
+    if (bed.polar > 0.8) assert.ok(bed.h <= -0.02, "inland fjord bed missing")
+  }
+  assert.ok(Math.max(...widths) / Math.min(...widths) > 1.5, "fjord width too uniform")
 }
 // Fjord beds cut through ice into the tide level and remain selectable as water.
 assert.equal(FJORDS.length, 4)
 for (const path of FJORDS) {
   for (const [lat, lon] of path) {
     const s = sampleLatLon(lat, lon)
-    assert.ok(s.h <= -0.02, `fjord not carved at ${lat}/${lon}`)
+    assert.ok(s.h <= 0, `fjord not carved at ${lat}/${lon}`)
     assert.equal(zoneAt(s), "water", "fjord should map to water")
   }
 }
@@ -469,3 +505,17 @@ assert.doesNotMatch(appSource, /setFromSpherical\(spherical\)/)
 console.log(
   "PASS: press-and-hold rotation, drag-aligned smoothing, polar-safe quaternion, and short-press picking",
 )
+
+for (const mesh of waterSystem.riverMeshes) {
+  if (mesh.userData.riverIndex === undefined) continue
+  const g = mesh.geometry, p = new T.Vector3()
+  assert.ok(g.index.count > 0, "river lost all visible water")
+  for (const i of new Set(g.index.array)) {
+    p.fromBufferAttribute(g.attributes.position, i).normalize()
+    const natural = sample(p.x, p.y, p.z, false)
+    assert.ok(natural.h > -1e-7, "visible river vertex over open sea")
+    const s = sample(p.x, p.y, p.z)
+    assert.ok(s.river < 1.7, `water ribbon missed its carved bed: ${mesh.userData.riverIndex}`)
+  }
+}
+console.log("Coastal clipping, meanders, and variable-width fjords verified")
