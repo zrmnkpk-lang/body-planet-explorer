@@ -60,3 +60,9 @@ html.snapshot-mode,html.snapshot-mode body{width:100%;height:100%;min-height:0;o
 html.snapshot-mode #app{width:100%;height:100%;min-height:0}
 html.snapshot-mode header,html.snapshot-mode .top-right,html.snapshot-mode .zoom-map,html.snapshot-mode #card,html.snapshot-mode footer,html.snapshot-mode .view-tools{display:none!important}
 html.snapshot-mode #scene{cursor:default}
+
+/* Decorative app background mode leaves the canvas transparent so the host page can add its own space field. */
+html.backdrop-mode,html.backdrop-mode body{width:100%;height:100%;min-height:0;overflow:hidden;background:transparent!important}
+html.backdrop-mode #app{width:100%;height:100%;min-height:0;background:transparent!important}
+html.backdrop-mode header,html.backdrop-mode .top-right,html.backdrop-mode .zoom-map,html.backdrop-mode #card,html.backdrop-mode footer,html.backdrop-mode .view-tools,html.backdrop-mode #loading,html.backdrop-mode #error{display:none!important}
+html.backdrop-mode #scene{cursor:default}

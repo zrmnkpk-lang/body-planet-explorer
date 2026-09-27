@@ -19,8 +19,10 @@ import "./styles.css"
 const params = new URLSearchParams(location.search)
 const appMode = params.get("mode") === "app"
 const snapshotMode = params.get("snapshot") === "1"
+const backdropMode = params.get("backdrop") === "1"
 document.documentElement.classList.toggle("app-mode", appMode)
 document.documentElement.classList.toggle("snapshot-mode", snapshotMode)
+document.documentElement.classList.toggle("backdrop-mode", backdropMode)
 const $ = (s) => document.querySelector(s),
   host = $("#scene"),
   data = structuredClone(ZONES)
@@ -289,7 +291,7 @@ root.add(selectedOutline)
 let selected = null,
   targetCamera = null,
   contextLost = false,
-  autoSpin = snapshotMode
+  autoSpin = snapshotMode || backdropMode
 function select(zone) {
   if (!data[zone]) return
   selected = zone
