@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface BodyMetrics {
   muscle: string;
@@ -20,6 +20,7 @@ function metricValues(bodyMetrics: BodyMetrics) {
  */
 export default function PlanetView({ bodyMetrics }: { bodyMetrics: BodyMetrics }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
+  const [frameReady, setFrameReady] = useState(false);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -43,11 +44,17 @@ export default function PlanetView({ bodyMetrics }: { bodyMetrics: BodyMetrics }
 
   return (
     <section className="latest-planet-view" aria-label="可交互身体星球">
+      <div className={`planet-loading ${frameReady ? "is-hidden" : ""}`} role="status" aria-live="polite">
+        <div className="planet-loading-orb" aria-hidden="true" />
+        <span>正在加载身体星球…</span>
+      </div>
       <iframe
         ref={frameRef}
+        className={frameReady ? "is-ready" : ""}
         title="可交互身体星球地图"
         src="/planet.html?mode=app"
         loading="eager"
+        onLoad={() => setFrameReady(true)}
       />
     </section>
   );

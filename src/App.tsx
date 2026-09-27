@@ -219,50 +219,14 @@ function PortalMark({ small = false }: { small?: boolean }) {
   );
 }
 
-const backdropStars = [
-  { x: "52%", y: "4%", size: "2px" },
-  { x: "90%", y: "5%", size: "2px" },
-  { x: "3%", y: "33%", size: "2px" },
-  { x: "97%", y: "34%", size: "1px" },
-  { x: "4%", y: "63%", size: "2px" },
-  { x: "96%", y: "64%", size: "1px" },
-] as const;
-
-function PlanetBackdrop() {
-  const [loaded, setLoaded] = useState(false);
-  const [starMotion] = useState(() => backdropStars.map((star) => ({
-    ...star,
-    delay: `-${(Math.random() * 4.8).toFixed(2)}s`,
-    duration: `${(3 + Math.random() * 3).toFixed(2)}s`,
-    alpha: Number((0.48 + Math.random() * 0.32).toFixed(2)),
-  })));
-
+function PlanetSnapshot() {
   return (
-    <div className="planet-backdrop" aria-hidden="true">
-      {/* The blurred silhouette keeps the deep-space layer calm while the latest renderer loads. */}
-      <div className={`planet-backdrop-skeleton ${loaded ? "is-hidden" : ""}`} />
-      <div className="space-stars">
-        {starMotion.map((star, index) => (
-          <span
-            key={index}
-            className="backdrop-star"
-            style={{
-              "--star-x": star.x,
-              "--star-y": star.y,
-              "--star-size": star.size,
-              "--star-delay": star.delay,
-              "--star-duration": star.duration,
-              "--star-alpha": star.alpha,
-            } as React.CSSProperties}
-          />
-        ))}
-      </div>
+    /* The home card keeps the original compact rotating planet preview. */
+    <div className="hero-planet-snapshot" aria-hidden="true">
       <iframe
-        className={loaded ? "is-loaded" : ""}
-        title=""
-        src="/planet.html?mode=app&backdrop=1"
+        title="旋转身体星球缩略预览"
+        src="/planet.html?mode=app&snapshot=1"
         loading="eager"
-        onLoad={() => window.setTimeout(() => setLoaded(true), 650)}
       />
     </div>
   );
@@ -370,6 +334,7 @@ function FitnessApp() {
           </Button>
         </div>
         <div className="hero-art">
+          <PlanetSnapshot />
           <div className="orbit-chip"><Sparkles size={16} /> 阶段 {planetEra + 1}/5</div>
           <div className="hero-sticker">L{currentEra.level}<br />ERA</div>
         </div>
@@ -592,7 +557,6 @@ function FitnessApp() {
   return (
     <main className="app-cosmos">
       <section className="phone-shell dark" aria-label="Portal Dash 健身应用">
-        {activeTab !== "portal" && <PlanetBackdrop />}
         <div className="phone-topline"><div><p className="eyebrow">C-137 · TRAINING BAY</p><p className="topline-label">PORTAL FITNESS</p></div><IconButton aria-label="查看奖励" icon={<Trophy size={16} />} variant="neutral" size="small" /></div>
         <div className="view-scroll" key={activeTab}>
           {views[activeTab]}
