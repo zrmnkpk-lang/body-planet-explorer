@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import bgCosmos from "@/imports/jimeng-2026-08-30-4227-________________________________________....png";
 import voidRunnerCharacter from "@/imports/image.png";
 const heroBlackHole = "/assets/illustrations/portal-black-hole.webp";
 const bodyAnalysisCharacter = "/assets/illustrations/body-composition-scan.webp";
@@ -556,7 +557,7 @@ function FitnessApp() {
 
   return (
     <main className="app-cosmos">
-      <section className="phone-shell dark" aria-label="Portal Dash 健身应用">
+      <section className="phone-shell dark" aria-label="Portal Dash 健身应用" style={{ "--phone-bg": `url(${bgCosmos})` } as React.CSSProperties}>
         <div className="phone-topline"><div><p className="eyebrow">C-137 · TRAINING BAY</p><p className="topline-label">PORTAL FITNESS</p></div><IconButton aria-label="查看奖励" icon={<Trophy size={16} />} variant="neutral" size="small" /></div>
         <div className="view-scroll" key={activeTab}>
           {views[activeTab]}
