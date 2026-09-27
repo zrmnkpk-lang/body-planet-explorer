@@ -15,20 +15,20 @@
 
 | 类型 | 资源路径 | 尺寸 | 大小 | 用途 | 接入状态 |
 | --- | --- | ---: | ---: | --- | --- |
-| 系统插画 | `/assets/illustrations/portal-black-hole.webp` | 1024 × 1024 | 111 KB | Portal 入口、动效背景或加载状态 | 已入库，未接入当前页面 |
-| 系统插画 | `/assets/illustrations/body-composition-scan.webp` | 720 × 1279 | 72 KB | 「物质扫描」与体成分数据页 | 已入库，未接入当前页面 |
-| 阶段背景 | `/assets/card-backgrounds/l1-ocean.webp` | 900 × 500 | 12 KB | L1 沧海纪卡片背景 | 已入库，未接入当前页面 |
-| 阶段背景 | `/assets/card-backgrounds/l2-islands.webp` | 900 × 500 | 24 KB | L2 露陆纪卡片背景 | 已入库，未接入当前页面 |
-| 阶段背景 | `/assets/card-backgrounds/l3-mountains.webp` | 900 × 500 | 23 KB | L3 山脉纪卡片背景 | 已入库，未接入当前页面 |
-| 阶段背景 | `/assets/card-backgrounds/l4-riverlands.webp` | 900 × 500 | 26 KB | L4 江河纪卡片背景 | 已入库，未接入当前页面 |
-| 阶段背景 | `/assets/card-backgrounds/l5-terrain.webp` | 900 × 500 | 35 KB | L5 丰壤纪卡片背景 | 已入库，未接入当前页面 |
+| 系统插画 | `/assets/illustrations/portal-black-hole.webp` | 1024 × 1024 | 111 KB | Portal 入口与生态导航图标 | 已接入 `src/App.tsx` |
+| 系统插画 | `/assets/illustrations/body-composition-scan.webp` | 720 × 1279 | 72 KB | 「物质扫描」与体成分数据页 | 已接入 `src/App.tsx` |
+| 阶段背景 | `/assets/card-backgrounds/l1-ocean.webp` | 900 × 500 | 12 KB | L1 沧海纪卡片背景 | 已接入真实 APP 首页 |
+| 阶段背景 | `/assets/card-backgrounds/l2-islands.webp` | 900 × 500 | 24 KB | L2 露陆纪卡片背景 | 已接入真实 APP 首页 |
+| 阶段背景 | `/assets/card-backgrounds/l3-mountains.webp` | 900 × 500 | 23 KB | L3 山脉纪卡片背景 | 已接入真实 APP 首页 |
+| 阶段背景 | `/assets/card-backgrounds/l4-riverlands.webp` | 900 × 500 | 26 KB | L4 江河纪卡片背景 | 已接入真实 APP 首页 |
+| 阶段背景 | `/assets/card-backgrounds/l5-terrain.webp` | 900 × 500 | 35 KB | L5 丰壤纪卡片背景 | 已接入真实 APP 首页 |
 
 ## 交互星球与配置
 
 | 类型 | 资源路径 | 用途 | 说明 |
 | --- | --- | --- | --- |
-| Three.js 场景 | `src/app.js` | 可旋转、可缩放的体成分星球 | 独立原型；由程序生成高细节地形、山脊、冰川、河流与森林，不依赖图片贴图。 |
-| Three.js 场景壳 | `planet.html` | 星球原型独立预览 | Vite 多页构建入口；当前 React 页面仍不加载该场景。 |
+| Three.js 场景 | `src/app.js` | 可旋转、可缩放的体成分星球 | 真实 APP 的生态页 iframe 与独立预览共用；由程序生成高细节地形、山脊、冰川、河流与森林。 |
+| Three.js 场景壳 | `planet.html` | 星球原型独立预览 | Vite 多页构建入口；`src/PlanetView.tsx` 以 `?mode=app` 嵌入真实 APP。 |
 | 地点数据 | `src/landmarks.js` | 冰川、海洋、河流、森林、荒漠标注 | 名称、坐标和细节等级的唯一数据源。 |
 | SVG 参考稿 | `src/imports/pasted_text/planet-svg.svg` | 原始的 600 × 600 矢量星球结构 | 当前只含 `defs` 和样式，没有完整可渲染的地形路径；不可视为运行时资源。 |
 
@@ -40,13 +40,12 @@
 
 | 类型 | 位置 | 用途 | 状态 |
 | --- | --- | --- | --- |
-| 产品方案 | [`product-spec.md`](product-spec.md) | MVP 范围、业务规则、Credit、AI、数据和验收标准的唯一真源 | 当前 |
-| 手机交互 | [`interaction-spec.md`](interaction-spec.md) | 页面行为、跳转、状态、异常恢复、离线同步与埋点 | 当前 |
-| 差异记录 | [`reference-gap-analysis.md`](reference-gap-analysis.md) | 参考项目与仓库的合并决策 | 当前 |
+| 产品与功能 | [`../PRODUCT_FEATURES.md`](../PRODUCT_FEATURES.md) | 真实 APP 的页面、训练流程、生态、数据和个人页范围 | 当前 |
+| 地形实现 | [`desktop-terrain.md`](desktop-terrain.md) | 连续球面地形、数据桥接、Worker 和验收 | 当前 |
+| APP 入口 | [`../README.md`](../README.md) | 工程入口、文件职责和构建命令 | 当前 |
 | Figma 设计 | [Portal Fitness MVP — 历史交互稿](https://www.figma.com/design/OX5ETikVlpMD35jVGJapnX) | 早期视觉探索，仅供参考，不作为产品规则或研发验收依据 | 归档参考 |
-| 历史文档 | [`product-spec-v1.2.md`](product-spec-v1.2.md)、[`mobile-interaction-v1.2.md`](mobile-interaction-v1.2.md) | v1.2 方案与页面清单 | 归档 |
 
-用户提供的“健身App网页.zip”包含多张 0.8–7 MB 的原始 PNG 和 Figma Make 工程文件，仅作为设计与代码对照输入，不作为 App 运行时资源直接入库。需要使用其中视觉素材时，必须先改为语义化文件名、导出 WebP/AVIF、移除元数据，并补充到本索引。
+用户提供的“健身App网页.zip”是当前真实 APP 的源工程参考；已将其运行时代码和必要资源合并进仓库。压缩包本身保留在本地作为输入文件，不作为运行时资源加载。
 
 ## 桌面连续地形地标（2026-09）
 

@@ -4,63 +4,281 @@
       <circle cx="300" cy="300" r="240"/>
     </clipPath>
 
-    <radialGradient id="body-planet-ocean-gradient" cx="28%" cy="22%" r="85%">
-      <stop offset="0" stop-color="var(--ocean-light, var(--brand-primary))"/>
-      <stop offset=".48" stop-color="var(--ocean-mid, var(--surface-dark))"/>
-      <stop offset="1" stop-color="var(--ocean-deep, var(--surface-dark))"/>
-    </radialGradient>
+```
+<radialGradient id="body-planet-ocean-gradient" cx="28%" cy="22%" r="85%">
+  <stop offset="0" stop-color="var(--ocean-light, var(--brand-primary))"/>
+  <stop offset=".48" stop-color="var(--ocean-mid, var(--surface-dark))"/>
+  <stop offset="1" stop-color="var(--ocean-deep, var(--surface-dark))"/>
+</radialGradient>
 
-    <linearGradient id="body-planet-highland-gradient" x1="130" y1="145" x2="296" y2="365" gradientUnits="userSpaceOnUse">
-      <stop stop-color="var(--rock-light, var(--warning))"/>
-      <stop offset=".58" stop-color="var(--rock-mid, var(--warning))"/>
-      <stop offset="1" stop-color="var(--rock-dark, var(--surface-dark))"/>
-    </linearGradient>
+<linearGradient id="body-planet-highland-gradient" x1="130" y1="145" x2="296" y2="365" gradientUnits="userSpaceOnUse">
+  <stop stop-color="var(--rock-light, var(--warning))"/>
+  <stop offset=".58" stop-color="var(--rock-mid, var(--warning))"/>
+  <stop offset="1" stop-color="var(--rock-dark, var(--surface-dark))"/>
+</linearGradient>
 
-    <linearGradient id="body-planet-ice-gradient" x1="255" y1="72" x2="345" y2="184" gradientUnits="userSpaceOnUse">
-      <stop stop-color="var(--ice-light, var(--on-brand))"/>
-      <stop offset=".54" stop-color="var(--ice-mid, var(--on-brand))"/>
-      <stop offset="1" stop-color="var(--ice-shadow, var(--brand-primary))"/>
-    </linearGradient>
+<linearGradient id="body-planet-ice-gradient" x1="255" y1="72" x2="345" y2="184" gradientUnits="userSpaceOnUse">
+  <stop stop-color="var(--ice-light, var(--on-brand))"/>
+  <stop offset=".54" stop-color="var(--ice-mid, var(--on-brand))"/>
+  <stop offset="1" stop-color="var(--ice-shadow, var(--brand-primary))"/>
+</linearGradient>
 
-    <linearGradient id="body-planet-canopy-gradient" x1="316" y1="318" x2="446" y2="496" gradientUnits="userSpaceOnUse">
-      <stop stop-color="var(--canopy-light, var(--success))"/>
-      <stop offset=".62" stop-color="var(--canopy-mid, var(--success))"/>
-      <stop offset="1" stop-color="var(--canopy-dark, var(--surface-dark))"/>
-    </linearGradient>
+<linearGradient id="body-planet-canopy-gradient" x1="316" y1="318" x2="446" y2="496" gradientUnits="userSpaceOnUse">
+  <stop stop-color="var(--canopy-light, var(--success))"/>
+  <stop offset=".62" stop-color="var(--canopy-mid, var(--success))"/>
+  <stop offset="1" stop-color="var(--canopy-dark, var(--surface-dark))"/>
+</linearGradient>
 
-    <radialGradient id="body-planet-light-gradient" cx="27%" cy="21%" r="76%">
-      <stop stop-color="var(--sunlight, var(--on-brand))" stop-opacity="var(--sunlight-opacity, .16)"/>
-      <stop offset=".43" stop-color="var(--sunlight, var(--on-brand))" stop-opacity="var(--clear-opacity, 0)"/>
-      <stop offset=".73" stop-color="var(--ink, var(--surface-dark))" stop-opacity="var(--clear-opacity, 0)"/>
-      <stop offset="1" stop-color="var(--ink, var(--surface-dark))" stop-opacity="var(--night-opacity, .6)"/>
-    </radialGradient>
+<radialGradient id="body-planet-light-gradient" cx="27%" cy="21%" r="76%">
+  <stop stop-color="var(--sunlight, var(--on-brand))" stop-opacity="var(--sunlight-opacity, .16)"/>
+  <stop offset=".43" stop-color="var(--sunlight, var(--on-brand))" stop-opacity="var(--clear-opacity, 0)"/>
+  <stop offset=".73" stop-color="var(--ink, var(--surface-dark))" stop-opacity="var(--clear-opacity, 0)"/>
+  <stop offset="1" stop-color="var(--ink, var(--surface-dark))" stop-opacity="var(--night-opacity, .6)"/>
+</radialGradient>
 
-    <radialGradient id="body-planet-lava-gradient" cx="46%" cy="69%" r="65%">
-      <stop stop-color="var(--lava-hot, var(--on-brand))"/>
-      <stop offset=".27" stop-color="var(--lava-light, var(--warning))"/>
-      <stop offset="1" stop-color="var(--lava-dark, var(--surface-dark))"/>
-    </radialGradient>
+<radialGradient id="body-planet-lava-gradient" cx="46%" cy="69%" r="65%">
+  <stop stop-color="var(--lava-hot, var(--on-brand))"/>
+  <stop offset=".27" stop-color="var(--lava-light, var(--warning))"/>
+  <stop offset="1" stop-color="var(--lava-dark, var(--surface-dark))"/>
+</radialGradient>
 
-    <pattern id="body-planet-halftone" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
-      <circle cx="2" cy="2" r="1.45" fill="var(--ink, var(--surface-dark))"/>
-      <circle cx="6.5" cy="6.5" r=".8" fill="var(--ink, var(--surface-dark))"/>
-    </pattern>
+<pattern id="body-planet-halftone" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+  <circle cx="2" cy="2" r="1.45" fill="var(--ink, var(--surface-dark))"/>
+  <circle cx="6.5" cy="6.5" r=".8" fill="var(--ink, var(--surface-dark))"/>
+</pattern>
 
-    <pattern id="body-planet-engraving" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)">
-      <path d="M0 1H8M3 7H12" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--engraving-width, .8)" opacity="var(--engraving-opacity, .28)"/>
-    </pattern>
+<pattern id="body-planet-engraving" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)">
+  <path d="M0 1H8M3 7H12" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--engraving-width, .8)" opacity="var(--engraving-opacity, .28)"/>
+</pattern>
 
-    <filter id="body-planet-atmosphere-blur" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="7"/>
-    </filter>
+<filter id="body-planet-atmosphere-blur" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+  <feGaussianBlur stdDeviation="7"/>
+</filter>
 
-    <style>
-      .body-planet-zone { cursor: pointer; }
-      .body-planet-mountain-relief { transform-box: fill-box; transform-origin: center bottom; transform: scaleY(var(--muscle-height, 1)); }
-      .body-planet-bone-mass { transform-box: fill-box; transform-origin: center top; transform: scale(var(--bone-scale, 1)); }
-      .water-main { stroke-width: var(--water-main-width, 13); }
-      .water-branch { stroke-width: var(--water-branch-width, 5); }
-      .water-lake { stroke-width: var(--water-lake-width, 3); }
-    </style>
+<style>
+  .body-planet-zone {
+    cursor: pointer;
+  }
+  .body-planet-mountain-relief {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transform: scaleY(var(--muscle-height, 1));
+  }
+  .body-planet-bone-mass {
+    transform-box: fill-box;
+    transform-origin: center top;
+    transform: scale(var(--bone-scale, 1));
+  }
+  .water-main {
+    stroke-width: var(--water-main-width, 13);
+  }
+  .water-branch {
+    stroke-width: var(--water-branch-width, 5);
+  }
+  .water-lake {
+    stroke-width: var(--water-lake-width, 3);
+  }
+</style>
+```
+
   </defs>
+
+  <!-- Noninteractive space -->
+
+  <g id="body-planet-space-background" pointer-events="none">
+    <path d="M0 0H600V600H0Z" fill="var(--space-background, var(--surface-dark))"/>
+    <g fill="var(--star-color, var(--on-brand))">
+      <circle cx="72" cy="78" r="1.5" opacity="var(--star-bright-opacity, .8)"/>
+      <circle cx="142" cy="39" r="1" opacity="var(--star-muted-opacity, .4)"/>
+      <circle cx="452" cy="48" r="1.4" opacity="var(--star-bright-opacity, .8)"/>
+      <circle cx="533" cy="122" r="1" opacity="var(--star-muted-opacity, .4)"/>
+      <circle cx="566" cy="238" r="1.6" opacity="var(--star-bright-opacity, .8)"/>
+      <circle cx="37" cy="319" r="1.2" opacity="var(--star-muted-opacity, .4)"/>
+      <circle cx="64" cy="458" r="1.5" opacity="var(--star-bright-opacity, .8)"/>
+      <circle cx="126" cy="546" r="1" opacity="var(--star-muted-opacity, .4)"/>
+      <circle cx="472" cy="555" r="1.3" opacity="var(--star-bright-opacity, .8)"/>
+      <circle cx="554" cy="468" r="1" opacity="var(--star-muted-opacity, .4)"/>
+    </g>
+    <g stroke="var(--star-color, var(--on-brand))" stroke-width="var(--star-line-width, 1.2)" stroke-linecap="round" opacity="var(--star-bright-opacity, .8)">
+      <path d="M38 175H46M42 171V179"/>
+      <path d="M504 70H514M509 65V75"/>
+      <path d="M526 519H534M530 515V523"/>
+      <path d="M250 566H256M253 563V569"/>
+    </g>
+  </g>
+
+  <!-- Atmospheric rim -->
+
+  <g id="body-planet-planet-atmosphere" pointer-events="none">
+    <circle cx="300" cy="300" r="244" stroke="var(--atmosphere, var(--brand-primary))" stroke-width="var(--atmosphere-glow-width, 14)" opacity="var(--atmosphere-glow-opacity, .4)" filter="url(#body-planet-atmosphere-blur)"/>
+    <circle cx="300" cy="300" r="246" stroke="var(--atmosphere, var(--brand-primary))" stroke-width="var(--atmosphere-rim-width, 2)" opacity="var(--atmosphere-rim-opacity, .58)"/>
+    <path d="M64 261A241 241 0 0 1 339 62" stroke="var(--atmosphere-light, var(--on-brand))" stroke-width="var(--atmosphere-light-width, 2.5)" stroke-linecap="round" opacity="var(--atmosphere-light-opacity, .8)"/>
+    <path d="M361 64A245 245 0 0 1 466 118M77 396A246 246 0 0 0 113 453" stroke="var(--atmosphere, var(--brand-primary))" stroke-width="var(--atmosphere-fragment-width, 1)" stroke-linecap="round" opacity="var(--atmosphere-fragment-opacity, .45)"/>
+  </g>
+
+  <!-- Ocean, circulation, and southern metabolic core -->
+
+  <g id="body-planet-planet-environment" clip-path="url(#body-planet-clip)" pointer-events="none">
+    <circle cx="300" cy="300" r="240" fill="url(#body-planet-ocean-gradient)"/>
+
+```
+<path d="M384 137C451 138 504 183 516 240C526 284 496 301 474 284C459 272 469 250 490 253M393 157C446 159 486 185 496 222M72 327C104 348 120 375 113 402C106 429 120 453 150 466M65 351C88 364 98 386 93 407M128 487C158 511 183 506 188 484C194 460 170 447 162 430" stroke="var(--ocean-current, var(--brand-primary))" stroke-width="var(--current-width, 2)" stroke-linecap="round" opacity="var(--current-opacity, .42)"/>
+
+<path d="M358 218C398 192 439 205 454 232M366 229C399 208 428 219 438 237M184 371C213 367 229 379 236 395M166 394C190 383 210 392 217 406M111 277L122 274M113 289L129 285M455 181L461 185M473 196L479 201M474 322L487 318M490 307L501 304" stroke="var(--ocean-highlight, var(--on-brand))" stroke-width="var(--ocean-detail-width, 1.5)" stroke-linecap="round" opacity="var(--ocean-detail-opacity, .3)"/>
+
+<path d="M60 334C92 353 99 397 128 425C141 438 164 445 173 472L143 488L84 445L60 392ZM451 144C497 165 538 203 544 269L514 318L489 288L515 252L494 198Z" fill="url(#body-planet-halftone)" opacity="var(--ocean-halftone-opacity, .36)"/>
+
+<g id="body-planet-metabolic-core">
+  <path d="M201 548L217 516L237 495L249 469L268 453L281 471L295 488L307 518L336 548Z" fill="var(--volcanic-rock, var(--surface-dark))" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--volcano-outline-width, 4)" stroke-linejoin="round"/>
+  <path d="M222 530L243 506L253 479L267 469L279 485L282 508L304 538L274 552L247 533Z" fill="url(#body-planet-lava-gradient)"/>
+  <path d="M246 476L260 464L273 466L282 478L271 487L254 484Z" fill="var(--lava-light, var(--warning))" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--crater-width, 3)" stroke-linejoin="round"/>
+  <path d="M255 476L266 472L274 477L266 480Z" fill="var(--lava-hot, var(--on-brand))"/>
+  <path d="M265 487L260 500L268 513L263 527M278 503L292 519M245 512L235 522" stroke="var(--lava-hot, var(--on-brand))" stroke-width="var(--lava-seam-width, 2.5)" stroke-linecap="round"/>
+  <path d="M230 504L237 490M291 486L297 499M210 528L220 516M299 534L310 544" stroke="var(--rock-light, var(--warning))" stroke-width="var(--volcano-hatch-width, 1.5)" opacity="var(--volcano-hatch-opacity, .6)"/>
+  <path d="M256 450C248 442 259 435 255 427M273 447C284 436 274 430 282 421" stroke="var(--cloud-light, var(--on-brand))" stroke-width="var(--thermal-plume-width, 2)" stroke-linecap="round" opacity="var(--thermal-plume-opacity, .35)"/>
+</g>
+```
+
+  </g>
+
+  <g clip-path="url(#body-planet-clip)">
+    <!-- Muscle: plateau body and scalable mountain relief -->
+    <g id="body-planet-zone-muscle" data-zone="muscle" class="body-planet-zone" pointer-events="visiblePainted">
+      <path id="body-planet-muscle-landmass" d="M91 226L101 202L118 191L123 171L147 165L161 143L185 146L207 135L233 149L252 148L270 170L272 190L291 207L285 231L303 248L296 273L308 291L295 312L290 336L268 344L254 363L230 357L216 369L194 353L174 349L168 330L147 324L140 304L119 294L119 275L102 261Z" fill="url(#body-planet-highland-gradient)" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--land-outline-width, 4.5)" stroke-linejoin="round"/>
+
+```
+  <g pointer-events="none" stroke-linejoin="round">
+    <path d="M104 252L125 264L133 286L156 292L166 315L188 319L199 338L221 341L232 351L255 349L271 333L287 329L283 345L255 364L230 358L217 370L194 354L174 350L168 331L147 325L140 305L120 295L119 276Z" fill="var(--rock-shadow, var(--surface-dark))" opacity="var(--plateau-shadow-opacity, .64)"/>
+    <path d="M115 248L129 255L140 277L161 279L173 300L193 302L211 320L236 320L249 336L269 326M130 233L144 241L153 259L175 262M176 323L188 331L196 345M227 339L239 343L251 340M270 305L283 296L289 280" stroke="var(--rock-light, var(--warning))" stroke-width="var(--strata-light-width, 2)" stroke-linecap="round"/>
+    <path d="M131 269L147 277M145 291L158 296M158 308L169 312M183 334L188 342M249 355L262 348M281 317L286 309" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--strata-dark-width, 2)" stroke-linecap="round"/>
+    <path d="M127 286L155 291L176 319L211 338L245 338L272 322L288 316L283 341L255 363L220 357L180 347L158 325Z" fill="url(#body-planet-halftone)" opacity="var(--rock-halftone-opacity, .55)"/>
+  </g>
+
+  <g id="body-planet-muscle-relief" class="body-planet-mountain-relief">
+    <path d="M112 242L148 165L167 200L192 119L218 174L237 149L260 211L279 200L291 267L270 281L251 268L231 294L207 270L186 289L166 259L144 269Z" fill="var(--rock-mid, var(--warning))" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--mountain-outline-width, 4)" stroke-linejoin="round"/>
+
+    <g pointer-events="none" stroke-linejoin="round">
+      <path d="M148 165L146 217L166 259L144 248L128 248ZM192 119L187 202L207 270L222 248L216 211ZM237 149L232 209L251 268L268 253L257 229ZM279 200L270 242L270 281L291 267Z" fill="var(--rock-shadow, var(--surface-dark))"/>
+      <path d="M148 165L136 191L145 188L150 196L155 186L162 192ZM192 119L176 167L188 159L195 170L201 159L213 165ZM237 149L225 176L234 171L241 183L247 174Z" fill="var(--snow-light, var(--on-brand))" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--snow-outline-width, 2)"/>
+      <path d="M192 119L188 159L195 170L201 159ZM237 149L234 171L241 183L247 174ZM148 165L145 188L150 196L155 186Z" fill="var(--snow-shadow, var(--brand-primary))"/>
+      <path d="M174 183L165 211L173 223L165 241M181 203L178 228L190 251M214 190L220 215L215 233M230 190L223 216L232 239M251 207L248 222L258 242M141 209L135 228L143 239M280 231L281 247" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--ridge-width, 2.3)" stroke-linecap="round"/>
+      <path d="M180 177L174 194M176 232L183 251M225 247L231 265M240 217L245 239M154 220L160 239M263 237L268 252" stroke="var(--rock-light, var(--on-brand))" stroke-width="var(--ridge-highlight-width, 1.5)" stroke-linecap="round" opacity="var(--ridge-highlight-opacity, .65)"/>
+      <path d="M192 181L211 222L215 254L206 263L194 225ZM238 197L255 236L259 254L250 263L237 233ZM147 207L160 237L163 249L150 236Z" fill="url(#body-planet-engraving)"/>
+    </g>
+  </g>
+
+  <g pointer-events="none">
+    <path d="M211 290L221 300L219 312L232 325L231 337L241 349L226 339L223 329L211 317L213 306L202 298Z" fill="var(--canyon-shadow, var(--surface-dark))"/>
+    <path d="M202 287L211 294M217 315L224 322M233 335L241 340" stroke="var(--rock-light, var(--on-brand))" stroke-width="var(--canyon-rim-width, 1.5)" stroke-linecap="round" opacity="var(--canyon-rim-opacity, .6)"/>
+    <path d="M157 284L162 278L169 281L166 288ZM261 297L267 290L273 294L271 301Z" fill="var(--rock-light, var(--warning))" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--boulder-width, 1.5)"/>
+  </g>
+</g>
+
+<!-- Fat: fertile southern continent -->
+<g id="body-planet-zone-fat" data-zone="fat" class="body-planet-zone" pointer-events="visiblePainted">
+  <path id="body-planet-fat-landmass" d="M299 331L316 313L341 316L357 307L380 319L397 314L409 330L430 336L440 354L460 360L472 382L486 396L479 418L488 436L469 453L463 475L438 482L420 501L396 495L379 509L356 497L338 502L327 485L307 481L305 462L287 450L289 427L273 416L281 395L273 380L286 363L286 344Z" fill="url(#body-planet-canopy-gradient)" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--land-outline-width, 4.5)" stroke-linejoin="round"/>
+
+  <g pointer-events="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M294 350L316 330L341 334L356 324L378 335L394 329L405 344L424 349L430 360L402 355L382 348L362 355L342 345L321 348L301 366L287 377L283 366Z" fill="var(--grass-light, var(--success))" stroke="var(--grass-highlight, var(--on-brand))" stroke-width="var(--terrace-highlight-width, 1.5)" opacity="var(--terrace-highlight-opacity, .75)"/>
+    <path d="M295 388C319 364 344 365 367 381C389 397 407 385 427 378M294 403C318 388 334 390 349 400M319 431C343 413 367 415 385 431C405 449 428 441 447 426M334 461C357 447 379 453 394 468" stroke="var(--canopy-shadow, var(--surface-dark))" stroke-width="var(--plain-contour-width, 2.2)" opacity="var(--plain-contour-opacity, .66)"/>
+    <path d="M306 382C324 369 342 374 350 379M330 426C348 415 367 423 374 428M346 459C361 452 376 458 382 462" stroke="var(--grass-highlight, var(--on-brand))" stroke-width="var(--plain-highlight-width, 1.5)" opacity="var(--plain-highlight-opacity, .5)"/>
+    <path d="M287 416L301 428L300 448L316 457L319 474L339 480L349 490L369 485L380 496L397 483L416 489L434 472L453 466L459 446L478 432L487 437L469 454L463 476L438 483L420 502L396 496L379 510L356 498L338 503L327 486L307 482L305 463L286 450Z" fill="var(--coast-shadow, var(--surface-dark))" opacity="var(--coast-shadow-opacity, .7)"/>
+    <path d="M310 465L320 478L339 484M351 492L368 490L379 500M401 489L416 493L433 479M450 470L456 451L469 442" stroke="var(--shore-light, var(--success))" stroke-width="var(--shore-width, 2)"/>
+    <path d="M311 442L339 454L349 478L379 489L411 478L437 457L465 445L458 475L420 499L397 493L378 505L342 496L317 477Z" fill="url(#body-planet-halftone)" opacity="var(--forest-halftone-opacity, .42)"/>
+
+    <!-- Rounded canopy clusters -->
+    <g fill="var(--forest-mid, var(--success))" stroke="var(--forest-ink, var(--surface-dark))" stroke-width="var(--canopy-line-width, 2)">
+      <path d="M303 361C297 354 303 347 309 348C309 340 320 339 324 346C331 342 340 348 337 356C344 361 338 369 330 367L308 369Z"/>
+      <path d="M347 357C340 352 345 342 352 343C354 334 365 336 367 343C376 340 384 348 379 355C384 363 374 369 368 365L352 367Z"/>
+      <path d="M304 417C298 411 303 403 310 405C312 397 322 397 326 404C334 401 341 409 336 415C341 422 332 428 325 424L311 426Z"/>
+      <path d="M369 447C363 441 368 433 375 434C378 425 389 427 391 434C399 431 407 439 402 446C406 453 397 459 391 454L377 457Z"/>
+      <path d="M420 415C414 409 419 401 426 402C430 394 439 396 441 403C449 400 456 408 452 414C456 421 447 426 441 423L429 425Z"/>
+    </g>
+
+    <g stroke="var(--leaf-light, var(--on-brand))" stroke-width="var(--canopy-highlight-width, 1.4)" opacity="var(--canopy-highlight-opacity, .5)">
+      <path d="M308 351Q313 347 317 351M350 348Q356 343 362 347M308 409Q314 404 319 408M374 439Q380 433 386 438M425 407Q431 402 436 407"/>
+    </g>
+
+    <!-- Wetland reed beds -->
+    <g stroke="var(--wetland-ink, var(--surface-dark))" stroke-width="var(--reed-width, 1.5)">
+      <path d="M431 374L429 367M431 374L435 369M446 387L446 379M446 386L441 382M456 410L456 401M456 407L461 403M399 418L397 411M399 418L403 413M412 455L411 448M412 455L417 450"/>
+    </g>
+
+    <!-- Monsoon cloud spiral -->
+    <path d="M357 388C361 369 380 359 399 362C415 364 424 375 421 388C418 401 402 407 389 402C379 398 376 389 381 382C386 375 397 376 402 382" stroke="var(--cloud-shadow, var(--surface-dark))" stroke-width="var(--cloud-understroke-width, 10)" opacity="var(--cloud-shadow-opacity, .38)"/>
+    <path d="M357 384C361 365 380 355 399 358C415 360 424 371 421 384C418 397 402 403 389 398C379 394 376 385 381 378C386 371 397 372 402 378" stroke="var(--cloud-light, var(--on-brand))" stroke-width="var(--cloud-main-width, 6)" opacity="var(--cloud-main-opacity, .9)"/>
+    <path d="M347 379C353 356 374 345 396 348M411 354C434 360 442 380 432 399C423 417 399 422 380 412M368 405C357 399 352 391 354 384" stroke="var(--cloud-light, var(--on-brand))" stroke-width="var(--cloud-tail-width, 2.3)" opacity="var(--cloud-tail-opacity, .65)"/>
+  </g>
+</g>
+
+<!-- Bone: one principal cap silhouette, scalable with all its relief -->
+<g id="body-planet-zone-bone" data-zone="bone" class="body-planet-zone" pointer-events="visiblePainted">
+  <g id="body-planet-bone-mass" class="body-planet-bone-mass">
+    <path id="body-planet-bone-cap" d="M184 86L214 68L248 59L281 56L318 56L353 62L381 76L406 96L413 115L398 123L398 141L380 145L369 166L349 158L332 177L311 165L294 177L275 160L254 166L244 150L222 151L216 131L198 128L199 110L184 102Z" fill="url(#body-planet-ice-gradient)" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--ice-outline-width, 4)" stroke-linejoin="round"/>
+
+    <g pointer-events="none" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M199 109L218 113L228 135L249 132L261 151L279 144L296 159L312 149L330 162L347 145L365 152L377 132L392 129L398 115L413 115L398 123L398 141L380 145L369 166L349 158L332 177L311 165L294 177L275 160L254 166L244 150L222 151L216 131L198 128Z" fill="var(--ice-shadow, var(--brand-primary))"/>
+      <path d="M213 94L226 80L243 82L252 104L244 124L228 121ZM263 78L276 65L292 71L297 95L287 110L270 104ZM314 74L331 68L344 81L343 105L328 115L314 100ZM360 88L375 89L388 107L380 125L365 128L357 110Z" fill="var(--ice-light, var(--on-brand))" stroke="var(--ice-line, var(--surface-dark))" stroke-width="var(--ice-bastion-width, 2.3)"/>
+      <path d="M228 82L232 104L228 121M276 67L281 90L270 104M330 70L326 94L328 115M374 91L372 109L380 125" stroke="var(--ice-shadow, var(--brand-primary))" stroke-width="var(--ice-facet-width, 2.5)"/>
+
+      <!-- Vertebral ridge and branching glacial fissures -->
+      <path d="M301 73L302 93L309 107L304 124L313 140L310 156" stroke="var(--ice-line, var(--surface-dark))" stroke-width="var(--ice-spine-width, 3)"/>
+      <path d="M302 91L291 98L280 96M306 104L321 108L331 103M305 119L287 120L277 131L263 126M309 134L326 134L338 126L349 131M303 147L291 152M340 91L351 101L348 119M247 100L257 113L252 135M222 106L211 110M367 137L358 140" stroke="var(--ice-line, var(--surface-dark))" stroke-width="var(--ice-crack-width, 1.8)"/>
+      <path d="M297 91L297 81M299 119L300 110M307 143L304 135M282 117L272 121M327 131L335 122" stroke="var(--ice-light, var(--on-brand))" stroke-width="var(--ice-edge-width, 2)"/>
+      <path d="M224 132L246 135L258 155L276 152L293 168L281 160L254 166L244 150L222 151ZM331 159L347 143L365 150L378 135L393 132L380 145L369 166L349 158L332 177Z" fill="url(#body-planet-halftone)" opacity="var(--ice-halftone-opacity, .35)"/>
+      <path d="M231 140L238 141M258 155L264 153M337 165L343 159M377 140L382 137" stroke="var(--ice-light, var(--on-brand))" stroke-width="var(--ice-chip-width, 1.5)"/>
+    </g>
+  </g>
+</g>
+
+<!-- Water: independent river paths and lake, all within one zone -->
+<g id="body-planet-zone-water" data-zone="water" class="body-planet-zone" pointer-events="visiblePainted" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Riverbank silhouettes follow the same variable-driven widths -->
+  <g pointer-events="none" stroke="var(--river-bank, var(--surface-dark))">
+    <path d="M319 164C312 182 328 191 322 211C317 229 313 239 321 255C327 267 325 275 327 287" stroke-width="calc(var(--water-main-width, 13) + 5)"/>
+    <path d="M344 310C357 326 370 328 378 341C389 359 422 350 432 369C442 389 429 403 445 418C454 427 460 432 468 437" stroke-width="calc(var(--water-main-width, 13) + 5)"/>
+    <path d="M370 190C347 193 353 219 322 223M285 232C296 236 299 253 319 253M283 295C298 302 305 292 315 299M370 277C355 280 358 295 348 299M396 323C396 340 408 348 419 355M404 432C417 433 421 412 441 413M465 397C454 394 450 401 438 402" stroke-width="calc(var(--water-branch-width, 5) + 3)"/>
+  </g>
+
+  <path id="body-planet-water-north" class="water-main" d="M319 164C312 182 328 191 322 211C317 229 313 239 321 255C327 267 325 275 327 287" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+  <path id="body-planet-water-southeast" class="water-main" d="M344 310C357 326 370 328 378 341C389 359 422 350 432 369C442 389 429 403 445 418C454 427 460 432 468 437" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+
+  <path id="body-planet-water-northeast-branch" class="water-branch" d="M370 190C347 193 353 219 322 223" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+  <path id="body-planet-water-canyon-branch" class="water-branch" d="M285 232C296 236 299 253 319 253" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+  <path id="body-planet-water-west-branch" class="water-branch" d="M283 295C298 302 305 292 315 299" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+  <path id="body-planet-water-east-branch" class="water-branch" d="M370 277C355 280 358 295 348 299" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+  <path id="body-planet-water-meadow-branch" class="water-branch" d="M396 323C396 340 408 348 419 355" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+  <path id="body-planet-water-marsh-branch" class="water-branch" d="M404 432C417 433 421 412 441 413" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+  <path id="body-planet-water-coast-branch" class="water-branch" d="M465 397C454 394 450 401 438 402" stroke="var(--water-bright, var(--brand-primary))" pointer-events="stroke"/>
+
+  <path id="body-planet-water-confluence-lake" class="water-lake" d="M321 278C330 274 339 280 341 288C345 291 355 289 358 298C362 308 349 318 339 322C331 325 326 316 317 316C307 314 303 305 309 297C313 293 311 282 321 278Z" fill="var(--water-bright, var(--brand-primary))" stroke="var(--river-bank, var(--surface-dark))" pointer-events="visiblePainted"/>
+
+  <g pointer-events="none">
+    <path d="M318 171C315 183 325 193 321 203M318 218C315 231 314 241 319 249M323 262L325 272M350 317C358 325 368 326 373 333M382 344C393 353 410 349 421 358M433 372C437 382 432 391 434 398M446 419L456 428" stroke="var(--water-highlight, var(--on-brand))" stroke-width="var(--water-highlight-width, 2.3)"/>
+    <path d="M319 287C325 281 334 285 335 291M315 300C322 294 331 295 337 299M324 308C332 312 344 309 349 302" stroke="var(--water-highlight, var(--on-brand))" stroke-width="var(--lake-highlight-width, 2)"/>
+    <path d="M341 214L348 210M356 197L362 194M293 239L299 246M354 290L359 283M400 337L405 344M414 428L420 423M453 400L459 398" stroke="var(--water-highlight, var(--on-brand))" stroke-width="var(--tributary-highlight-width, 1.3)" opacity="var(--tributary-highlight-opacity, .8)"/>
+    <path d="M316 302L325 302M331 304L337 304M325 292L329 292" stroke="var(--water-depth, var(--surface-dark))" stroke-width="var(--lake-ripple-width, 1.3)" opacity="var(--lake-ripple-opacity, .45)"/>
+    <path d="M459 435C467 433 473 434 479 438M464 443L476 445M312 189L310 195M329 240L330 245" stroke="var(--water-highlight, var(--on-brand))" stroke-width="var(--water-spark-width, 1.5)" opacity="var(--water-spark-opacity, .65)"/>
+  </g>
+</g>
+```
+
+  </g>
+
+  <!-- Noninteractive print texture and hemispheric lighting -->
+
+  <g id="body-planet-surface-lighting" clip-path="url(#body-planet-clip)" pointer-events="none">
+    <path d="M484 170C512 241 497 322 452 395C407 468 337 510 247 522C218 526 187 526 160 519L207 558L385 555L529 440L559 255Z" fill="url(#body-planet-halftone)" opacity="var(--terminator-halftone-opacity, .58)"/>
+    <circle cx="300" cy="300" r="240" fill="url(#body-planet-light-gradient)"/>
+    <path d="M75 244C90 168 135 114 199 88M209 84L229 77" stroke="var(--rim-light, var(--on-brand))" stroke-width="var(--surface-rim-width, 2.5)" stroke-linecap="round" opacity="var(--surface-rim-opacity, .52)"/>
+    <path d="M507 381C479 447 422 497 353 519" stroke="var(--ocean-rim, var(--brand-primary))" stroke-width="var(--night-rim-width, 1.5)" stroke-linecap="round" opacity="var(--night-rim-opacity, .5)"/>
+  </g>
+
+  <!-- Topmost ink contour -->
+
+  <g id="body-planet-planet-outline" pointer-events="none">
+    <circle cx="300" cy="300" r="240" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--planet-outline-width, 6)"/>
+    <path d="M479 460A240 240 0 0 1 154 491" stroke="var(--ink, var(--surface-dark))" stroke-width="var(--planet-shadow-outline-width, 8)" stroke-linecap="round"/>
+    <path d="M78 207A240 240 0 0 1 267 62" stroke="var(--outline-light, var(--on-brand))" stroke-width="var(--outline-light-width, 1.3)" stroke-linecap="round" opacity="var(--outline-light-opacity, .58)"/>
+  </g>
 </svg>

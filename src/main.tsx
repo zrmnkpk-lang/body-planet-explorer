@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
+// Keep the React entry explicit because the standalone planet renderer is also
+// stored in src/app.js and Vite must not resolve this import to that script.
+import App from './App.tsx'
 import './index.css'
 
 class ErrorBoundary extends React.Component<

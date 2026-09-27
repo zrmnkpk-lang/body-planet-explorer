@@ -1,81 +1,41 @@
-# AGENTS.md
+# figma-make-app
 
-## Project purpose
+React + Vite + Tailwind CSS project running inside Figma Make.
 
-This repository is the Portal Fitness prototype. Its React entry point provides workout logging, plans, a broad exercise library, local persistence, and a local Credit calculation. The training home embeds the Three.js body-planet scene from `planet.html?mode=app`; the same scene remains available as a standalone full-controls preview.
+## Development Server
 
-The product target and interaction rules live in `docs/product-spec.md` and `docs/interaction-spec.md`. Keep the distinction clear: those documents describe the target MVP; the current implementation status is recorded in `README.md` and `docs/reference-gap-analysis.md`.
+A Vite development server is **already running** on `$PORT` (default 8443). You don't need to start it manually.
 
-## Run and validate
+- Preview URL: The user can access the running app through the preview panel
+- Hot reload: Changes to source files are reflected immediately
 
-```bash
-npm install
-npm run dev
-npm run build
-```
+## Project Structure
 
-A change is complete only when `npm run build` succeeds. Changes to the standalone planet scene must also keep the globe usable with mouse and touch input.
+This is the canonical project structure. Start with task-relevant files below. Only follow imports or inspect other files when required, when a documented path is missing, or when the repository contradicts this guide.
 
-For React workout changes, verify the training flows and localStorage behavior in `src/App.tsx`. For globe changes, verify both the standalone scene and its `mode=app` embedded layout when the HTML host is present. `index.html` mounts the React app; the iframe on its training home loads the shared `planet.html` scene.
+- `src/main.tsx` - React entrypoint; imports `src/index.css` and mounts `src/App.tsx` into the `#root` element
+- `src/App.tsx` - Primary application component and the usual starting point for UI work
+- `src/index.css` - Global CSS entrypoint and Tailwind CSS v4 import
+- `index.html` - Vite HTML shell containing the `#root` element and loading `src/main.tsx`
+- `package.json` - Project dependencies and the Vite build, development, preview, and formatting scripts
+- `vite.config.ts` - Vite configuration with React, Tailwind CSS v4, and Figma Make plugins plus the `@` alias for `src`
+- `.mise.toml` - Toolchain versions for Node.js and pnpm
 
-## File ownership
+## Dependencies
 
-- `src/App.tsx`: React workout, plans, exercise picker, history, and local Credit prototype.
-- `src/exerciseLibrary.ts`: sole source of truth for exercise IDs and tracking modes.
-- `src/main.tsx`: React mount and error boundary; keep business state out of this file.
-- `src/app.js`: Three.js planet scene shared by standalone preview and the React app's iframe; keep its `mode=app` layout in sync with `src/App.tsx`.
-- `src/landmarks.js`: sole source of truth for globe landmark names, coordinates, and detail levels.
-- `public/assets/`: runtime images; update `docs/assets.md` whenever an asset is added, replaced, resized, or removed.
-- `docs/product-spec.md`: product rules and MVP acceptance criteria.
-- `docs/interaction-spec.md`: page transitions, states, errors, offline behavior, and analytics.
-- `docs/exercise-library.md`: exercise and local persistence contract.
-- `docs/assets.md`: complete resource index.
-- `src/imports/` and `docs/*v1.2.md`: historical inputs; do not use them as current requirements.
+- Runtime: React 19 and React DOM 19
+- Styling: Tailwind CSS v4 with the `@tailwindcss/vite` plugin
+- Build tooling: Vite 8, TypeScript 5.7, and `@vitejs/plugin-react`
+- Formatting: oxfmt
 
-When a product rule changes, update the product spec first. When a page behavior changes, update the interaction spec first. When code is not yet aligned with the target spec, update the gap analysis instead of describing planned behavior as implemented.
+## Styling
 
-## Landmark editing contract
+This project uses **Tailwind CSS v4** through the `@tailwindcss/vite` plugin configured in `vite.config.ts`. `src/index.css` imports Tailwind with `@import 'tailwindcss';`. Use Tailwind utility classes directly in JSX and put global CSS or Tailwind v4 theme customization in `src/index.css`. This scaffold does not need a Tailwind config file or PostCSS config.
 
-- `src/landmarks.js` is the only source of truth for terrain names and coordinates.
-- Rename a label by changing only its `name`.
-- Add a label by adding one object to `LANDMARKS`.
-- Keep stable, unique `id` values.
-- Latitude is -90 to 90. Longitude is -180 to 180.
-- `minDetailLevel: 0` targets the unlabeled orbit layer and should be used sparingly.
-- `minDetailLevel: 1/2/3/4` targets plate/climate/ecosystem/surface views; `maxDetailLevel` hides parent labels and `priority` controls collision avoidance.
-- Do not bake labels into textures, CanvasTexture, SVG paths, or 3D meshes.
-- Labels must remain HTML elements in `#landmark-layer`.
-- Keep `pointer-events: none` on the label layer so labels never block globe gestures.
-- Hide labels when their anchor rotates to the back of the globe.
-- All user-facing Chinese names must remain editable without touching `src/app.js`.
+`src/main.tsx` imports `src/index.css`, so global font wiring belongs in `src/index.css`. Keep CSS `@import` statements first, then add any `@font-face` rules and font-family defaults there.
 
-## Terrain definitions
+## Code quality
 
-- `glacier`: permanent northern ice cap and fractured ice fields.
-- `ocean`: open water outside continental shelves.
-- `river`: continuous glacier-fed water system crossing the planet.
-- `forest`: directional conifer vegetation on the monsoon continent.
-- `desert`: dry copper and sienna highland plateau around the mountain belt.
-
-## Visual direction
-
-Use an adult Western animated science-fiction tone expressed through natural scenery: midnight indigo ocean, vermilion-copper rock, saturated jade forest, cool ivory glacier, and restrained cyan water. Do not add technological props. Avoid children's picture-book colors, glossy plastic materials, identical cone mountains, rounded broccoli forests, or photoreal rendering.
-
-## Interaction invariants
-
-- Drag rotates the globe.
-- Mouse wheel and pinch zoom within a limited range.
-- Click selects a body-composition zone.
-- Near details fade in as the camera approaches.
-- Camera controls and labels must work at mobile widths.
-
-## Continuous terrain modules
-
-- `src/planet/field.js` is the shared height/biome/river classifier. Geometry, water, vegetation and picking must use it.
-- `src/planet/terrain.js` builds global and local surfaces; `terrain.worker.js` computes them off the render thread.
-- `src/planet/zones.js` owns body-zone labels, metric defaults and focus coordinates.
-- `src/landmarks.js` remains the sole source of truth for landmark names and coordinates; optional model/scale fields place local GLBs.
-- After terrain edits run `node scripts/validate-planet.mjs` and `npm run build`. Report actual browser/GPU test limitations; never claim a performance target as measured.
-- Do not remove the standalone scene's WebMCP tool or change the React workout entry as part of terrain-only work.
-
-- `src/planet/view-levels.js` owns semantic zoom thresholds and reveal weights. Zoom must not scale vegetation or change its location; depth shadows follow reveal weights.
+- Use double quotes for strings containing apostrophes (`"We're here to help"`), or escape them in single-quoted strings. An unescaped apostrophe in a single-quoted string breaks the build.
+- Ensure JSX tags are closed and braces are balanced.
+- Export components as default exports.

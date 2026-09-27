@@ -16,8 +16,11 @@ import {
   revealMesh,
 } from "./planet/view-levels.js"
 import "./styles.css"
-const appMode = new URLSearchParams(location.search).get("mode") === "app"
+const params = new URLSearchParams(location.search)
+const appMode = params.get("mode") === "app"
+const snapshotMode = params.get("snapshot") === "1"
 document.documentElement.classList.toggle("app-mode", appMode)
+document.documentElement.classList.toggle("snapshot-mode", snapshotMode)
 const $ = (s) => document.querySelector(s),
   host = $("#scene"),
   data = structuredClone(ZONES)
@@ -286,7 +289,7 @@ root.add(selectedOutline)
 let selected = null,
   targetCamera = null,
   contextLost = false,
-  autoSpin = false
+  autoSpin = snapshotMode
 function select(zone) {
   if (!data[zone]) return
   selected = zone

@@ -1,727 +1,573 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import bgCosmos from "@/imports/jimeng-2026-08-30-4227-________________________________________....png";
+import voidRunnerCharacter from "@/imports/image.png";
+const heroBlackHole = "/assets/illustrations/portal-black-hole.webp";
+const bodyAnalysisCharacter = "/assets/illustrations/body-composition-scan.webp";
+import { Button, IconButton, InputField, ThemeProvider } from "@figma/astraui";
+import PlanetView from "@/PlanetView";
 import {
   Activity,
-  Bike,
-  CalendarRange,
+  CalendarDays,
+  ChartNoAxesCombined,
   Check,
+  ChevronLeft,
   ChevronRight,
+  CirclePlay,
+  Clock3,
+  Droplets,
   Dumbbell,
-  Footprints,
-  Globe2,
-  History,
-  LibraryBig,
-  Mountain,
-  Pencil,
-  Play,
-  Plus,
-  Save,
-  Search,
-  Star,
-  Timer,
-  Trash2,
-  Waves,
-  X,
+  Flame,
+  Home,
+  Orbit,
+  Rocket,
+  Settings2,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  Trophy,
+  UserRound,
+  Zap,
 } from "lucide-react";
-import {
-  CATEGORY_META,
-  EQUIPMENT_OPTIONS,
-  EXERCISES,
-  getExercise,
-  searchExercises,
-  type Exercise,
-  type ExerciseCategory,
-} from "./exerciseLibrary";
 
-type AppTab = "train" | "plans" | "library" | "history";
+const planetEras = [
+  { level: 1, title: "沧海纪", description: "深海洋流与海底火山脊正在苏醒。", image: "/assets/card-backgrounds/l1-ocean.webp" },
+  { level: 2, title: "露陆纪", description: "火山群岛浮出海面，熔岩海岸开始塑形。", image: "/assets/card-backgrounds/l2-islands.webp" },
+  { level: 3, title: "山脉纪", description: "赤色大陆升起，雪山与冰川湖逐渐成形。", image: "/assets/card-backgrounds/l3-mountains.webp" },
+  { level: 4, title: "江河纪", description: "翠绿河谷蜿蜒，瀑布与梯田滋养新土地。", image: "/assets/card-backgrounds/l4-riverlands.webp" },
+  { level: 5, title: "丰壤纪", description: "雪山、森林、草原、荒漠与海岸共同繁盛。", image: "/assets/card-backgrounds/l5-terrain.webp" },
+] as const;
 
-interface WorkoutSet {
-  id: string;
-  weight: number;
-  reps: number;
-  rpe: number;
-  completed: boolean;
+function VoidRunnerIllustration() {
+  return (
+    <svg
+      viewBox="0 0 100 180"
+      preserveAspectRatio="xMidYMid slice"
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+      aria-hidden="true"
+    >
+      {/* === Stars === */}
+      {[
+        [12, 8, 1, 0.8], [48, 4, 0.7, 0.6], [82, 10, 1.2, 0.7],
+        [28, 20, 0.8, 0.5], [90, 32, 0.6, 0.8], [6, 44, 1, 0.5],
+        [94, 60, 0.7, 0.7], [18, 130, 0.8, 0.4], [85, 142, 1, 0.6],
+        [72, 162, 0.6, 0.5], [35, 157, 0.8, 0.4], [60, 10, 0.6, 0.9],
+        [15, 78, 0.5, 0.6], [92, 118, 0.7, 0.5], [55, 50, 0.9, 0.4],
+        [8, 102, 0.5, 0.6], [76, 88, 0.7, 0.3], [42, 140, 0.6, 0.5],
+      ].map(([cx, cy, r, op], i) => (
+        <circle key={i} cx={cx} cy={cy} r={r} fill="white" opacity={op} />
+      ))}
+
+      {/* === Saturn-like planet (upper right) === */}
+      {/* Ring shadow (behind planet) */}
+      <ellipse cx="80" cy="26" rx="34" ry="9" fill="none" stroke="var(--warning)" strokeWidth="2.5" opacity="0.5" />
+      {/* Planet body */}
+      <circle cx="80" cy="26" r="20" fill="var(--brand-primary)" />
+      <circle cx="80" cy="26" r="20" fill="none" stroke="#1a1a2e" strokeWidth="1.5" />
+      {/* Surface bands */}
+      <ellipse cx="80" cy="23" rx="15" ry="4" fill="rgba(255,255,255,0.06)" />
+      <ellipse cx="80" cy="30" rx="11" ry="3" fill="rgba(255,255,255,0.04)" />
+      {/* Planet highlight */}
+      <circle cx="74" cy="20" r="5" fill="rgba(255,255,255,0.14)" />
+      {/* Ring in front (arc) */}
+      <path d="M46,26 Q80,18 114,26" stroke="var(--warning)" strokeWidth="2.5" fill="none" opacity="0.85" strokeLinecap="round" />
+
+      {/* === Floating dumbbell (top-left, tilted) === */}
+      <g transform="rotate(-22,26,26) translate(6,18)">
+        <rect x="0"  y="1"  width="9"  height="14" rx="2.5" fill="var(--warning)" stroke="#1a1a2e" strokeWidth="1.5" />
+        <rect x="8"  y="4"  width="22" height="7"  rx="3"   fill="#9a9aaa"        stroke="#1a1a2e" strokeWidth="1.5" />
+        <rect x="29" y="1"  width="9"  height="14" rx="2.5" fill="var(--warning)" stroke="#1a1a2e" strokeWidth="1.5" />
+      </g>
+      {/* Dumbbell sparkles */}
+      <circle cx="10" cy="42" r="2"   fill="var(--warning)" opacity="0.7" />
+      <circle cx="36" cy="14" r="1.5" fill="var(--success)"  opacity="0.8" />
+      <circle cx="4"  cy="30" r="1"   fill="white"           opacity="0.6" />
+
+      {/* === Portal glow at astronaut feet === */}
+      <ellipse cx="50" cy="168" rx="26" ry="7"  fill="var(--success)" opacity="0.18" />
+      <ellipse cx="50" cy="167" rx="16" ry="4"  fill="var(--success)" opacity="0.35" />
+      {/* Glow rays */}
+      <line x1="26" y1="167" x2="16" y2="174" stroke="var(--success)" strokeWidth="1" opacity="0.4" />
+      <line x1="74" y1="167" x2="84" y2="174" stroke="var(--success)" strokeWidth="1" opacity="0.4" />
+
+      {/* === Boots === */}
+      <ellipse cx="40" cy="163" rx="13" ry="5.5" fill="#c8c8d4" stroke="#1a1a2e" strokeWidth="1.5" />
+      <ellipse cx="60" cy="163" rx="13" ry="5.5" fill="#c8c8d4" stroke="#1a1a2e" strokeWidth="1.5" />
+
+      {/* === Legs === */}
+      <rect x="33" y="130" width="14" height="34" rx="6" fill="#e4e4ec" stroke="#1a1a2e" strokeWidth="1.5" />
+      <rect x="53" y="130" width="14" height="34" rx="6" fill="#e4e4ec" stroke="#1a1a2e" strokeWidth="1.5" />
+      {/* Leg stripe detail */}
+      <rect x="38" y="130" width="4" height="34" rx="2" fill="var(--success)" opacity="0.3" />
+      <rect x="58" y="130" width="4" height="34" rx="2" fill="var(--success)" opacity="0.3" />
+
+      {/* === Suit body === */}
+      {/* Body outline (behind fill, for thick border) */}
+      <rect x="28" y="88" width="44" height="44" rx="12" fill="#1a1a2e" />
+      {/* Body fill */}
+      <rect x="30" y="90" width="40" height="42" rx="10" fill="#f0f0f4" />
+      {/* Suit centre stripe */}
+      <rect x="44" y="90" width="12" height="42" fill="var(--success)" opacity="0.22" />
+      {/* Chest emblem */}
+      <circle cx="50" cy="108" r="8" fill="var(--brand-primary)" stroke="#1a1a2e" strokeWidth="1" />
+      <text x="50" y="112" textAnchor="middle" fontSize="7" fontWeight="900" fill="white" fontFamily="sans-serif">VR</text>
+      {/* Suit detail lines */}
+      <line x1="36" y1="96"  x2="36" y2="106" stroke="#1a1a2e" strokeWidth="1" opacity="0.2" />
+      <line x1="64" y1="96"  x2="64" y2="106" stroke="#1a1a2e" strokeWidth="1" opacity="0.2" />
+
+      {/* === Left arm — bicep curl (raised) === */}
+      {/* Outline (thick dark, drawn first) */}
+      <path d="M30,102 Q10,92 12,76" stroke="#1a1a2e" strokeWidth="16" fill="none" strokeLinecap="round" />
+      {/* Fill (white suit colour) */}
+      <path d="M30,102 Q10,92 12,76" stroke="#f0f0f4" strokeWidth="12" fill="none" strokeLinecap="round" />
+      {/* Glove */}
+      <circle cx="12" cy="72" r="10" fill="#c8c8d4" stroke="#1a1a2e" strokeWidth="1.5" />
+      {/* Mini dumbbell in glove */}
+      <g transform="translate(-2, 58)">
+        <rect x="0"  y="4" width="6"  height="9" rx="1.5" fill="var(--warning)" stroke="#1a1a2e" strokeWidth="1" />
+        <rect x="5"  y="6" width="14" height="5" rx="1.5" fill="#888"           stroke="#1a1a2e" strokeWidth="1" />
+        <rect x="18" y="4" width="6"  height="9" rx="1.5" fill="var(--warning)" stroke="#1a1a2e" strokeWidth="1" />
+      </g>
+
+      {/* === Right arm — relaxed, slightly extended === */}
+      <path d="M70,102 Q88,96 90,112" stroke="#1a1a2e" strokeWidth="16" fill="none" strokeLinecap="round" />
+      <path d="M70,102 Q88,96 90,112" stroke="#f0f0f4" strokeWidth="12" fill="none" strokeLinecap="round" />
+      {/* Right glove */}
+      <circle cx="90" cy="116" r="10" fill="#c8c8d4" stroke="#1a1a2e" strokeWidth="1.5" />
+      {/* Thumbs-up gesture hint */}
+      <rect x="86" y="108" width="5" height="7" rx="2" fill="#c8c8d4" stroke="#1a1a2e" strokeWidth="1" />
+
+      {/* === Neck connector === */}
+      <rect x="44" y="82" width="12" height="10" rx="3" fill="#d0d0dc" stroke="#1a1a2e" strokeWidth="1" />
+
+      {/* === Helmet === */}
+      {/* Helmet outline */}
+      <ellipse cx="50" cy="70" rx="22" ry="20" fill="#1a1a2e" />
+      {/* Helmet fill */}
+      <ellipse cx="50" cy="70" rx="20" ry="18" fill="#e0e0e8" />
+      {/* Visor background */}
+      <ellipse cx="50" cy="71" rx="14" ry="12" fill="#18204a" />
+      {/* Visor inner glow (space reflection) */}
+      <ellipse cx="50" cy="71" rx="14" ry="12" fill="none" stroke="var(--brand-primary)" strokeWidth="1" opacity="0.6" />
+      {/* Stars reflected in visor */}
+      <circle cx="44" cy="66" r="0.8" fill="white" opacity="0.7" />
+      <circle cx="56" cy="68" r="0.6" fill="white" opacity="0.5" />
+      <circle cx="48" cy="75" r="0.7" fill="white" opacity="0.6" />
+      {/* Visor glass shine */}
+      <path d="M40,62 Q50,57 60,62" stroke="rgba(255,255,255,0.45)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <circle cx="56" cy="65" r="3" fill="rgba(255,255,255,0.12)" />
+      {/* Helmet top highlight arc */}
+      <path d="M34,66 Q50,51 66,66" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none" />
+
+      {/* === Antenna === */}
+      <line x1="50" y1="52" x2="50" y2="42" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="50" cy="40" r="4"   fill="var(--success)" stroke="#1a1a2e" strokeWidth="1.5" />
+      {/* Antenna pulse ring */}
+      <circle cx="50" cy="40" r="7" fill="var(--success)" className="antenna-pulse" />
+
+      {/* === Floating protein shaker (right side) === */}
+      <g transform="translate(78, 68) rotate(15)">
+        <rect x="0"  y="0"  width="13" height="24" rx="4"   fill="#f0f0f4" stroke="#1a1a2e" strokeWidth="1.5" />
+        <rect x="2"  y="-6" width="9"  height="8"  rx="2"   fill="var(--success)" stroke="#1a1a2e" strokeWidth="1.5" />
+        <rect x="2"  y="8"  width="9"  height="8"  rx="1"   fill="var(--success)" opacity="0.3" />
+        <text x="6.5" y="21" textAnchor="middle" fontSize="4" fontWeight="900" fill="var(--success)" fontFamily="sans-serif">PF</text>
+      </g>
+
+      {/* === Energy sparkles scattered === */}
+      {[
+        [22, 58, 2.5, "var(--success)", 0.5],
+        [79, 52, 2, "var(--warning)", 0.6],
+        [7,  88, 1.8, "var(--success)", 0.4],
+        [93, 80, 1.5, "var(--warning)", 0.5],
+      ].map(([cx, cy, r, fill, op], i) => (
+        <circle key={i} cx={cx as number} cy={cy as number} r={r as number} fill={fill as string} opacity={op as number} />
+      ))}
+    </svg>
+  );
 }
 
-interface SessionItem {
-  id: string;
-  exerciseId: string;
-  sets: WorkoutSet[];
-  distanceKm: number;
-  durationMinutes: number;
-  laps: number;
-  stroke: string;
-  notes: string;
-}
-
-interface WorkoutSession {
-  id: string;
-  title: string;
-  date: string;
-  startTime: string;
-  durationMinutes: number;
-  notes: string;
-  planId?: string;
-  items: SessionItem[];
-  credits?: number;
-  createdAt?: string;
-}
-
-interface WorkoutPlan {
-  id: string;
-  name: string;
-  frequency: number;
-  exerciseIds: string[];
-  updatedAt: string;
-}
-
-const QUICK_STARTS = [
-  { exerciseId: "running-01", label: "跑步", icon: Footprints },
-  { exerciseId: "cardio-01", label: "骑行", icon: Bike },
-  { exerciseId: "swimming-01", label: "游泳", icon: Waves },
-  { exerciseId: "outdoor-06", label: "登山", icon: Mountain },
+const workouts = [
+  { title: "造山力量", kind: "力量训练 · 板块隆起", minutes: "45 分钟", energy: "310 kcal", tone: "plasma", icon: Dumbbell, completed: true },
+  { title: "季风有氧", kind: "有氧训练 · 河流加速", minutes: "30 分钟", energy: "420 kcal", tone: "portal", icon: Orbit, completed: true },
+  { title: "晨雾恢复", kind: "拉伸恢复 · 星空澄澈", minutes: "20 分钟", energy: "160 kcal", tone: "warning", icon: Zap, completed: false },
 ];
 
-const DEFAULT_PLAN: WorkoutPlan = {
-  id: "starter-full-body",
-  name: "新手全身力量",
-  frequency: 3,
-  exerciseIds: [
-    "barbell-compound-01",
-    "barbell-compound-05",
-    "machine-cable-08",
-    "dumbbell-lower-03",
-    "bodyweight-20",
-  ],
-  updatedAt: new Date(0).toISOString(),
-};
+const dailyTasks = [
+  { title: "完成一场传送训练", description: "选择任意训练并完成 20 分钟以上。", reward: 120, icon: Orbit },
+  { title: "修复地球重力", description: "累计走满 6,000 步，稳定本维度。", reward: 80, icon: Target },
+  { title: "补充量子燃料", description: "记录一杯水，防止意识上传中断。", reward: 40, icon: Zap },
+];
 
-function uid(prefix: string): string {
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-}
+const nav = [
+  { id: "home", label: "星球", icon: Home },
+  { id: "workouts", label: "训练", icon: Dumbbell },
+  { id: "portal", label: "生态", icon: Orbit },
+  { id: "stats", label: "数据", icon: ChartNoAxesCombined },
+  { id: "profile", label: "我的", icon: UserRound },
+] as const;
 
-function today(): string {
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 10);
-}
+type Screen = (typeof nav)[number]["id"];
 
-function currentTime(): string {
-  return new Date().toTimeString().slice(0, 5);
-}
 
-function useStoredState<T>(key: string, initial: T) {
-  const [value, setValue] = useState<T>(() => {
-    try {
-      const stored = window.localStorage.getItem(key);
-      return stored ? (JSON.parse(stored) as T) : initial;
-    } catch {
-      return initial;
-    }
-  });
-
-  const update = (next: T | ((current: T) => T)) => {
-    setValue((current) => {
-      const resolved =
-        typeof next === "function"
-          ? (next as (current: T) => T)(current)
-          : next;
-      window.localStorage.setItem(key, JSON.stringify(resolved));
-      return resolved;
-    });
-  };
-
-  return [value, update] as const;
-}
-
-function emptySet(): WorkoutSet {
-  return {
-    id: uid("set"),
-    weight: 0,
-    reps: 10,
-    rpe: 7,
-    completed: false,
-  };
-}
-
-function itemFor(exerciseId: string): SessionItem {
-  const exercise = getExercise(exerciseId);
-  return {
-    id: uid("item"),
-    exerciseId,
-    sets: exercise?.tracking === "sets" ? [emptySet(), emptySet(), emptySet()] : [],
-    distanceKm: 0,
-    durationMinutes: 30,
-    laps: 0,
-    stroke: "自由泳",
-    notes: "",
-  };
-}
-
-function emptySession(title = "自由训练"): WorkoutSession {
-  return {
-    id: uid("session"),
-    title,
-    date: today(),
-    startTime: currentTime(),
-    durationMinutes: 45,
-    notes: "",
-    items: [],
-  };
-}
-
-function calculateCredits(session: WorkoutSession): number {
-  const effort = session.items.reduce((sum, item) => {
-    const exercise = getExercise(item.exerciseId);
-    if (!exercise) return sum;
-    if (exercise.tracking === "sets") {
-      return sum + item.sets.filter((set) => set.completed).length * 12;
-    }
-    if (exercise.tracking === "swim") {
-      return sum + item.durationMinutes * 0.8 + item.distanceKm * 18;
-    }
-    if (exercise.tracking === "distance") {
-      return sum + item.durationMinutes * 0.65 + item.distanceKm * 6;
-    }
-    return sum + item.durationMinutes * 0.8;
-  }, 0);
-  return Math.min(120, Math.max(20, Math.round(effort || session.durationMinutes)));
-}
-
-function sessionSummary(session: WorkoutSession): string {
-  const strengthSets = session.items.reduce(
-    (count, item) => count + item.sets.filter((set) => set.completed).length,
-    0,
-  );
-  const distance = session.items.reduce((sum, item) => sum + item.distanceKm, 0);
-  const pieces = [`${session.durationMinutes} 分钟`];
-  if (strengthSets) pieces.push(`${strengthSets} 组`);
-  if (distance) pieces.push(`${distance.toFixed(1)} km`);
-  return pieces.join(" · ");
-}
-
-function ExerciseIcon({ exercise }: { exercise: Exercise }) {
-  const Icon =
-    exercise.category === "strength"
-      ? Dumbbell
-      : exercise.category === "running"
-        ? Footprints
-        : exercise.category === "swimming"
-          ? Waves
-          : exercise.category === "outdoor"
-            ? Mountain
-            : Activity;
-  return <Icon size={18} aria-hidden="true" />;
-}
-
-function ExercisePicker({
-  onClose,
-  onSelect,
-  favorites,
-  toggleFavorite,
-}: {
-  onClose: () => void;
-  onSelect: (exercise: Exercise) => void;
-  favorites: string[];
-  toggleFavorite: (id: string) => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<ExerciseCategory | "all">("all");
-  const [equipment, setEquipment] = useState<string | "all">("all");
-  const results = useMemo(
-    () => searchExercises(query, category, equipment),
-    [query, category, equipment],
-  );
-
+function PortalMark({ small = false }: { small?: boolean }) {
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section
-        className="picker-sheet"
-        role="dialog"
-        aria-modal="true"
-        aria-label="选择训练动作"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <header className="sheet-header">
-          <div>
-            <p className="eyebrow">EXERCISE ATLAS</p>
-            <h2>选择训练动作</h2>
-          </div>
-          <button className="icon-button" onClick={onClose} aria-label="关闭">
-            <X size={20} />
-          </button>
-        </header>
+    <div className={small ? "portal-mark portal-mark-small" : "portal-mark"} aria-hidden="true">
+      {/* Astra UI has no image primitive and this scaffold has no ImageWithFallback wrapper, so the existing decorative Vite asset is rendered directly inside the portal mark. */}
+      <img className="hero-black-hole" src={heroBlackHole} alt="" />
+      <span className="portal-particle-orbit portal-orbit-outer"><span className="portal-spark portal-spark-outer" /></span>
+      <span className="portal-particle-orbit portal-orbit-middle"><span className="portal-spark portal-spark-middle" /></span>
+      <span className="portal-particle-orbit portal-orbit-inner"><span className="portal-spark portal-spark-inner" /></span>
+    </div>
+  );
+}
 
-        <label className="search-field">
-          <Search size={18} />
-          <input
-            autoFocus
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索动作、肌群、器械或别名"
-          />
-        </label>
+function PlanetSnapshot() {
+  return (
+    /* The home card uses the same high-detail renderer as the ecology page. */
+    <div className="hero-planet-snapshot" aria-hidden="true">
+      <iframe
+        title="旋转身体星球缩略预览"
+        src="/planet.html?mode=app&snapshot=1"
+        loading="eager"
+      />
+    </div>
+  );
+}
 
-        <div className="chip-row category-row">
+function SectionIntro({ eyebrow, title, action }: { eyebrow: string; title: string; action?: React.ReactNode }) {
+  return (
+    <div className="screen-intro">
+      <div>
+        <p className="eyebrow">{eyebrow}</p>
+        <p className="screen-title">{title}</p>
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function FitnessApp() {
+  const [activeTab, setActiveTab] = useState<Screen>("home");
+  const [activeWorkout, setActiveWorkout] = useState(1);
+  const [trainingPhase, setTrainingPhase] = useState<"select" | "active" | "summary">("select");
+  const [portalMode, setPortalMode] = useState("季风过境");
+  const [goalEnabled, setGoalEnabled] = useState(true);
+  const [completedTasks, setCompletedTasks] = useState<number[]>([0]);
+  const [selectedTask, setSelectedTask] = useState<number | null>(null);
+  const [weeklyDone, setWeeklyDone] = useState<number[]>([0, 1, 2, 3]);
+  const [manualEntryOpen, setManualEntryOpen] = useState(false);
+  const [entrySaved, setEntrySaved] = useState(false);
+  const [bodyMetrics, setBodyMetrics] = useState({ muscle: "42.6", water: "61.2", bone: "3.2", fat: "18.4" });
+  const [planetEra, setPlanetEra] = useState(0);
+  const [swipeStart, setSwipeStart] = useState<number | null>(null);
+  const xp = 680 + completedTasks.reduce((total, taskIndex) => total + dailyTasks[taskIndex].reward, 0);
+  const xpProgress = Math.min(100, Math.round((xp / 1000) * 100));
+  const nextDay = [0, 1, 2, 3, 4, 5, 6].find(i => !weeklyDone.includes(i)) ?? -1;
+  const currentEra = planetEras[planetEra];
+  const switchEra = (direction: 1 | -1) => setPlanetEra((current) => (current + direction + planetEras.length) % planetEras.length);
+
+  useEffect(() => {
+    [planetEra - 1, planetEra, planetEra + 1]
+      .filter((index) => index >= 0 && index < planetEras.length)
+      .forEach((index) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.src = planetEras[index].image;
+        image.decode?.().catch(() => {});
+      });
+  }, [planetEra]);
+
+  const startWorkout = (index: number) => {
+    setActiveWorkout(index);
+    setTrainingPhase("active");
+  };
+
+  const openTraining = () => {
+    setTrainingPhase("select");
+    setActiveTab("workouts");
+  };
+
+  const renderWorkoutRows = () => (
+    <div className="workout-stack">
+      {workouts.map((workout, index) => {
+        const Icon = workout.icon;
+        const selected = activeWorkout === index;
+        return (
+          /* Astra ItemCard is video-specific, so this selectable training row uses kit tokens and a native card surface. */
           <button
-            className={category === "all" ? "chip active" : "chip"}
-            onClick={() => setCategory("all")}
+            type="button"
+            className={`workout-card tone-${workout.tone} ${selected ? "workout-selected" : ""}`}
+            key={workout.title}
+            onClick={() => startWorkout(index)}
+            aria-pressed={selected}
           >
-            全部 {EXERCISES.length}
+            <span className="workout-icon"><Icon size={24} /></span>
+            <span className="workout-content">
+              <span className="workout-title">{workout.title}</span>
+              <span className="workout-meta">{workout.kind} · {workout.minutes} · {workout.energy}</span>
+            </span>
+            <span className="workout-action">{workout.completed ? <Check size={16} /> : <CirclePlay size={16} />}</span>
           </button>
-          {(Object.entries(CATEGORY_META) as [ExerciseCategory, (typeof CATEGORY_META)[ExerciseCategory]][]).map(
-            ([key, meta]) => (
-              <button
-                key={key}
-                className={category === key ? "chip active" : "chip"}
-                onClick={() => setCategory(key)}
-              >
-                {meta.label}
-              </button>
-            ),
-          )}
-        </div>
+        );
+      })}
+    </div>
+  );
 
-        <label className="select-field compact-select">
-          <span>器械</span>
-          <select value={equipment} onChange={(event) => setEquipment(event.target.value)}>
-            <option value="all">全部器械</option>
-            {EQUIPMENT_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <div className="picker-results">
-          {results.map((exercise) => (
-            <div className="exercise-row" key={exercise.id}>
-              <button
-                className="favorite-button"
-                onClick={() => toggleFavorite(exercise.id)}
-                aria-label={favorites.includes(exercise.id) ? "取消收藏" : "收藏动作"}
-              >
-                <Star
-                  size={17}
-                  fill={favorites.includes(exercise.id) ? "currentColor" : "none"}
-                />
-              </button>
-              <button className="exercise-main" onClick={() => onSelect(exercise)}>
-                <span
-                  className="exercise-icon"
-                  style={{ color: CATEGORY_META[exercise.category].color }}
-                >
-                  <ExerciseIcon exercise={exercise} />
-                </span>
-                <span>
-                  <strong>{exercise.name}</strong>
-                  <small>
-                    {exercise.group} · {exercise.equipment}
-                  </small>
-                </span>
-                <Plus size={18} />
-              </button>
-            </div>
-          ))}
-          {!results.length && <div className="empty-state">没有找到匹配动作</div>}
+  const homeView = (
+    <div className="view-stack home-view">
+      {/* Astra has no compact mobile hero panel; this is a kit-token composition for the portal illustration. */}
+      <section
+        className="hero-panel"
+        style={{ "--hero-landscape": `url(${currentEra.image})` } as React.CSSProperties}
+        onTouchStart={(event) => setSwipeStart(event.touches[0]?.clientX ?? null)}
+        onTouchEnd={(event) => {
+          if (swipeStart === null) return;
+          const swipeDistance = event.changedTouches[0].clientX - swipeStart;
+          if (Math.abs(swipeDistance) > 40) switchEra(swipeDistance > 0 ? -1 : 1);
+          setSwipeStart(null);
+        }}
+      >
+        <div className="hero-copy">
+          <div className="speech-tag"><Flame size={16} /> 连击第 12 天</div>
+          <p className="morning-title">你的身体星球</p>
+          <p className="hero-title">{currentEra.title} · L{currentEra.level}</p>
+          <p className="body-copy">{currentEra.description}</p>
+          <Button variant="primary" size="small" iconStart={<CirclePlay size={16} />} onClick={openTraining}>
+            开始今天的训练
+          </Button>
         </div>
+        <div className="hero-art">
+          <PlanetSnapshot />
+          <div className="orbit-chip"><Sparkles size={16} /> 阶段 {planetEra + 1}/5</div>
+          <div className="hero-sticker">L{currentEra.level}<br />ERA</div>
+        </div>
+        {/* Astra UI has no carousel control; this compact control rail pairs verified IconButtons with token-based stage progress. */}
+        <div className="era-controls" aria-label="切换生态阶段">
+          <IconButton aria-label="上一阶段" icon={<ChevronLeft size={16} />} variant="neutral" size="small" onClick={() => switchEra(-1)} />
+          <span className="era-progress" aria-label={`当前为第 ${planetEra + 1} 个生态阶段`}>{planetEras.map((era) => <i key={era.level} className={era.level === currentEra.level ? "era-progress-dot era-progress-dot-active" : "era-progress-dot"} />)}</span>
+          <IconButton aria-label="下一阶段" icon={<ChevronRight size={16} />} variant="neutral" size="small" onClick={() => switchEra(1)} />
+        </div>
+      </section>
+
+      {/* Astra has no poster component; this cover is a game-style campaign surface using only kit tokens. */}
+      <section className="cover-poster module-surface" aria-label="守护者今日叙事">
+        <div className="poster-art">
+          {/* Astra UI has no image primitive and this scaffold has no ImageWithFallback wrapper, so this semantic content image uses the imported Vite asset directly. */}
+          <img className="poster-image" src={voidRunnerCharacter} alt="坐在办公椅上欢呼的蓝色卡通角色" />
+        </div>
+        <div className="poster-copy"><p className="eyebrow">OTTO · 星域观察员</p><p className="poster-title">星核<br />来信</p><p className="body-copy">“河流今天流得不错。别让它白流。”</p></div>
+        <span className="poster-reward"><Sparkles size={16} /> 换个说法</span>
+      </section>
+
+      <section className="xp-panel module-surface" aria-label="经验值进度">
+        <div className="section-heading"><div><p className="section-title">Level 08 · 肌肉学徒</p><p className="body-copy muted-copy">{xp} / 1,000 XP · 下一等级解锁“传送弹跳”</p></div><span className="xp-orb">08</span></div>
+        <div className="xp-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={xpProgress}><span style={{ width: `${xpProgress}%` }} /></div>
+      </section>
+
+      <section className="daily-quests module-surface" aria-labelledby="daily-quests-heading">
+        <div className="section-heading compact-heading"><div><p id="daily-quests-heading" className="section-title">每日任务</p><p className="body-copy muted-copy">完成后获得经验值与连击燃料。</p></div><span className="metric-badge"><Zap size={16} /> {completedTasks.length}/3</span></div>
+        <div className="quest-stack">{dailyTasks.map((task, index) => { const Icon = task.icon; const complete = completedTasks.includes(index); return (
+          /* Astra has no quest-list item; this gamified row is a token-based composition with a kit Button action. */
+          <article key={task.title} className={`quest-card ${complete ? "quest-complete" : ""}`}>
+            <span className="quest-icon"><Icon size={24} /></span><div className="quest-copy"><p>{task.title}</p><span>+{task.reward} XP · {complete ? "已完成" : "待执行"}</span></div>
+            <Button variant={complete ? "neutral" : "primary"} size="small" onClick={() => setSelectedTask(selectedTask === index ? null : index)}>{complete ? "查看" : "详情"}</Button>
+            {selectedTask === index && <div className="quest-detail"><p>{task.description}</p><Button variant={complete ? "neutral" : "primary"} size="small" iconStart={complete ? <Check size={16} /> : <CirclePlay size={16} />} onClick={() => setCompletedTasks((items) => complete ? items.filter((item) => item !== index) : [...items, index])}>{complete ? "撤销完成" : "标记完成"}</Button></div>}
+          </article>
+        ); })}</div>
+      </section>
+
+      <section className="progress-section module-surface" aria-labelledby="progress-heading">
+        <div className="section-heading">
+          <div>
+            <p id="progress-heading" className="section-title">本周物质形态</p>
+            <p className="body-copy muted-copy">{weeklyDone.length >= 5 ? "目标已达成！宇宙已经在颤抖。" : `还差 ${5 - weeklyDone.length} 次训练，宇宙就会害怕你。`}</p>
+          </div>
+          <span className="metric-badge"><Flame size={16} /> {weeklyDone.length} / 5</span>
+        </div>
+        <div className="weekly-orbit" aria-label={`本周训练进度 ${Math.round(weeklyDone.length / 5 * 100)}%`}>
+          {["一", "二", "三", "四", "五", "六", "日"].map((day, index) => {
+            const done = weeklyDone.includes(index);
+            return (
+              <button
+                type="button"
+                key={day}
+                className={`day-orb ${done ? "day-orb-done" : index === nextDay ? "day-orb-next" : ""}`}
+                onClick={() => setWeeklyDone(prev => done ? prev.filter(d => d !== index) : [...prev, index])}
+                aria-pressed={done}
+                aria-label={`${day}曜`}
+              >
+                {done ? <Check size={16} /> : day}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="workout-section module-surface" aria-labelledby="workouts-heading">
+        <div className="section-heading compact-heading">
+          <p id="workouts-heading" className="section-title">跨维度菜单</p>
+          <Button variant="subtle" size="small" onClick={() => setActiveTab("workouts")}>全部训练</Button>
+        </div>
+        {renderWorkoutRows()}
+      </section>
+
+      {/* Astra has no comic callout component; this motivational bubble is custom but uses only Astra tokens. */}
+      <aside className="rick-callout"><Activity size={24} /><p>“肌肉酸痛只是平行宇宙里的你在鼓掌。”</p><span>— 某个拒绝休息日的科学家</span></aside>
+    </div>
+  );
+
+  const workoutsView = trainingPhase === "summary" ? (
+    <div className="view-stack screen-view">
+      <SectionIntro eyebrow="ECOLOGICAL EVENT READY" title="训练结算" />
+      <section className="session-panel module-surface">
+        <span className="session-icon"><Check size={24} /></span>
+        <div><p className="section-title">{workouts[activeWorkout].title} 完成</p><p className="body-copy muted-copy">{workouts[activeWorkout].minutes} · +46 XP · 星球正在生成新事件。</p></div>
+      </section>
+      <section className="event-preview module-surface"><PortalMark /><div><p className="section-title">一场{activeWorkout === 0 ? "造山运动" : activeWorkout === 1 ? "季风过境" : "晨雾降临"}正在发生</p><p className="body-copy muted-copy">你的训练正在改变星球生态。</p></div></section>
+      <Button variant="primary" iconStart={<Sparkles size={16} />} onClick={() => { setTrainingPhase("select"); setActiveTab("portal"); }}>去星球看看</Button>
+      <Button variant="subtle" size="small" onClick={() => setTrainingPhase("select")}>返回模式选择</Button>
+    </div>
+  ) : (
+    <div className="view-stack screen-view">
+      <SectionIntro eyebrow={trainingPhase === "active" ? "TRAINING IN PROGRESS" : "CHOOSE TODAY'S EFFECT"} title={trainingPhase === "active" ? "正在改变星球" : "选择训练模式"} action={<span className="metric-badge"><Clock3 size={16} /> {trainingPhase === "active" ? "12:48" : "3 种模式"}</span>} />
+      {/* Astra ItemCard is video-only; this selected session summary uses kit tokens as a mobile dashboard card. */}
+      <section className="session-panel module-surface">
+        <span className="session-icon"><Dumbbell size={24} /></span>
+        <div><p className="section-title">{workouts[activeWorkout].title}</p><p className="body-copy muted-copy">{trainingPhase === "active" ? "本阶段已完成 2/4 组，星核正在升温。" : workouts[activeWorkout].kind}</p></div>
+        <Button variant="primary" size="small" iconStart={trainingPhase === "active" ? <Check size={16} /> : <CirclePlay size={16} />} onClick={() => trainingPhase === "active" ? setTrainingPhase("summary") : startWorkout(activeWorkout)}>{trainingPhase === "active" ? "完成训练" : "开始"}</Button>
+      </section>
+      <section className="queue-module module-surface"><div className="section-heading compact-heading"><p className="section-title">训练模式</p><span className="body-copy muted-copy">选择会改变的生态</span></div>{renderWorkoutRows()}</section>
+    </div>
+  );
+
+  const portalView = (
+    <div className="view-stack screen-view" style={{ paddingTop: "var(--space-sm, 4px)", gap: "var(--space-sm, 6px)" }}>
+      <SectionIntro eyebrow="PLANET ECOLOGY · L1" title="养星球" action={<span className="metric-badge"><Sparkles size={14} /> {portalMode}</span>} />
+      <PlanetView bodyMetrics={bodyMetrics} />
+      <section className="route-list module-surface" aria-label="生态事件">
+        {[
+          { icon: Dumbbell, title: "造山运动", detail: "力量训练让肌肉大陆隆起", zone: "muscle" },
+          { icon: Orbit, title: "季风过境", detail: "有氧训练让季风大陆激活", zone: "fat" },
+          { icon: Sparkles, title: "晨雾降临", detail: "拉伸恢复让生命水道澄澈", zone: "water" },
+        ].map((event) => {
+          const Icon = event.icon;
+          return (
+            <button
+              type="button"
+              key={event.title}
+              className="route-row"
+              onClick={() => setPortalMode(event.title)}
+              aria-pressed={portalMode === event.title}
+            >
+              <span className="route-icon"><Icon size={24} /></span>
+              <span><b>{event.title}</b><small>{event.detail}</small></span>
+              <ChevronRight size={16} />
+            </button>
+          );
+        })}
       </section>
     </div>
   );
-}
 
-export default function App() {
-  const [tab, setTab] = useState<AppTab>("train");
-  const [sessions, setSessions] = useStoredState<WorkoutSession[]>(
-    "portal-workout-sessions-v1",
-    [],
-  );
-  const [plans, setPlans] = useStoredState<WorkoutPlan[]>("portal-workout-plans-v1", [
-    DEFAULT_PLAN,
-  ]);
-  const [favorites, setFavorites] = useStoredState<string[]>(
-    "portal-exercise-favorites-v1",
-    [],
-  );
-  const [activeSession, setActiveSession] = useStoredState<WorkoutSession | null>(
-    "portal-active-session-v1",
-    null,
-  );
-  const [pickerMode, setPickerMode] = useState<"session" | "plan" | null>(null);
-  const [draftPlan, setDraftPlan] = useState<WorkoutPlan | null>(null);
-  const [libraryQuery, setLibraryQuery] = useState("");
-  const [libraryCategory, setLibraryCategory] = useState<ExerciseCategory | "all">("all");
-  const [notice, setNotice] = useState<string | null>(null);
+  const statsView = (
+    <div className="view-stack screen-view">
+      <section className="body-analysis-panel module-surface" aria-label="身体物质构成分析">
+        <div className="analysis-panel-heading"><p className="eyebrow">MATTER ANALYSIS · C-137</p><p className="screen-title">物质扫描</p></div>
+        <div className="analysis-panel-action"><IconButton aria-label="查看本月数据" icon={<CalendarDays size={16} />} variant="neutral" size="small" /></div>
+        {/* Astra UI has no image primitive and this scaffold has no ImageWithFallback wrapper, so this analysis artwork uses the imported Vite asset directly. */}
+        <img className="body-analysis-image" src={bodyAnalysisCharacter} alt="展示肌肉与骨骼结构的角色分析图" />
+        <div className="analysis-callout callout-score callout-left"><p className="analysis-callout-label">综合评分</p><div className="analysis-score-value"><b>87.3</b><span>/100</span></div><small>超越 83% 生命体</small></div>
+        <div className="analysis-callout callout-muscle callout-right"><p className="analysis-callout-label">肌肉构成</p><b>42%</b><small>骨骼肌量 {bodyMetrics.muscle} kg</small></div>
+        <div className="analysis-callout callout-fat callout-left"><p className="analysis-callout-label">脂肪构成</p><b>18%</b><small>体脂率 {bodyMetrics.fat}%</small></div>
+        <div className="analysis-callout callout-water callout-right"><p className="analysis-callout-label">水分构成</p><b>38%</b><small>含水总量 {bodyMetrics.water}%</small></div>
+        <div className="analysis-callout callout-bone callout-left"><p className="analysis-callout-label">骨骼构成</p><b>2%</b><small>骨量 {bodyMetrics.bone} kg</small></div>
+        <div className="analysis-achievement-badge" aria-label="物质稳定者：连续12天维持物质指数80分以上"><ShieldCheck size={34} /><span>物质稳定者</span></div>
+      </section>
 
-  const weekCredits = useMemo(() => {
-    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return sessions
-      .filter((session) => new Date(session.createdAt ?? session.date).getTime() >= cutoff)
-      .reduce((sum, session) => sum + (session.credits ?? 0), 0);
-  }, [sessions]);
-  const creditTarget = 320;
-  const progress = Math.min(100, Math.round((weekCredits / creditTarget) * 100));
-
-  const toggleFavorite = (id: string) => {
-    setFavorites((current) =>
-      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
-    );
-  };
-
-  const startQuick = (exerciseId?: string, title = "自由训练") => {
-    const session = emptySession(title);
-    if (exerciseId) session.items = [itemFor(exerciseId)];
-    setActiveSession(session);
-    setTab("train");
-  };
-
-  const startPlan = (plan: WorkoutPlan) => {
-    const session = emptySession(plan.name);
-    session.planId = plan.id;
-    session.items = plan.exerciseIds.map(itemFor);
-    setActiveSession(session);
-    setTab("train");
-  };
-
-  const patchSession = (patch: Partial<WorkoutSession>) => {
-    setActiveSession((current) => (current ? { ...current, ...patch } : current));
-  };
-
-  const patchItem = (itemId: string, patch: Partial<SessionItem>) => {
-    setActiveSession((current) =>
-      current
-        ? {
-            ...current,
-            items: current.items.map((item) =>
-              item.id === itemId ? { ...item, ...patch } : item,
-            ),
-          }
-        : current,
-    );
-  };
-
-  const saveSession = () => {
-    if (!activeSession || !activeSession.items.length) return;
-    const completed: WorkoutSession = {
-      ...activeSession,
-      credits: calculateCredits(activeSession),
-      createdAt: new Date().toISOString(),
-    };
-    setSessions((current) => [completed, ...current]);
-    setActiveSession(null);
-    setNotice(`训练已保存，星球获得 ${completed.credits} Credit`);
-    setTab("history");
-    window.setTimeout(() => setNotice(null), 3200);
-  };
-
-  const savePlan = () => {
-    if (!draftPlan || !draftPlan.name.trim() || !draftPlan.exerciseIds.length) return;
-    const next = { ...draftPlan, name: draftPlan.name.trim(), updatedAt: new Date().toISOString() };
-    setPlans((current) => {
-      const exists = current.some((plan) => plan.id === next.id);
-      return exists
-        ? current.map((plan) => (plan.id === next.id ? next : plan))
-        : [next, ...current];
-    });
-    setDraftPlan(null);
-    setNotice("训练方案已保存");
-    window.setTimeout(() => setNotice(null), 2400);
-  };
-
-  const addPickedExercise = (exercise: Exercise) => {
-    if (pickerMode === "session") {
-      setActiveSession((current) =>
-        current ? { ...current, items: [...current.items, itemFor(exercise.id)] } : current,
-      );
-    }
-    if (pickerMode === "plan" && draftPlan) {
-      if (!draftPlan.exerciseIds.includes(exercise.id)) {
-        setDraftPlan({
-          ...draftPlan,
-          exerciseIds: [...draftPlan.exerciseIds, exercise.id],
-        });
-      }
-    }
-    setPickerMode(null);
-  };
-
-  const libraryResults = useMemo(
-    () => searchExercises(libraryQuery, libraryCategory, "all"),
-    [libraryQuery, libraryCategory],
-  );
-
-  return (
-    <div className="app-shell">
-      <header className="app-header">
-        <button className="brand" onClick={() => setTab("train")}>
-          <span className="brand-orbit"><Globe2 size={23} /></span>
-          <span><strong>PORTAL</strong><small>FITNESS LOG</small></span>
-        </button>
-        <div className="header-credit">
-          <span>{weekCredits}</span>
-          <small>/ {creditTarget} CREDIT</small>
+      <section className="matter-params-module module-surface" aria-labelledby="matter-params-heading">
+        <div className="section-heading compact-heading">
+          <p id="matter-params-heading" className="section-title">体成分四件套</p>
+          <Button variant="subtle" size="small" iconStart={<Zap size={14} />} onClick={() => setManualEntryOpen(!manualEntryOpen)}>{manualEntryOpen ? "收起" : "录入"}</Button>
         </div>
-      </header>
-
-      <main>
-        {tab === "train" && !activeSession && (
-          <section className="page page-train">
-            <div className="planet-app-view">
-              <iframe
-                title="可交互身体星球地图"
-                src="/planet.html?mode=app"
-                loading="eager"
-              />
-            </div>
-
-            <div className="planet-progress-card">
-              <div className="planet-copy">
-                <p className="eyebrow">WEEKLY TERRAFORM</p>
-                <h1>本周地貌进度</h1>
-                <p>
-                  {weekCredits >= creditTarget
-                    ? "能量已经充满，可以准备下一次星球演化。"
-                    : `还差 ${creditTarget - weekCredits} Credit，继续为造山带注入能量。`}
-                </p>
-                <div className="progress-track" aria-label={`进度 ${progress}%`}>
-                  <span style={{ width: `${progress}%` }} />
+        {manualEntryOpen && <div className="manual-entry-form">
+          <InputField label="骨骼肌量（kg）" value={bodyMetrics.muscle} onChange={(muscle) => setBodyMetrics({ ...bodyMetrics, muscle })} />
+          <InputField label="体内水分（%）" value={bodyMetrics.water} onChange={(water) => setBodyMetrics({ ...bodyMetrics, water })} />
+          <InputField label="骨量（kg）" value={bodyMetrics.bone} onChange={(bone) => setBodyMetrics({ ...bodyMetrics, bone })} />
+          <InputField label="体脂率（%）" value={bodyMetrics.fat} onChange={(fat) => setBodyMetrics({ ...bodyMetrics, fat })} />
+          <Button variant="primary" size="small" onClick={() => { setEntrySaved(true); setManualEntryOpen(false); }}>保存并触发地质活动</Button>
+        </div>}
+        {entrySaved && <p className="entry-saved"><Check size={14} /> 数据已保存，星球地貌正在重组。</p>}
+        <div className="matter-grid">
+          {[
+            { icon: Zap, label: "骨骼肌量", value: bodyMetrics.muscle, unit: "kg", tone: "success" },
+            { icon: Droplets, label: "体内水分", value: bodyMetrics.water, unit: "%", tone: "brand" },
+            { icon: Activity, label: "骨量", value: bodyMetrics.bone, unit: "kg", tone: "neutral" },
+            { icon: Flame, label: "体脂率", value: bodyMetrics.fat, unit: "%", tone: "warning" },
+          ].map((cell) => {
+            const Icon = cell.icon;
+            return (
+              /* Astra has no body-metric tile; this gamified stat cell is a kit-token composition. */
+              <article key={cell.label} className={`matter-cell tone-${cell.tone}`}>
+                <span className="matter-cell-icon"><Icon size={18} /></span>
+                <div className="matter-cell-value-row">
+                  <span className="matter-cell-value">{cell.value}</span>
+                  {cell.unit && <span className="matter-cell-unit">{cell.unit}</span>}
                 </div>
-                <strong className="progress-label">{progress}%</strong>
-              </div>
-            </div>
+                <p className="matter-cell-label">{cell.label}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">QUICK START</p>
-                <h2>开始训练</h2>
-              </div>
-              <button className="text-button" onClick={() => startQuick()}>
-                自由记录 <ChevronRight size={16} />
-              </button>
-            </div>
+      {/* Wave trend chart */}
+      <section className="chart-panel module-surface" aria-labelledby="matter-wave-heading">
+        <div className="section-heading compact-heading">
+          <p id="matter-wave-heading" className="section-title">生态趋势</p>
+          <span className="metric-badge"><Flame size={16} /> 本月 +18%</span>
+        </div>
+        <div className="bar-chart" aria-label="近十二个月星核能量趋势">
+          {[38, 46, 42, 58, 55, 64, 61, 76, 72, 88, 81, 86].map((height, index) => (
+            <span key={index} className={index === 9 ? "bar bar-active" : "bar"} style={{ "--bar-height": `${height}%` } as React.CSSProperties}><i /></span>
+          ))}
+        </div>
+        <div className="chart-labels">{["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"].map((month) => <span key={month}>{month}</span>)}</div>
+      </section>
 
-            <div className="quick-grid">
-              {QUICK_STARTS.map(({ exerciseId, label, icon: Icon }) => (
-                <button key={exerciseId} className="quick-card" onClick={() => startQuick(exerciseId, label)}>
-                  <span><Icon size={22} /></span>
-                  <strong>{label}</strong>
-                  <small>快速记录</small>
-                </button>
-              ))}
-            </div>
-
-            <div className="section-heading plan-heading">
-              <div>
-                <p className="eyebrow">TODAY'S PLAN</p>
-                <h2>训练方案</h2>
-              </div>
-              <button className="text-button" onClick={() => setTab("plans")}>
-                全部方案 <ChevronRight size={16} />
-              </button>
-            </div>
-            <div className="plan-preview-list">
-              {plans.slice(0, 2).map((plan) => (
-                <article className="plan-preview" key={plan.id}>
-                  <div className="plan-mark"><Dumbbell size={20} /></div>
-                  <div>
-                    <h3>{plan.name}</h3>
-                    <p>{plan.exerciseIds.length} 个动作 · 每周 {plan.frequency} 次</p>
-                  </div>
-                  <button className="play-button" onClick={() => startPlan(plan)} aria-label={`开始${plan.name}`}>
-                    <Play size={18} fill="currentColor" />
-                  </button>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {tab === "train" && activeSession && (
-          <section className="page session-page">
-            <div className="session-topbar">
-              <button className="icon-button" onClick={() => setActiveSession(null)} aria-label="退出训练">
-                <X size={20} />
-              </button>
-              <div>
-                <p className="eyebrow">WORKOUT LOG</p>
-                <input
-                  className="title-input"
-                  value={activeSession.title}
-                  onChange={(event) => patchSession({ title: event.target.value })}
-                  aria-label="训练名称"
-                />
-              </div>
-              <button className="primary-button small" onClick={saveSession} disabled={!activeSession.items.length}>
-                <Save size={17} /> 保存
-              </button>
-            </div>
-
-            <div className="session-meta form-card">
-              <label><span>日期</span><input type="date" value={activeSession.date} onChange={(event) => patchSession({ date: event.target.value })} /></label>
-              <label><span>开始</span><input type="time" value={activeSession.startTime} onChange={(event) => patchSession({ startTime: event.target.value })} /></label>
-              <label><span>总时长</span><div className="unit-input"><input type="number" min="1" value={activeSession.durationMinutes} onChange={(event) => patchSession({ durationMinutes: Number(event.target.value) })} /><small>分钟</small></div></label>
-            </div>
-
-            <div className="session-items">
-              {activeSession.items.map((item, itemIndex) => {
-                const exercise = getExercise(item.exerciseId);
-                if (!exercise) return null;
-                return (
-                  <article className="exercise-card" key={item.id}>
-                    <header>
-                      <span className="exercise-number">{String(itemIndex + 1).padStart(2, "0")}</span>
-                      <div>
-                        <h3>{exercise.name}</h3>
-                        <p>{exercise.group} · {exercise.equipment}</p>
-                      </div>
-                      <button
-                        className="icon-button subtle"
-                        onClick={() => patchSession({ items: activeSession.items.filter((current) => current.id !== item.id) })}
-                        aria-label="删除动作"
-                      >
-                        <Trash2 size={17} />
-                      </button>
-                    </header>
-
-                    {exercise.tracking === "sets" && (
-                      <div className="sets-table">
-                        <div className="sets-head"><span>组</span><span>重量 kg</span><span>次数</span><span>RPE</span><span>完成</span></div>
-                        {item.sets.map((set, setIndex) => (
-                          <div className="set-row" key={set.id}>
-                            <span>{setIndex + 1}</span>
-                            <input type="number" min="0" step="0.5" value={set.weight} onChange={(event) => patchItem(item.id, { sets: item.sets.map((current) => current.id === set.id ? { ...current, weight: Number(event.target.value) } : current) })} />
-                            <input type="number" min="0" value={set.reps} onChange={(event) => patchItem(item.id, { sets: item.sets.map((current) => current.id === set.id ? { ...current, reps: Number(event.target.value) } : current) })} />
-                            <input type="number" min="1" max="10" value={set.rpe} onChange={(event) => patchItem(item.id, { sets: item.sets.map((current) => current.id === set.id ? { ...current, rpe: Number(event.target.value) } : current) })} />
-                            <button className={set.completed ? "set-check completed" : "set-check"} onClick={() => patchItem(item.id, { sets: item.sets.map((current) => current.id === set.id ? { ...current, completed: !current.completed } : current) })} aria-label="切换完成状态"><Check size={16} /></button>
-                          </div>
-                        ))}
-                        <button className="add-line-button" onClick={() => patchItem(item.id, { sets: [...item.sets, emptySet()] })}><Plus size={15} /> 增加一组</button>
-                      </div>
-                    )}
-
-                    {exercise.tracking === "distance" && (
-                      <div className="metric-grid">
-                        <label><span>距离</span><div className="unit-input"><input type="number" min="0" step="0.1" value={item.distanceKm} onChange={(event) => patchItem(item.id, { distanceKm: Number(event.target.value) })} /><small>km</small></div></label>
-                        <label><span>时长</span><div className="unit-input"><input type="number" min="0" value={item.durationMinutes} onChange={(event) => patchItem(item.id, { durationMinutes: Number(event.target.value) })} /><small>分钟</small></div></label>
-                        <div className="computed-metric"><span>平均配速</span><strong>{item.distanceKm > 0 ? `${Math.floor(item.durationMinutes / item.distanceKm)}'${String(Math.round(((item.durationMinutes / item.distanceKm) % 1) * 60)).padStart(2, "0")}\"` : "--"}</strong><small>/ km</small></div>
-                      </div>
-                    )}
-
-                    {exercise.tracking === "swim" && (
-                      <div className="metric-grid swim-grid">
-                        <label><span>距离</span><div className="unit-input"><input type="number" min="0" step="0.05" value={item.distanceKm} onChange={(event) => patchItem(item.id, { distanceKm: Number(event.target.value) })} /><small>km</small></div></label>
-                        <label><span>趟数</span><input type="number" min="0" value={item.laps} onChange={(event) => patchItem(item.id, { laps: Number(event.target.value) })} /></label>
-                        <label><span>泳姿</span><select value={item.stroke} onChange={(event) => patchItem(item.id, { stroke: event.target.value })}><option>自由泳</option><option>蛙泳</option><option>仰泳</option><option>蝶泳</option><option>混合泳</option></select></label>
-                        <label><span>时长</span><div className="unit-input"><input type="number" min="0" value={item.durationMinutes} onChange={(event) => patchItem(item.id, { durationMinutes: Number(event.target.value) })} /><small>分钟</small></div></label>
-                      </div>
-                    )}
-
-                    {exercise.tracking === "duration" && (
-                      <div className="metric-grid duration-grid">
-                        <label><span>时长</span><div className="unit-input"><input type="number" min="0" value={item.durationMinutes} onChange={(event) => patchItem(item.id, { durationMinutes: Number(event.target.value) })} /><small>分钟</small></div></label>
-                        <label className="wide"><span>动作备注</span><input value={item.notes} onChange={(event) => patchItem(item.id, { notes: event.target.value })} placeholder="强度、课程或动作说明" /></label>
-                      </div>
-                    )}
-                  </article>
-                );
-              })}
-            </div>
-
-            <button className="add-exercise-button" onClick={() => setPickerMode("session")}><Plus size={20} /> 添加训练动作</button>
-            <label className="notes-field"><span>训练备注</span><textarea value={activeSession.notes} onChange={(event) => patchSession({ notes: event.target.value })} placeholder="今天的状态、疼痛、难度或其他记录" /></label>
-          </section>
-        )}
-
-        {tab === "plans" && (
-          <section className="page">
-            <div className="page-title-row">
-              <div><p className="eyebrow">PROGRAM BUILDER</p><h1>训练方案</h1><p>组合常用动作，快速开始一场结构化训练。</p></div>
-              {!draftPlan && <button className="primary-button" onClick={() => setDraftPlan({ id: uid("plan"), name: "", frequency: 3, exerciseIds: [], updatedAt: new Date().toISOString() })}><Plus size={18} /> 新建方案</button>}
-            </div>
-
-            {draftPlan && (
-              <section className="plan-editor form-card">
-                <header><div><p className="eyebrow">EDIT PROGRAM</p><h2>{plans.some((plan) => plan.id === draftPlan.id) ? "编辑方案" : "新建方案"}</h2></div><button className="icon-button" onClick={() => setDraftPlan(null)}><X size={20} /></button></header>
-                <div className="plan-fields">
-                  <label><span>方案名称</span><input value={draftPlan.name} onChange={(event) => setDraftPlan({ ...draftPlan, name: event.target.value })} placeholder="例如：周一上肢力量" /></label>
-                  <label><span>每周频次</span><select value={draftPlan.frequency} onChange={(event) => setDraftPlan({ ...draftPlan, frequency: Number(event.target.value) })}>{[1,2,3,4,5,6,7].map((value) => <option key={value} value={value}>{value} 次</option>)}</select></label>
-                </div>
-                <div className="draft-exercises">
-                  {draftPlan.exerciseIds.map((id, index) => {
-                    const exercise = getExercise(id);
-                    return exercise ? <div className="draft-row" key={id}><span>{index + 1}</span><ExerciseIcon exercise={exercise} /><div><strong>{exercise.name}</strong><small>{exercise.group}</small></div><button className="icon-button subtle" onClick={() => setDraftPlan({ ...draftPlan, exerciseIds: draftPlan.exerciseIds.filter((current) => current !== id) })}><X size={16} /></button></div> : null;
-                  })}
-                  {!draftPlan.exerciseIds.length && <div className="empty-state compact">还没有动作，从动作库中添加</div>}
-                </div>
-                <div className="editor-actions"><button className="secondary-button" onClick={() => setPickerMode("plan")}><Plus size={17} /> 添加动作</button><button className="primary-button" onClick={savePlan} disabled={!draftPlan.name.trim() || !draftPlan.exerciseIds.length}><Save size={17} /> 保存方案</button></div>
-              </section>
-            )}
-
-            <div className="plan-grid">
-              {plans.map((plan) => (
-                <article className="plan-card" key={plan.id}>
-                  <header><span className="plan-mark"><CalendarRange size={20} /></span><div><h3>{plan.name}</h3><p>每周 {plan.frequency} 次 · {plan.exerciseIds.length} 个动作</p></div></header>
-                  <div className="plan-exercise-tags">{plan.exerciseIds.slice(0, 5).map((id) => <span key={id}>{getExercise(id)?.name}</span>)}{plan.exerciseIds.length > 5 && <span>+{plan.exerciseIds.length - 5}</span>}</div>
-                  <footer><button className="secondary-button" onClick={() => setDraftPlan({ ...plan })}><Pencil size={16} /> 编辑</button><button className="icon-button danger" onClick={() => setPlans((current) => current.filter((item) => item.id !== plan.id))} aria-label="删除方案"><Trash2 size={17} /></button><button className="primary-button" onClick={() => startPlan(plan)}><Play size={16} fill="currentColor" /> 开始</button></footer>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {tab === "library" && (
-          <section className="page library-page">
-            <div className="page-title-row"><div><p className="eyebrow">EXERCISE ATLAS</p><h1>动作库</h1><p>{EXERCISES.length} 个动作，覆盖力量、跑步、游泳、户外与恢复训练。</p></div></div>
-            <label className="search-field library-search"><Search size={18} /><input value={libraryQuery} onChange={(event) => setLibraryQuery(event.target.value)} placeholder="搜索动作、肌群、器械或英文别名" /></label>
-            <div className="chip-row"> <button className={libraryCategory === "all" ? "chip active" : "chip"} onClick={() => setLibraryCategory("all")}>全部</button>{(Object.entries(CATEGORY_META) as [ExerciseCategory, (typeof CATEGORY_META)[ExerciseCategory]][]).map(([key, meta]) => <button key={key} className={libraryCategory === key ? "chip active" : "chip"} onClick={() => setLibraryCategory(key)}>{meta.label}</button>)}</div>
-            <div className="library-list">
-              {libraryResults.map((exercise) => (
-                <article className="library-card" key={exercise.id}>
-                  <span className="exercise-icon large" style={{ color: CATEGORY_META[exercise.category].color }}><ExerciseIcon exercise={exercise} /></span>
-                  <div><h3>{exercise.name}</h3><p>{exercise.group} · {exercise.equipment}</p><div className="muscle-tags">{exercise.muscles.map((muscle) => <span key={muscle}>{muscle}</span>)}</div></div>
-                  <button className="favorite-button" onClick={() => toggleFavorite(exercise.id)} aria-label="收藏动作"><Star size={18} fill={favorites.includes(exercise.id) ? "currentColor" : "none"} /></button>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {tab === "history" && (
-          <section className="page history-page">
-            <div className="page-title-row"><div><p className="eyebrow">MISSION ARCHIVE</p><h1>训练记录</h1><p>训练会转换为本周期的地貌 Credit。</p></div><button className="primary-button" onClick={() => startQuick()}><Plus size={18} /> 记录训练</button></div>
-            <div className="summary-grid">
-              <div><span>最近 7 天</span><strong>{sessions.filter((session) => new Date(session.createdAt ?? session.date).getTime() >= Date.now() - 7 * 86400000).length}</strong><small>次训练</small></div>
-              <div><span>本周能量</span><strong>{weekCredits}</strong><small>Credit</small></div>
-              <div><span>累计训练</span><strong>{sessions.length}</strong><small>次</small></div>
-            </div>
-            <div className="history-list">
-              {sessions.map((session) => (
-                <article className="history-card" key={session.id}>
-                  <div className="history-date"><strong>{session.date.slice(8, 10)}</strong><small>{session.date.slice(5, 7)}月</small></div>
-                  <div className="history-main"><h3>{session.title}</h3><p>{sessionSummary(session)}</p><div className="history-exercises">{session.items.slice(0, 4).map((item) => <span key={item.id}>{getExercise(item.exerciseId)?.name}</span>)}</div></div>
-                  <div className="history-credit"><strong>+{session.credits}</strong><small>CREDIT</small></div>
-                  <button className="icon-button subtle" onClick={() => setSessions((current) => current.filter((item) => item.id !== session.id))} aria-label="删除记录"><Trash2 size={17} /></button>
-                </article>
-              ))}
-              {!sessions.length && <div className="empty-state history-empty"><Timer size={28} /><h3>还没有训练记录</h3><p>完成第一次训练，为你的星球注入能量。</p><button className="primary-button" onClick={() => startQuick()}>开始记录</button></div>}
-            </div>
-          </section>
-        )}
-      </main>
-
-      <nav className="bottom-nav" aria-label="主导航">
-        {[
-          { key: "train" as const, label: "训练", icon: Dumbbell },
-          { key: "plans" as const, label: "方案", icon: CalendarRange },
-          { key: "library" as const, label: "动作库", icon: LibraryBig },
-          { key: "history" as const, label: "记录", icon: History },
-        ].map(({ key, label, icon: Icon }) => (
-          <button key={key} className={tab === key ? "active" : ""} onClick={() => setTab(key)}><Icon size={20} /><span>{label}</span></button>
-        ))}
-      </nav>
-
-      {pickerMode && <ExercisePicker onClose={() => setPickerMode(null)} onSelect={addPickedExercise} favorites={favorites} toggleFavorite={toggleFavorite} />}
-      {notice && <div className="toast"><Check size={17} /> {notice}</div>}
     </div>
   );
+
+  const profileView = (
+    <div className="view-stack screen-view">
+      <SectionIntro eyebrow="EARTH IDENTITY" title="我的舱室" action={<IconButton aria-label="打开设置" icon={<Settings2 size={16} />} variant="neutral" size="small" />} />
+      <section className="profile-panel module-surface"><span className="profile-avatar"><UserRound size={32} /></span><div><p className="section-title">Morty Smith</p><p className="body-copy muted-copy">Level 08 · Dimension C-137</p></div><span className="metric-badge"><Trophy size={16} /> 680 XP</span></section>
+      <section className="setting-list module-surface">
+        <div className="setting-row"><span><b>每日传送提醒</b><small>18:30 · 今日已开启</small></span><Button variant={goalEnabled ? "primary" : "neutral"} size="small" onClick={() => setGoalEnabled(!goalEnabled)}>{goalEnabled ? "开启" : "关闭"}</Button></div>
+        <div className="setting-row"><span><b>本周任务</b><small>再完成 1 次训练即可解锁徽章</small></span><ChevronRight size={16} /></div>
+      </section>
+      <Button variant="neutral" iconStart={<Rocket size={16} />} onClick={() => setActiveTab("portal")}>查看星球生态</Button>
+    </div>
+  );
+
+  const views: Record<Screen, React.ReactNode> = { home: homeView, workouts: workoutsView, portal: portalView, stats: statsView, profile: profileView };
+
+  return (
+    <main className="app-cosmos">
+      <section className="phone-shell dark" aria-label="Portal Dash 健身应用" style={{ "--phone-bg": `url(${bgCosmos})` } as React.CSSProperties}>
+        <div className="phone-topline"><div><p className="eyebrow">C-137 · TRAINING BAY</p><p className="topline-label">PORTAL FITNESS</p></div><IconButton aria-label="查看奖励" icon={<Trophy size={16} />} variant="neutral" size="small" /></div>
+        <div className="view-scroll" key={activeTab}>
+          {views[activeTab]}
+        </div>
+        {/* Astra navigation is a desktop sidebar, not an app-tab bar; this mobile-only navigation uses verified Lucide icons. */}
+        <nav className="mobile-nav" aria-label="主导航">
+          {nav.map((item) => {
+            const Icon = item.icon;
+            const selected = activeTab === item.id;
+            return <button type="button" key={item.id} className={`mobile-nav-item ${selected ? "mobile-nav-active" : ""} ${item.id === "portal" ? "portal-tab" : ""}`} onClick={() => setActiveTab(item.id)} aria-current={selected ? "page" : undefined}>{item.id === "portal" ? <PortalMark small /> : <Icon size={24} />}<span>{item.label}</span>{item.id === "workouts" && <i className="notice-dot" />}</button>;
+          })}
+        </nav>
+      </section>
+    </main>
+  );
 }
+
+export default function App() { return <ThemeProvider><FitnessApp /></ThemeProvider>; }

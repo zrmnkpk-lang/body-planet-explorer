@@ -1,0 +1,10 @@
+{
+  "description": "This fitness web app helps users track workouts, set goals, and monitor progress, making it easier to achieve their health and fitness objectives.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -2,7 +2,7 @@
 
 ## 入口与代码一致性
 
-GitHub：`npm install` 后运行 `npm run dev`，访问 `/planet.html`。`/` 保持现有 React 训练工具。
+GitHub：`npm install` 后运行 `npm run dev`，访问 `/` 打开真实 Portal Fitness APP；进入 APP 的「生态」页会加载共享的 `/planet.html?mode=app` 星球。`/planet.html` 仍可独立打开完整星球预览。
 
 Sites：[养星球 · 地貌探索](https://body-planet-explorer.kinteregla705706.chatgpt.site) 首页展示同一份 `planet.html` 场景。部署时仅将入口映射为 `index.html`；场景源码、地标和 GLB 资源保持一致。构建产物必须包含 worker 与 `public/assets/landmarks/`，不要只复制 HTML。
 
@@ -42,7 +42,7 @@ window.dispatchEvent(new CustomEvent('body-planet:metrics', {
 }));
 ```
 
-只接收已知区域的有限数值，更新卡片展示。此接口尚未接入 React 训练记录，也不修改体成分或训练的持久化状态。`explore_body_planet` 页面工具契约继续保留。
+只接收已知区域的有限数值，更新卡片展示。真实 APP 的 `src/PlanetView.tsx` 会在数据页修改体成分后向同源 iframe 发送这个事件；它仍不修改服务端账本。`explore_body_planet` 页面工具契约继续保留。
 
 ## 文件职责
 
@@ -55,6 +55,7 @@ window.dispatchEvent(new CustomEvent('body-planet:metrics', {
 | `src/planet/ecology.js` | 水面、森林、灌木、岩石和冰川实例 |
 | `src/planet/zones.js` | 身体区域、名称、指标和聚焦坐标 |
 | `src/landmarks.js` | 地标名称、坐标和可选模型路径 |
+| `src/PlanetView.tsx` | 真实 APP 生态页的星球 iframe 和体成分数据桥接 |
 | `scripts/generate-landmarks.mjs` | 原创 GLB 的可复现生成源 |
 | `scripts/validate-planet.mjs` | 几何、经纬接缝、水位、区域和资源回归检查 |
 
