@@ -108,10 +108,10 @@ button { font: inherit; }
 .planet-backdrop iframe {
   position: absolute;
   z-index: 1;
-  right: -62%;
-  bottom: -54%;
-  width: 164%;
-  height: 164%;
+  right: -70%;
+  bottom: -66%;
+  width: 150%;
+  height: 150%;
   border: 0;
   opacity: 0;
   filter: saturate(0.88) contrast(1.08) brightness(0.7);
