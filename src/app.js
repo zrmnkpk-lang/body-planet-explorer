@@ -45,7 +45,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
 renderer.setClearColor(0x000000, 0)
 renderer.outputColorSpace = T.SRGBColorSpace
 renderer.toneMapping = T.ACESFilmicToneMapping
-renderer.toneMappingExposure = 1.0
+renderer.toneMappingExposure = 1.07
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = T.PCFSoftShadowMap
 renderer.shadowMap.autoUpdate = false
@@ -69,7 +69,7 @@ Object.assign(controls, {
 controls.enableRotate = false
 controls.mouseButtons.LEFT = null
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
-scene.add(new T.HemisphereLight(0xc9e5ff, 0x41506b, 1.2))
+scene.add(new T.HemisphereLight(0xc9e5ff, 0x41506b, 1.27))
 const key = new T.DirectionalLight(0xffebd7, 1.8)
 key.position.set(-3, 4, 5)
 key.castShadow = true

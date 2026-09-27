@@ -5,12 +5,15 @@ import {
   seeded,
   smooth,
   RIVERS,
+  LAKES,
+  basinPoint,
   waterHeight,
   sampleLatLon,
   FJORDS,
   fjordCenter,
   fjordWidth,
 } from "./field.js"
+import { channelGeometry, lakeGeometry, channelMaterial } from "./hydrology-mesh.js"
 import { installReveal, revealMesh } from "./view-levels.js"
 export const point = (lat, lon, r = 1) =>
   new T.Vector3(...direction(lat, lon)).multiplyScalar(r)
@@ -53,8 +56,8 @@ export function addWater(root) {
   const oceanGeometry = new T.SphereGeometry(1, 160, 96),
     oceanColors = [],
     oceanPoint = new T.Vector3()
-  const deep = new T.Color("#263e68"),
-    shelf = new T.Color("#508da2")
+  const deep = new T.Color("#2d4c7d"),
+    shelf = new T.Color("#60a1b3")
   for (let i = 0; i < oceanGeometry.attributes.position.count; i++) {
     oceanPoint.fromBufferAttribute(oceanGeometry.attributes.position, i)
     const s = sample(oceanPoint.x, oceanPoint.y, oceanPoint.z)
@@ -67,92 +70,24 @@ export function addWater(root) {
   )
   const ocean = new T.Mesh(oceanGeometry, oceanMaterial())
   root.add(ocean)
-  const mat = new T.MeshLambertMaterial({
-    color: 0x62c3b9,
-    side: T.DoubleSide,
-  })
-  const primaryWater = [],
-    tributaries = []
+  const mat = new T.MeshLambertMaterial({ color: 0x68c8c3, side: T.DoubleSide })
+  const primaryWater = [], tributaries = [], clock = { value: 0 }
   for (let k = 0; k < RIVERS.length; k++) {
-    const r = RIVERS[k],
-      verts = [],
-      idx = [],
-      onLand = []
-    const steps = r.path
-      ? Math.max(64, Math.ceil((r.north - r.south) * 8))
-      : 640
-    for (let i = 0; i <= steps; i++) {
-      const lat = T.MathUtils.lerp(r.north, r.south, i / steps),
-        lon = r.lon(lat)
-      const cosLat = Math.max(0.2, Math.cos(lat * Math.PI / 180))
-      const dLat = Math.min(r.north, lat + 0.02) - Math.max(r.south, lat - 0.02)
-      const dx = (r.lon(Math.min(r.north, lat + 0.02)) -
-        r.lon(Math.max(r.south, lat - 0.02))) * cosLat
-      const tangentLength = Math.hypot(dLat, dx)
-      for (const side of [-1, 1]) {
-        const progress = (r.north - lat) / (r.north - r.south)
-        const halfWidth = r.width * 0.62 * (r.delta ? 0.7 + progress * 0.55 : 1)
-        // Cross sections follow the local tangent, including tight meanders.
-        const edgeLat = lat - side * halfWidth * dx / tangentLength
-        const edgeLon = lon + side * halfWidth * dLat / tangentLength / cosLat
-        const level = waterHeight(lat, k)
-        verts.push(...point(edgeLat, edgeLon, 1 + level + 0.00015).toArray())
-        onLand.push(sample(...direction(edgeLat, edgeLon), false).h > 0)
-      }
-    }
-    for (let i = 0; i < steps; i++) {
-      const n = i * 2
-      // Both banks and the intervening midpoint must remain on natural land.
-      const midLat = T.MathUtils.lerp(r.north, r.south, (i + 0.5) / steps)
-      if (sample(...direction(midLat, r.lon(midLat)), false).h <= 0) continue
-      for (const triangle of [[n, n + 1, n + 2], [n + 1, n + 3, n + 2]])
-        if (triangle.every(v => onLand[v])) idx.push(...triangle)
-    }
-    const g = new T.BufferGeometry()
-    g.setAttribute("position", new T.Float32BufferAttribute(verts, 3))
-    g.setIndex(idx)
-    g.computeVertexNormals()
-    const channelMaterial = k === 0 ? mat : mat.clone()
-    if (r.order === 1) channelMaterial.color.set(0x54b8b4)
-    if (r.order === 2) channelMaterial.color.set(0x4d9ea5)
-    if (r.order >= 3) channelMaterial.color.set(0x568d9a)
-    if (r.order >= 2) {
-      channelMaterial.transparent = true
-      channelMaterial.opacity = r.order === 2 ? 0.88 : 0.76
-      channelMaterial.depthWrite = false
-    }
-    const m = new T.Mesh(g, channelMaterial)
+    const r = RIVERS[k], m = installReveal(new T.Mesh(channelGeometry(k), channelMaterial(clock)))
     m.userData.riverIndex = k
     m.userData.channelOrder = r.order
     m.userData.channelWidth = r.width
-    if (k > 0) tributaries.push(installReveal(m))
-    else primaryWater.push(installReveal(m))
+    // All basin trunks appear together; finer tributaries follow at ecology zoom.
+    ;(r.order === 0 ? primaryWater : tributaries).push(m)
     root.add(m)
   }
-  const verts = [],
-    idx = []
-  const lat = 2,
-    lon = RIVERS[0].lon(2)
-  verts.push(...point(lat, lon, 1 + waterHeight(2)).toArray())
-  for (let i = 0; i <= 96; i++) {
-    const a = (i / 96) * Math.PI * 2,
-      k = 1 + 0.14 * Math.sin(a * 3) + 0.08 * Math.sin(a * 5 + 0.7)
-    verts.push(
-      ...point(
-        lat + Math.cos(a) * 2.18 * k,
-        lon + Math.sin(a) * 3 * k,
-        1 + waterHeight(2),
-      ).toArray(),
-    )
-    if (i) idx.push(0, i, i + 1)
+  for (const b of LAKES) {
+    const material = new T.MeshLambertMaterial({ vertexColors: true, side: T.DoubleSide })
+    const m = installReveal(new T.Mesh(lakeGeometry(b), material))
+    m.userData.lakeId = b.id
+    ;(b.kind === "marsh" ? tributaries : primaryWater).push(m)
+    root.add(m)
   }
-  const g = new T.BufferGeometry()
-  g.setAttribute("position", new T.Float32BufferAttribute(verts, 3))
-  g.setIndex(idx)
-  g.computeVertexNormals()
-  const lake = installReveal(new T.Mesh(g, mat))
-  primaryWater.push(lake)
-  root.add(lake)
   // Drowned glacial valleys share the carved terrain paths and ocean level.
   const fjordMeshes = []
   for (let f = 0; f < FJORDS.length; f++) {
@@ -209,7 +144,8 @@ export function addWater(root) {
     riverMeshes: [...primaryWater, ...tributaries],
     fjordMeshes,
     update(weights, now, reduced) {
-      ocean.material.userData.time.value = reduced ? 0 : now * 0.001
+      clock.value = reduced ? 0 : now * 0.001
+      ocean.material.userData.time.value = clock.value
       ocean.material.userData.current.value = 0.035 + weights.weather * 0.085
       for (const m of primaryWater) revealMesh(m, weights.rivers)
       for (const m of tributaries) revealMesh(m, weights.tributaries)
@@ -258,7 +194,8 @@ export function addEcology(root) {
     treeGroups = [[], [], [], []],
     shrubs = [],
     rocks = [],
-    ice = []
+    ice = [],
+    reeds = []
   // Concave coasts leave more ocean: keep sampling until the vegetation budget
   // is filled, with a bounded initialization cost and unchanged biome filters.
   for (let i = 0; i < 125000; i++) {
@@ -306,6 +243,16 @@ export function addEcology(root) {
     else if (rand() < 0.05 && rocks.length < 750)
       rocks.push({ v, s, scale: 0.003 + rand() * 0.007 })
   }
+  // Irregular, broken reed colonies follow the actual lake shelf, never a
+  // regular ring or a world-space grid. Marshes receive denser vegetation.
+  for (const b of LAKES) for (let i = 0; i < (b.kind === "marsh" ? 200 : 90); i++) {
+    const angle = rand() * Math.PI * 2
+    if (Math.sin(angle * 4 + b.phase) + rand() < 0.15) continue
+    const [lat, lon] = basinPoint(b, angle, 1.02 + rand() * 0.65)
+    const v = new T.Vector3(...direction(lat, lon)), s = sampleLatLon(lat, lon)
+    if (s.h <= b.level || s.river < 1.7 || s.polar > 0.4) continue
+    reeds.push({ v, s, scale: 0.0018 + rand() * 0.0028 })
+  }
   const o = new T.Object3D(),
     up = new T.Vector3(0, 1, 0),
     color = new T.Color()
@@ -349,6 +296,9 @@ export function addEcology(root) {
     shrubs,
     0x64ae86,
   )
+  const reedMesh = instances(
+    new T.ConeGeometry(0.17, 1.6, 3).translate(0, 0.8, 0), reeds, 0x789853,
+  )
   const rockMesh = instances(
     new T.DodecahedronGeometry(1, 0).scale(1, 1.35, 0.7),
     rocks,
@@ -369,6 +319,7 @@ export function addEcology(root) {
         shadowChanged = revealMesh(m, weights.trees) || shadowChanged
       for (const [m, w] of [
         [shrubMesh, weights.shrubs],
+        [reedMesh, weights.shrubs],
         [rockMesh, weights.rocks],
         [iceMesh, weights.ice],
       ])
@@ -377,5 +328,6 @@ export function addEcology(root) {
     },
     treeCount: treeGroups.reduce((n, a) => n + a.length, 0),
     shrubCount: shrubs.length,
+    reedCount: reeds.length,
   }
 }

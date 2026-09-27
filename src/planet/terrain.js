@@ -2,19 +2,20 @@ import * as T from "three"
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 import { sample, noise, smooth, clamp } from "./field.js"
 const palette = {
-  sand: new T.Color("#bfa388"),
-  dune: new T.Color("#c6a17a"),
-  redSand: new T.Color("#a97866"),
-  forest: new T.Color("#39776a"),
-  forestEdge: new T.Color("#57937b"),
-  grass: new T.Color("#7ca888"),
-  rock: new T.Color("#927c75"),
-  strata: new T.Color("#aa9584"),
-  snow: new T.Color("#d8e6de"),
-  ice: new T.Color("#91b9e2"),
+  sand: new T.Color("#d0b18a"),
+  dune: new T.Color("#d5af78"),
+  redSand: new T.Color("#be8162"),
+  forest: new T.Color("#338577"),
+  forestEdge: new T.Color("#60a482"),
+  grass: new T.Color("#8bb795"),
+  rock: new T.Color("#a58a7c"),
+  strata: new T.Color("#bda38a"),
+  snow: new T.Color("#e4eee8"),
+  ice: new T.Color("#a0c8ec"),
   iceCrack: new T.Color("#668ea7"),
-  wet: new T.Color("#277f85"),
-  deep: new T.Color("#192e55"),
+  marsh: new T.Color("#789e64"),
+  wet: new T.Color("#418f85"),
+  deep: new T.Color("#243e67"),
 }
 export function makeTerrain(detail) {
   const raw = new T.IcosahedronGeometry(1, detail)
@@ -143,6 +144,7 @@ function bakeTerrain(g) {
       s.plateau * smooth(0.085, 0.12, s.h) * 0.45,
     )
     color.lerp(rock, rockAmount * (1 - s.forest * 0.68) * (1 - s.desert * 0.35))
+    color.lerp(palette.marsh, s.wetland * 0.58)
     color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
     const snow =
       smooth(0.135, 0.165, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.003) *
