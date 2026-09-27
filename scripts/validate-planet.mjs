@@ -14,6 +14,10 @@ import {
   zoneAt,
   RIVERS,
   waterHeight,
+  LAKES,
+  basinPoint,
+  basinInfo,
+  riverWidth,
   FJORDS,
   riverInfo,
   fjordCenter,
@@ -169,13 +173,15 @@ for (const { river, index } of deltas) {
     assert.ok(offshore.river >= 7, "open ocean classified as a river")
   }
 }
-// Curves bend between authored points and retain every pinned control point.
+// Curves retain source/control points outside the tangent-aligned confluence.
 let windingChannels = 0
 for (const r of RIVERS.filter(r => r.path && !r.delta)) {
   let bends = 0
   for (let i = 0; i < r.path.length - 1; i++) {
     const a = r.path[i], b = r.path[i + 1]
-    assert.ok(Math.abs(r.lon(a[0]) - a[1]) < 1e-8, "curve moved a control point")
+    const blend = r.parentIndex === undefined ? 0 : Math.min(2.4, (r.north - r.south) * 0.28)
+    if (a[0] > r.south + blend)
+      assert.ok(Math.abs(r.lon(a[0]) - a[1]) < 1e-8, "curve moved an upstream control point")
     for (const t of [0.25, 0.5, 0.75])
       bends = Math.max(bends, Math.abs(r.lon(a[0] + (b[0] - a[0]) * t) -
         (a[1] + (b[1] - a[1]) * t)))
@@ -633,7 +639,7 @@ const waterRoot = new T.Group(),
 waterSystem.ocean.material.onBeforeCompile(oceanShader)
 assert.equal(waterSystem.ocean.material.isMeshLambertMaterial, true, "ocean must stay matte")
 assert.ok(oceanShader.fragmentShader.includes("float oceanCurrent="))
-assert.equal(waterSystem.riverMeshes.length, RIVERS.length + 1)
+assert.equal(waterSystem.riverMeshes.length, RIVERS.length + LAKES.length)
 assert.equal(waterSystem.fjordMeshes.length, FJORDS.length)
 for (const channel of [...waterSystem.riverMeshes, ...waterSystem.fjordMeshes])
   assert.ok(channel.geometry.attributes.position.array.every(Number.isFinite),
@@ -681,3 +687,41 @@ for (const mesh of waterSystem.riverMeshes) {
   }
 }
 console.log("Coastal clipping, meanders, and variable-width fjords verified")
+
+// Irregular basins share a single contour and water elevation with the terrain.
+assert.equal(LAKES.filter(b => b.kind === "lake").length, 7)
+assert.equal(LAKES.filter(b => b.kind === "marsh").length, 3)
+assert.ok(eco.reedCount > 250, "wetland reed colonies missing")
+for (const basin of LAKES) {
+  const radii = []
+  for (let i = 0; i < 48; i++) {
+    const angle = i / 48 * Math.PI * 2
+    const edge = basinPoint(basin, angle)
+    assert.ok(Math.abs(basinInfo(...edge).distance - 1) < 1e-8, "lake contour mismatch")
+    radii.push(Math.hypot(edge[0] - basin.lat, (edge[1] - basin.lon) * Math.cos(basin.lat * Math.PI / 180)))
+    const inside = sampleLatLon(...basinPoint(basin, angle, 0.8))
+    assert.ok(inside.h < basin.level, "lake floor protrudes through water")
+    assert.equal(zoneAt(inside), "water", "lake lost body-water picking")
+    assert.ok(sample(...direction(...edge), false).h > 0, "lake extends into ocean")
+  }
+  assert.ok(Math.max(...radii) / Math.min(...radii) > 1.5, "lake too circular")
+}
+for (const r of RIVERS.filter(r => r.parentIndex !== undefined && !r.delta)) {
+  const parent = RIVERS[r.parentIndex], nearJoin = r.south + 0.002
+  assert.ok(Math.abs(r.lon(nearJoin) - parent.lon(nearJoin)) < 0.002, "angular confluence")
+  let bank = 0
+  for (let lat = r.south + 0.1; lat < r.north; lat += 0.1) {
+    const side = Math.sign(r.lon(lat) - parent.lon(lat))
+    if (bank && side) assert.equal(side, bank, "feeder crosses its parent before joining")
+    if (side) bank = side
+  }
+}
+const channel = waterSystem.riverMeshes.find(m => m.userData.riverIndex === 0)
+const flowShader = { uniforms: {}, vertexShader: "#include <common>\n#include <begin_vertex>",
+  fragmentShader: "#include <common>\n#include <opaque_fragment>" }
+channel.material.onBeforeCompile(flowShader)
+waterSystem.update(detailWeights(1.53), 12000, false)
+assert.equal(flowShader.uniforms.channelTime.value, 12)
+waterSystem.update(detailWeights(1.53), 15000, true)
+assert.equal(flowShader.uniforms.channelTime.value, 0, "reduced-motion flow must freeze")
+console.log("PASS: irregular lakes, wetland reeds, smooth same-bank confluences and flowing water shader")
