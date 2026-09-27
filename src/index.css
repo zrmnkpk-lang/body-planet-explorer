@@ -108,10 +108,10 @@ button { font: inherit; }
 .planet-backdrop iframe {
   position: absolute;
   z-index: 1;
-  right: -38%;
-  bottom: -52%;
-  width: 150%;
-  height: 150%;
+  right: -28%;
+  bottom: -38%;
+  width: 175%;
+  height: 175%;
   border: 0;
   background: transparent;
   opacity: 0;
@@ -190,11 +190,6 @@ button { font: inherit; }
 .era-progress { display: flex; align-items: center; gap: var(--space-xs, 4px); }
 .era-progress-dot { display: block; width: var(--space-xs, 4px); height: var(--space-xs, 4px); border-radius: var(--corner-full, 999px); background: color-mix(in srgb, var(--on-brand) 52%, transparent); transition: width .2s ease, background .2s ease; }
 .era-progress-dot-active { width: var(--space-lg, 12px); background: var(--on-brand); }
-.hero-planet-snapshot { position: relative; width: 122px; aspect-ratio: 1; overflow: hidden; border: 0; border-radius: 50%; background: transparent; box-shadow: none; }
-.hero-planet-snapshot iframe { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
-.hero-planet-snapshot .three-planet-shell { position: absolute; inset: -13%; }
-.hero-planet-snapshot .three-planet-canvas { cursor: default; pointer-events: none; }
-
 .portal-mark { position: relative; width: 108px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(from 18deg, var(--success), var(--brand-primary), var(--warning), var(--success)); box-shadow: inset 0 0 0 9px var(--surface-dark), inset 0 0 0 18px var(--success); }
 .portal-mark::before, .portal-mark::after { content: ""; position: absolute; border-radius: inherit; }
 .portal-mark::before { inset: 25px; background: var(--surface-dark); box-shadow: inset 0 0 0 5px var(--brand-primary); }

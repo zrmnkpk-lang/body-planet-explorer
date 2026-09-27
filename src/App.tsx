@@ -219,19 +219,6 @@ function PortalMark({ small = false }: { small?: boolean }) {
   );
 }
 
-function PlanetSnapshot() {
-  return (
-    /* The home card uses the same high-detail renderer as the ecology page. */
-    <div className="hero-planet-snapshot" aria-hidden="true">
-      <iframe
-        title="旋转身体星球缩略预览"
-        src="/planet.html?mode=app&snapshot=1"
-        loading="eager"
-      />
-    </div>
-  );
-}
-
 const backdropStars = [
   { x: "52%", y: "4%", size: "2px" },
   { x: "90%", y: "5%", size: "2px" },
@@ -383,7 +370,6 @@ function FitnessApp() {
           </Button>
         </div>
         <div className="hero-art">
-          <PlanetSnapshot />
           <div className="orbit-chip"><Sparkles size={16} /> 阶段 {planetEra + 1}/5</div>
           <div className="hero-sticker">L{currentEra.level}<br />ERA</div>
         </div>
