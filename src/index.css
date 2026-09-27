@@ -36,8 +36,8 @@ button { font: inherit; }
 
 .latest-planet-view {
   position: relative;
-  min-height: 360px;
-  height: clamp(360px, 58svh, 560px);
+  min-height: 330px;
+  height: clamp(330px, 48svh, 460px);
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--on-brand) 14%, transparent);
   border-radius: var(--corner-lg, 16px);
@@ -732,6 +732,137 @@ button { font: inherit; }
   border: 1px solid var(--module-border);
   animation: pzc-in 0.2s ease-out;
 }
+
+/* Ecology data follows the map so the page reads as a body composition report. */
+.planet-metric-panel {
+  display: grid;
+  gap: var(--space-md, 8px);
+}
+
+.planet-metric-panel .compact-heading {
+  align-items: flex-start;
+}
+
+.planet-metric-panel .section-title {
+  font-size: var(--text-xl, 20px);
+}
+
+.planet-metric-list {
+  display: grid;
+  gap: var(--space-sm, 6px);
+}
+
+.planet-metric-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-md, 8px);
+  padding: var(--space-md, 8px);
+  border: 1px solid var(--module-border);
+  border-radius: var(--corner-md, 8px);
+  background: color-mix(in srgb, var(--surface-secondary-bg) 72%, transparent);
+}
+
+.planet-metric-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-tertiary);
+}
+
+.planet-metric-icon span {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 18%, transparent);
+}
+
+.metric-muscle .planet-metric-icon { background: color-mix(in srgb, var(--warning) 18%, var(--surface-secondary-bg)); }
+.metric-muscle .planet-metric-icon span { background: var(--warning); }
+.metric-water .planet-metric-icon { background: color-mix(in srgb, var(--brand-primary) 18%, var(--surface-secondary-bg)); }
+.metric-water .planet-metric-icon span { background: var(--brand-primary); }
+.metric-bone .planet-metric-icon { background: color-mix(in srgb, var(--on-brand) 16%, var(--surface-secondary-bg)); }
+.metric-bone .planet-metric-icon span { background: var(--on-brand); }
+.metric-fat .planet-metric-icon { background: color-mix(in srgb, var(--success) 18%, var(--surface-secondary-bg)); }
+.metric-fat .planet-metric-icon span { background: var(--success); }
+
+.planet-metric-copy {
+  min-width: 0;
+}
+
+.planet-metric-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm, 6px);
+}
+
+.planet-metric-heading b {
+  color: var(--text-primary);
+  font-family: "Comic Neue", cursive;
+  font-size: var(--text-sm);
+}
+
+.planet-metric-heading small,
+.planet-metric-copy p {
+  color: var(--text-secondary);
+  font-family: "Comic Neue", cursive;
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.planet-metric-heading small {
+  white-space: nowrap;
+}
+
+.planet-metric-track {
+  height: 5px;
+  margin-top: var(--space-xs, 4px);
+  overflow: hidden;
+  border-radius: var(--corner-full, 999px);
+  background: color-mix(in srgb, var(--surface-bg) 82%, transparent);
+}
+
+.planet-metric-track span {
+  display: block;
+  width: var(--metric-ratio);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand-primary);
+  transition: width 300ms ease;
+}
+
+.metric-muscle .planet-metric-track span { background: var(--warning); }
+.metric-water .planet-metric-track span { background: var(--brand-primary); }
+.metric-bone .planet-metric-track span { background: var(--on-brand); }
+.metric-fat .planet-metric-track span { background: var(--success); }
+
+.planet-metric-copy p {
+  margin: var(--space-xs, 4px) 0 0;
+  line-height: 1.25;
+}
+
+.planet-metric-row > strong {
+  color: var(--text-primary);
+  font-family: "ZCOOL KuaiLe", "Bangers", cursive;
+  font-size: var(--text-lg);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.planet-metric-row > strong small {
+  margin-left: 2px;
+  color: var(--text-secondary);
+  font-family: "Comic Neue", cursive;
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.planet-metric-row > strong small:empty { display: none; }
 
 @keyframes pzc-in {
   from { opacity: 0; transform: translateY(6px); }

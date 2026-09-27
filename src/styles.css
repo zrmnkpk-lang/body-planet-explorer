@@ -66,3 +66,6 @@ html.backdrop-mode,html.backdrop-mode body{width:100%;height:100%;min-height:0;o
 html.backdrop-mode #app{width:100%;height:100%;min-height:0;background:transparent!important}
 html.backdrop-mode header,html.backdrop-mode .top-right,html.backdrop-mode .zoom-map,html.backdrop-mode #card,html.backdrop-mode footer,html.backdrop-mode .view-tools,html.backdrop-mode #loading,html.backdrop-mode #error{display:none!important}
 html.backdrop-mode #scene{cursor:default}
+
+/* The APP ecology surface explains body composition below the map, so the standalone renderer's zone legend stays out of the map frame. */
+.app-mode footer{display:none!important}

@@ -297,7 +297,6 @@ function FitnessApp() {
   const [activeTab, setActiveTab] = useState<Screen>("home");
   const [activeWorkout, setActiveWorkout] = useState(1);
   const [trainingPhase, setTrainingPhase] = useState<"select" | "active" | "summary">("select");
-  const [portalMode, setPortalMode] = useState("季风过境");
   const [goalEnabled, setGoalEnabled] = useState(true);
   const [completedTasks, setCompletedTasks] = useState<number[]>([0]);
   const [selectedTask, setSelectedTask] = useState<number | null>(null);
@@ -489,29 +488,35 @@ function FitnessApp() {
 
   const portalView = (
     <div className="view-stack screen-view" style={{ paddingTop: "var(--space-sm, 4px)", gap: "var(--space-sm, 6px)" }}>
-      <SectionIntro eyebrow="PLANET ECOLOGY · L1" title="养星球" action={<span className="metric-badge"><Sparkles size={14} /> {portalMode}</span>} />
+      <SectionIntro eyebrow="PLANET ECOLOGY · L1" title="养星球" action={<span className="metric-badge"><Sparkles size={14} /> 身体成分映射</span>} />
       <PlanetView bodyMetrics={bodyMetrics} />
-      <section className="route-list module-surface" aria-label="生态事件">
-        {[
-          { icon: Dumbbell, title: "造山运动", detail: "力量训练让肌肉大陆隆起", zone: "muscle" },
-          { icon: Orbit, title: "季风过境", detail: "有氧训练让季风大陆激活", zone: "fat" },
-          { icon: Sparkles, title: "晨雾降临", detail: "拉伸恢复让生命水道澄澈", zone: "water" },
-        ].map((event) => {
-          const Icon = event.icon;
-          return (
-            <button
-              type="button"
-              key={event.title}
-              className="route-row"
-              onClick={() => setPortalMode(event.title)}
-              aria-pressed={portalMode === event.title}
-            >
-              <span className="route-icon"><Icon size={24} /></span>
-              <span><b>{event.title}</b><small>{event.detail}</small></span>
-              <ChevronRight size={16} />
-            </button>
-          );
-        })}
+      {/* Keep the map focused on terrain; body composition is explained in the report below it. */}
+      <section className="planet-metric-panel module-surface" aria-labelledby="planet-metric-heading">
+        <div className="section-heading compact-heading">
+          <div>
+            <p id="planet-metric-heading" className="section-title">地形比例</p>
+            <p className="body-copy muted-copy">身体成分会改变星球四个区域的分布。</p>
+          </div>
+          <span className="metric-badge"><Activity size={14} /> 实时映射</span>
+        </div>
+        <div className="planet-metric-list">
+          {[
+            { key: "muscle", title: "造山带", label: "骨骼肌含量", value: bodyMetrics.muscle, unit: "kg", ratio: Math.min(100, (Number.parseFloat(bodyMetrics.muscle) / 60) * 100), note: "肌肉含量越高，山脉起伏越明显。" },
+            { key: "water", title: "深蓝寰海", label: "体内水分", value: bodyMetrics.water, unit: "%", ratio: Math.min(100, Number.parseFloat(bodyMetrics.water)), note: "水分状态决定海域的深度与连通性。" },
+            { key: "bone", title: "极地要塞", label: "骨量", value: bodyMetrics.bone, unit: "kg", ratio: Math.min(100, (Number.parseFloat(bodyMetrics.bone) / 5) * 100), note: "骨量越稳定，极地冰盖越完整。" },
+            { key: "fat", title: "季风大陆", label: "呼吸状况", value: "稳定", unit: "", ratio: Math.max(18, Math.min(100, 100 - Number.parseFloat(bodyMetrics.fat) * 2)), note: `气流负荷稳定 · 体脂 ${bodyMetrics.fat}%` },
+          ].map((metric) => (
+            <div className={`planet-metric-row metric-${metric.key}`} key={metric.key}>
+              <span className="planet-metric-icon" aria-hidden="true"><span /></span>
+              <div className="planet-metric-copy">
+                <div className="planet-metric-heading"><b>{metric.title}</b><small>{metric.label}</small></div>
+                <div className="planet-metric-track" aria-label={`${metric.title}${metric.label}占比 ${Math.round(metric.ratio)}%`}><span style={{ "--metric-ratio": `${metric.ratio}%` } as React.CSSProperties} /></div>
+                <p>{metric.note}</p>
+              </div>
+              <strong>{metric.value}<small>{metric.unit}</small></strong>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
