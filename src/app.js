@@ -31,6 +31,7 @@ try {
   renderer = new T.WebGLRenderer({
     antialias: true,
     alpha: true,
+    premultipliedAlpha: false,
     powerPreference: "high-performance",
   })
 } catch (e) {
@@ -39,6 +40,9 @@ try {
   throw e
 }
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+// Backdrop mode lets the host APP provide the space field behind the planet.
+// Clear with zero alpha so the renderer never paints an opaque iframe-sized panel.
+renderer.setClearColor(0x000000, 0)
 renderer.outputColorSpace = T.SRGBColorSpace
 renderer.toneMapping = T.ACESFilmicToneMapping
 renderer.toneMappingExposure = 1.0
