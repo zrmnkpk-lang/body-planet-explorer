@@ -999,3 +999,62 @@ button { font: inherit; }
 .zone-pill-dot-water { background: var(--brand-primary); }
 .zone-pill-dot-bone { background: var(--on-brand); }
 .zone-pill-dot-fat { background: var(--success); }
+
+/* Frosted light surfaces keep interactive modules legible against the black space field. */
+.module-surface,
+.weekly-orbit,
+.session-panel,
+.queue-module,
+.chart-panel,
+.profile-panel,
+.setting-list,
+.achievement-row,
+.route-list,
+.stat-card,
+.matter-index-card,
+.matter-comp-wrap,
+.cover-poster,
+.xp-panel,
+.quest-card,
+.planet-zone-card,
+.planet-metric-row,
+.pzc-metric,
+.zone-pill,
+.workout-card,
+.route-row {
+  background: rgba(235, 241, 244, 0.14);
+  border-color: rgba(244, 249, 250, 0.26);
+  backdrop-filter: blur(10px);
+}
+
+.workout-card:hover,
+.workout-card:focus-visible,
+.workout-selected,
+.route-row:hover,
+.route-row:focus-visible,
+.zone-pill:hover,
+.zone-pill-on {
+  background: rgba(235, 241, 244, 0.22);
+  border-color: color-mix(in srgb, var(--brand-primary) 72%, white);
+}
+
+.quest-complete {
+  background: rgba(235, 241, 244, 0.18);
+  border-color: color-mix(in srgb, var(--success) 72%, white);
+}
+
+.planet-metric-track,
+.workout-action,
+.pzc-metric,
+.day-orb {
+  background: rgba(242, 247, 248, 0.16);
+}
+
+.planet-metric-row > strong,
+.pzc-metric-value,
+.stat-card strong,
+.workout-title,
+.section-title,
+.screen-title {
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.22);
+}
