@@ -130,17 +130,18 @@ for (let i = 0; i < 220; i++) {
 }
 const sg = new T.BufferGeometry()
 sg.setAttribute("position", new T.Float32BufferAttribute(stars, 3))
-scene.add(
-  new T.Points(
-    sg,
-    new T.PointsMaterial({
-      color: 0xa9c0cf,
-      size: 0.016,
-      transparent: true,
-      opacity: 0.37,
-    }),
-  ),
+const starField = new T.Points(
+  sg,
+  new T.PointsMaterial({
+    color: 0xa9c0cf,
+    size: 0.016,
+    transparent: true,
+    opacity: 0.37,
+  }),
 )
+// The home card provides its own artwork; the preview shows only the planet.
+starField.visible = !snapshotMode
+scene.add(starField)
 const lods = new Map([[15, terrain.geometry]]),
   pending = new Set()
 let quality = "fine",
