@@ -16,6 +16,22 @@
 
 当前仍是纯前端原型，状态主要保存在页面内存中，尚未连接账户、健康设备或服务端账本。
 
+## 选定的视觉与页面规划
+
+<!-- 2026-10-06：整合已选方向与完整星球图册；删除未使用历史组件并精简旧探索资料，运行视觉未替换。 -->
+
+[设计总入口](docs/design/README.md)：都市美漫 + 轻度写实人物，暗黑潮流运动界面，自然地貌星球。包含 [美术规范](docs/design/ART_DIRECTION.md)、[星球规范](docs/design/PLANET_ART.md)、[五页内容与 GLM 交接](docs/design/PAGE_CONTENT.md)、[五张星球概念图](docs/design/planet-concepts/README.md) 和 [五页交互图](docs/visual-interactions/2026-10-06/README.md)。
+
+设计图与目标文案尚未接入 APP；可靠保存、真实计时/奖励、搭档选择与数据驱动地貌仍为待开发需求。当前行为以交互基线为准，概念素材不加入运行时资源包。维护及清理记录见 [变更记录](docs/CHANGELOG.md)。
+
+## 交互文档
+
+<!-- 2026-10-04：建立以当前代码行为为准的标准交互文档；原型及待完善功能单独标注。 -->
+
+- [Figma 标准交互文档 v1.0](https://www.figma.com/design/Xkv9smQZoCNX6F5FukRuPP?node-id=5-2)：九个章节，包含导航流程、五页操作、加载状态、数据规则和开发交接。
+- [本地交互说明](docs/interaction-spec.md)：代码基线 `8afc3e3`，与 Figma 对应；页面截图是现状定位参考，规则及流程为可编辑内容。
+- 以交互文档区分真实操作与展示原型。训练奖励入账、数据持久化、数据驱动地形重建等尚未实现。
+
 ## 技术栈
 
 - React 19 + TypeScript
@@ -40,7 +56,6 @@ npm run build
 | --- | --- |
 | `src/App.tsx` | 真实 APP 的五页导航、训练状态、任务、数据录入和页面交互 |
 | `src/PlanetView.tsx` | 将最新星球预览嵌入生态页，并把体成分数据发送到星球 iframe |
-| `src/ThreeBodyPlanet.tsx` | 历史星球组件，当前首页缩略预览和页面背景统一复用 `planet.html` 最新渲染器 |
 | `src/app.js` | 最新连续球面星球的独立渲染器，供 `planet.html` 与 APP iframe 共用 |
 | `src/planet/` | 高度场、地形、河流、生态、气候和语义缩放模块 |
 | `planet.html` | 独立完整星球预览入口 |
@@ -48,6 +63,7 @@ npm run build
 | `public/assets/landmarks/` | `basalt.glb` 与 `glacier.glb` 地标模型 |
 | `src/index.css` | 真实 APP 的视觉系统和最新星球 iframe 容器样式 |
 | `docs/desktop-terrain.md` | 连续球面地形、数据桥接与验收说明 |
+| `docs/design/` | 已选美术、星球概念、页面内容与后续功能交接的统一入口 |
 | `PRODUCT_FEATURES.md` | 压缩包真实 APP 的功能说明和产品边界 |
 
 ## 验证

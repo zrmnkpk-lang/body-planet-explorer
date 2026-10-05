@@ -30,7 +30,6 @@
 | Three.js 场景 | `src/app.js` | 可旋转、可缩放的体成分星球 | 真实 APP 的生态页 iframe 与独立预览共用；由程序生成高细节地形、山脊、冰川、河流与森林。 |
 | Three.js 场景壳 | `planet.html` | 星球原型独立预览 | Vite 多页构建入口；`src/PlanetView.tsx` 以 `?mode=app` 嵌入真实 APP。 |
 | 地点数据 | `src/landmarks.js` | 冰川、海洋、河流、森林、荒漠标注 | 名称、坐标和细节等级的唯一数据源。 |
-| SVG 参考稿 | `src/imports/pasted_text/planet-svg.svg` | 原始的 600 × 600 矢量星球结构 | 当前只含 `defs` 和样式，没有完整可渲染的地形路径；不可视为运行时资源。 |
 
 ## 版权与追溯
 
@@ -43,7 +42,15 @@
 | 产品与功能 | [`../PRODUCT_FEATURES.md`](../PRODUCT_FEATURES.md) | 真实 APP 的页面、训练流程、生态、数据和个人页范围 | 当前 |
 | 地形实现 | [`desktop-terrain.md`](desktop-terrain.md) | 连续球面地形、数据桥接、Worker 和验收 | 当前 |
 | APP 入口 | [`../README.md`](../README.md) | 工程入口、文件职责和构建命令 | 当前 |
-| Figma 设计 | [Portal Fitness MVP — 历史交互稿](https://www.figma.com/design/OX5ETikVlpMD35jVGJapnX) | 早期视觉探索，仅供参考，不作为产品规则或研发验收依据 | 归档参考 |
+| 当前交互 | [interaction-spec.md](interaction-spec.md) | 现有五页行为与功能缺口 | 运行基线 |
+| 视觉规划 | [design/README.md](design/README.md) | 已选美术、星球、页面和 GLM 交接 | 目标设计，未接入 |
+| 界面/人物概念 | [选定参考](visual-directions/2026-10-05/README.md) | 1 张 B3 界面 + 3 张搭档 | 静态概念，不打包到 APP |
+| 页面交互概念 | [五页交互图](visual-interactions/2026-10-06/README.md) | 5 张 1536×1024 PNG，操作索引 | 静态示意，未接入 |
+| 星球美术概念 | [五张星球图](design/planet-concepts/README.md) | 全貌/地貌/阶段/尺度/映射，实际提示词 | 静态概念，未接入 |
+
+<!-- 2026-10-06：移除无渲染路径的旧 SVG 与过时设计入口；增加精选概念索引并区分运行资源。 -->
+
+保留的原 APP 源图 `src/imports/image.png` 与 `src/imports/jimeng-2026-08-30-4227-________________________________________....png` 仍由 `src/App.tsx` 导入，分别用于 VoidRunner 人物和宇宙背景。本轮没有用新概念替换这两张图，也没有删除真实运行素材。未来正式改版再用稳定名称与压缩素材替换，接入时更新本索引。
 
 用户提供的“健身App网页.zip”是当前真实 APP 的源工程参考；已将其运行时代码和必要资源合并进仓库。压缩包本身保留在本地作为输入文件，不作为运行时资源加载。
 
