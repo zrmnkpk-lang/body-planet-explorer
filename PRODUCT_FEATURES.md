@@ -66,7 +66,7 @@ Portal Fitness 是一个移动端健身与身体生态养成原型。产品以�
 | `src/index.css` | 全局令牌映射、组件视觉、动画与响应式样式。 |
 | `src/imports/` | 角色图、生态阶段背景图和其他界面素材。 |
 | `guidelines/Guidelines.md` | 组件库与设计系统接入说明。 |
-| `docs/design/` | 选定美术、星球、五页内容和 GLM 接入需求；属于目标设计。 |
+| `docs/design/` | 选定美术、星球、五页内容和 后续接入需求；属于目标设计。 |
 
 ## 技术栈
 
@@ -89,4 +89,4 @@ Portal Fitness 是一个移动端健身与身体生态养成原型。产品以�
 
 当前视觉改版采用都市美漫 + 轻度写实人物、B3 暗黑科技运动界面与身体分析半身透视。完整的 [美术、星球与页面规划](docs/design/README.md)、[星球概念图](docs/design/planet-concepts/README.md) 和 [五张交互图](docs/visual-interactions/2026-10-06/README.md) 尚未应用到 APP。功能现状仍以本文和标准交互基线为准。
 
-建议先完成一个搭档贯穿的 Home → Train → Planet 切片，再完善真实训练/结算、数据草稿/保存、触屏拾取和统一数据显示；GLM 完成条件见 [页面交接清单](docs/design/PAGE_CONTENT.md)。搭档选择为新增待评审设计，阶段解锁和数据演化需先定义业务规则。账户、健康设备和多设备同步不纳入本轮范围。
+建议先完成一个搭档贯穿的 Home → Train → Planet 切片，再完善真实训练/结算、数据草稿/保存、触屏拾取和统一数据显示；功能完成条件见 [页面交接清单](docs/design/PAGE_CONTENT.md)。搭档选择为新增待评审设计，阶段解锁和数据演化需先定义业务规则。账户、健康设备和多设备同步不纳入本轮范围。

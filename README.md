@@ -20,9 +20,15 @@
 
 <!-- 2026-10-06：整合已选方向与完整星球图册；删除未使用历史组件并精简旧探索资料，运行视觉未替换。 -->
 
-[设计总入口](docs/design/README.md)：都市美漫 + 轻度写实人物，暗黑潮流运动界面，自然地貌星球。包含 [美术规范](docs/design/ART_DIRECTION.md)、[星球规范](docs/design/PLANET_ART.md)、[五页内容与 GLM 交接](docs/design/PAGE_CONTENT.md)、[五张星球概念图](docs/design/planet-concepts/README.md) 和 [五页交互图](docs/visual-interactions/2026-10-06/README.md)。
+[设计总入口](docs/design/README.md)：都市美漫 + 轻度写实人物，暗黑潮流运动界面，自然地貌星球。包含 [美术规范](docs/design/ART_DIRECTION.md)、[星球规范](docs/design/PLANET_ART.md)、[五页内容与实施清单](docs/design/PAGE_CONTENT.md)、[五张星球概念图](docs/design/planet-concepts/README.md) 和 [五页交互图](docs/visual-interactions/2026-10-06/README.md)。
 
 设计图与目标文案尚未接入 APP；可靠保存、真实计时/奖励、搭档选择与数据驱动地貌仍为待开发需求。当前行为以交互基线为准，概念素材不加入运行时资源包。维护及清理记录见 [变更记录](docs/CHANGELOG.md)。
+
+## 项目实施方式
+
+<!-- 2026-10-07：按用户最新要求更新统一实施方式。 -->
+
+当前项目由 Codex（ChatGPT）统一负责规划、交互/UI、美术资产、功能开发、验证和文档维护；按需求直接完成工作，不再采用分模型开发或转交其他助手的流程。待实现需求与已完成能力仍需明确区分。
 
 ## 交互文档
 

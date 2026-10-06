@@ -1,6 +1,6 @@
 # 训练页 v2：自由训练与计划训练
 
-<!-- 2026-10-07：ChatGPT 按用户新需求重规划训练页；功能代码交接 GLM，本轮不修改运行实现。 -->
+<!-- 2026-10-07：ChatGPT 按用户新需求重规划训练页；功能代码列为后续实施需求，本轮不修改运行实现。 -->
 
 承接 [最新首页](README.md) 的训练模块，沿用暗黑、黄绿色主操作、都市美漫与轻度写实运动搭档。训练内容优先，搭档只提供少量陪伴提示。新流程替代上一版以三种模式卡片为主的 Train 入口；旧模式可作为后续计划模板，不再构成训练页必须选择的一步。
 
@@ -41,9 +41,9 @@ Start planned workout 建立 `source=plan`、绑定 `planId` 和 `planVersion` �
 
 Finish workout → 确认结束 → 结算。提前结束记录为 partial，空会话丢弃；完整完成才按确认后的业务规则标记计划完成。自由训练与计划训练复用执行和结算组件，但保留各自来源。完成判定、XP、周统计是否纳入部分训练均待确定；不能照示意图硬编码奖励。
 
-## 5. GLM 开发交接 G-TRAIN-v2
+## 5. 开发实施清单 G-TRAIN-v2
 
-ChatGPT 交付图与本说明；GLM 实施动作库、会话、计时、计划快照、保存与首页联动。本轮尚未修改运行代码，也未向其他聊天发送消息。
+Codex 统一负责交互图、说明文档及动作库、会话、计时、计划快照、保存与首页联动的实现。本轮仅完成设计说明，尚未修改相关运行代码。
 
 建议数据：`dailyWorkoutPlan(date, planId, version, phases, exerciseIds, targets)`、`exerciseCatalog(id, name, type, illustration, instructions)`、`workoutSession(sessionId, source, planSnapshot, status, accumulatedTime, startedAt)`、`exerciseLogs(sessionId, exerciseId, sets, completed/skipped)`。同日饮水/步数任务不混入动作列表。
 

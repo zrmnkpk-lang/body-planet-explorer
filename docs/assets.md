@@ -43,7 +43,7 @@
 | 地形实现 | [`desktop-terrain.md`](desktop-terrain.md) | 连续球面地形、数据桥接、Worker 和验收 | 当前 |
 | APP 入口 | [`../README.md`](../README.md) | 工程入口、文件职责和构建命令 | 当前 |
 | 当前交互 | [interaction-spec.md](interaction-spec.md) | 现有五页行为与功能缺口 | 运行基线 |
-| 视觉规划 | [design/README.md](design/README.md) | 已选美术、星球、页面和 GLM 交接 | 目标设计，未接入 |
+| 视觉规划 | [design/README.md](design/README.md) | 已选美术、星球、页面和 实施清单 | 目标设计，未接入 |
 | 界面/人物概念 | [选定参考](visual-directions/2026-10-05/README.md) | 1 张 B3 界面 + 3 张搭档 | 静态概念，不打包到 APP |
 | 页面交互概念 | [五页交互图](visual-interactions/2026-10-06/README.md) | 5 张 1536×1024 PNG，操作索引 | 静态示意，未接入 |
 | 星球美术概念 | [五张星球图](design/planet-concepts/README.md) | 全貌/地貌/阶段/尺度/映射，实际提示词 | 静态概念，未接入 |

@@ -170,7 +170,7 @@ export function addWater(root) {
 }
 function treeGeometry(type) {
   // Two leafy silhouettes complement two conifers; placement remains the
-  // existing moisture/slope mask. Biome-specific species routing belongs to GLM.
+  // existing moisture/slope mask. Biome-specific species routing remains a pending implementation requirement.
   if (type >= 2) {
     const parts = [new T.CylinderGeometry(0.035,0.07,0.65,5).translate(0,0.325,0).toNonIndexed()]
     for (let i=0;i<4;i++) {

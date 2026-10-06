@@ -1,5 +1,5 @@
 // Art/interaction atlas: descriptions point to the existing geographic anchors.
-// New simulation features belong in GLM's backlog, not in the demo copy.
+// New simulation features are tracked as implementation requirements; demo copy describes current behavior.
 export const TERRAIN_ATLAS = [
   { id: "range", title: "山脉与层岩", landmark: "basalt-ridge", distance: 2.12, body: "肌肉 · 造山带", layer: "生态 → 地表", appearance: "连续主脊、宽缓山麓与裸露岩层；高处出现破碎雪线。近看层岩山脊，可辨认错落的柱状岩壁、相连岩台与坡脚碎石。", weather: "高空风带经过山系，云层随缩放减弱，保留山脊轮廓。", boundary: "地形由共享高度场生成；没有实时板块运动或侵蚀模拟。", detail: true },
   { id: "river", title: "河流与湖泊", landmark: "living-river", distance: 2.12, body: "水分 · 水系", layer: "气候 → 地表", appearance: "主河道连接弯曲支流，向下游渐宽；河床与水面共用路径。河湖中心呈清透蓝色，岸缘过渡到浅玉色；湖岸有凹口与浅滩。", weather: "河面有朝下游的细微流纹，雨区的降雨是独立视觉效果。", boundary: "河流按规划流域生成，雨水不会实时改变湖泊水位。", detail: true },

@@ -54,7 +54,7 @@
 
 鼠尾草绿只用于动作、进度和选中，不铺满背景。青蓝用于数据与水体；自然土黄、森林绿和冰白主要留给地貌。主按钮为实色，卡片为稳定暗面，薄玻璃感只在地图控件少量使用。
 
-正文采用系统无衬线栈 `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`；数字使用等宽数字特性 `font-variant-numeric: tabular-nums`。标题通过字重和尺寸体现运动感，不使用全页漫画装饰字体。现有 Bangers / Comic Neue / ZCOOL KuaiLe 仍属于运行版本，替换需由 GLM 接入并核验布局。
+正文采用系统无衬线栈 `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`；数字使用等宽数字特性 `font-variant-numeric: tabular-nums`。标题通过字重和尺寸体现运动感，不使用全页漫画装饰字体。现有 Bangers / Comic Neue / ZCOOL KuaiLe 仍属于运行版本，替换需接入并核验布局。
 
 | 元素 | 移动端目标规格 |
 | --- | --- |
