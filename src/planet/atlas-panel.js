@@ -31,6 +31,8 @@ export function mountAtlas({ navigate, closeMetric, facts }) {
     const location = entry.location || [landmark.latitude, landmark.longitude]
     navigate(location, near ? 1.53 : entry.distance)
     text("#atlas-feedback", "正在观察：" + entry.title + (near ? " · 地表细节" : ""))
+    // On narrow screens, let the chosen terrain occupy the map after navigation.
+    if (matchMedia("(max-width: 899px)").matches) panel.open = false
   }
   for (const button of tabs) button.onclick = () => setGroup(button.dataset.atlasTab)
   select.onchange = render

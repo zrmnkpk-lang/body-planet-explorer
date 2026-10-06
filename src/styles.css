@@ -84,10 +84,13 @@ html:not(.app-mode) #app{background:radial-gradient(ellipse at 48% 43%,#223336 0
 .atlas-content #atlas-feedback{font-size:11px;color:#c2d995;min-height:0}.atlas-content #atlas-feedback:empty{display:none}.atlas-limit{margin-top:18px;border-top:1px solid #39464f;padding-top:12px}.atlas-limit summary{font-size:12px;cursor:pointer;color:#b8c2c5}.atlas-limit p{font-size:12px;color:#b8c2c5}.atlas-content .atlas-facts{font-size:10px;line-height:1.9;color:#a9b9be;border-top:1px solid #39464f;margin:16px 0 0;padding-top:12px}
 @media(min-width:1100px){html:not(.app-mode) #app:has(#atlas-panel[open]) #scene{inset:88px 326px 166px 170px}html:not(.app-mode) #app:has(#atlas-panel[open]) .view-tools{right:342px}html:not(.app-mode) #app:has(#atlas-panel[open]) footer{left:calc(50% - 80px);width:min(660px,calc(100% - 390px))}}
 @media(max-width:1099px){.atlas-panel{top:112px;right:20px;width:278px}.atlas-panel:not([open]){width:226px}.atlas-panel>summary{padding:12px 15px}.atlas-content{max-height:calc(100svh - 310px)}}
-@media(max-width:760px){.atlas-panel{top:206px;right:14px;width:min(294px,calc(100% - 28px))}.atlas-panel:not([open]){width:210px}.atlas-content{max-height:calc(100svh - 335px)}.atlas-panel>summary{font-size:13px}.atlas-panel>summary span{font-size:10px}}
+/* 2026-10-07: reserve the bottom legend while the mobile field guide scrolls. */
+@media(max-width:760px){.atlas-panel{top:206px;right:14px;width:min(294px,calc(100% - 28px))}.atlas-panel:not([open]){width:210px}.atlas-content{max-height:calc(100svh - 430px)}.atlas-panel>summary{font-size:13px}.atlas-panel>summary span{font-size:10px}}
 .app-mode .atlas-panel,.snapshot-mode .atlas-panel,.backdrop-mode .atlas-panel{display:none!important}
 
 /* Keep guide and map controls readable against bright ice and close terrain. */
+html:not(.app-mode) .top-right{background:#101419e8;padding:5px 7px;border-radius:9px}
+html:not(.app-mode) #zoom-summary,html:not(.app-mode) #level{background:#142128e8;padding:4px 6px;border-radius:6px;color:#d1dddc}
 html:not(.app-mode) header{background:#101419e8;padding:10px 14px;border-radius:10px;left:20px;top:18px}
 html:not(.app-mode) .zoom-map{background:#142128e8;border:1px solid #39464f;border-radius:12px;padding:12px;width:170px;left:20px}
 html:not(.app-mode) .zoom-steps button{gap:10px}html:not(.app-mode) .hint{background:#142128e8;border:1px solid #39464f;border-radius:8px;width:fit-content;margin:0 auto 12px;padding:8px 12px;color:#d1dddc}
