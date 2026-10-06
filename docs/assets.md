@@ -58,7 +58,7 @@
 
 | 路径 | 大小 | 用途 | 来源与维护 |
 | --- | ---: | --- | --- |
-| `public/assets/landmarks/basalt.glb` | 83,008 bytes | v2 错层玄武岩山脊，756 面、1 网格 | 2026-10-06 按参考图重建；原创生成源 `scripts/generate-landmarks.mjs` |
-| `public/assets/landmarks/glacier.glb` | 48,880 bytes | v2 裂隙冰台，440 面、1 网格 | 2026-10-06 按参考图重建；原创生成源同上 |
+| `public/assets/landmarks/basalt.glb` | 98,548 bytes | v3 玄武岩与坡脚岩台，900 面、1 网格 | 2026-10-07 按参考图精修；原创生成源 `scripts/generate-landmarks.mjs` |
+| `public/assets/landmarks/glacier.glb` | 54,912 bytes | v3 连续冰座与裂隙冰台，496 面、1 网格 | 2026-10-07 按参考图精修；原创生成源同上 |
 
 GLB 含网格、法线、顶点色和材质，无外部纹理依赖。名称、经纬度、比例在 `src/landmarks.js` 修改。运行 `node scripts/generate-landmarks.mjs` 可复现资产；未进行高低模烘焙。全局地形、树木和水体由 `src/planet/` 实时构建，不依赖外链图片或 CDN 模型。

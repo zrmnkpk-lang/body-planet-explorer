@@ -383,8 +383,8 @@ assert.equal(orbit.trees, 0)
 assert.equal(orbit.shrubs, 0)
 assert.equal(orbit.landmarks, 0)
 assert.equal(orbit.progress, 0)
-assert.ok(orbit.relief >= 0.5 && orbit.relief < 0.75,
-  "orbital mountain silhouettes must remain readable without full close-up relief")
+assert.equal(orbit.relief, 1, "distant river surfaces must share full terrain height")
+assert.ok(orbit.rivers > 0 && orbit.rivers < 0.5, "main waterways should remain subtle from orbit")
 assert.equal(orbit.grain, 0)
 assert.ok(detailWeights(VIEW_LEVELS[2].distance).grain > 0)
 assert.equal(surface.grain, 1)
@@ -654,11 +654,13 @@ const waterRoot = new T.Group(),
   waterSystem = addWater(waterRoot),
   oceanShader = {
     uniforms: {},
-    vertexShader: T.ShaderLib.lambert.vertexShader,
-    fragmentShader: T.ShaderLib.lambert.fragmentShader,
+    vertexShader: T.ShaderLib.standard.vertexShader,
+    fragmentShader: T.ShaderLib.standard.fragmentShader,
   }
 waterSystem.ocean.material.onBeforeCompile(oceanShader)
-assert.equal(waterSystem.ocean.material.isMeshLambertMaterial, true, "ocean must stay matte")
+assert.equal(waterSystem.ocean.material.isMeshStandardMaterial, true, "ocean needs daylight highlights")
+assert.ok(waterSystem.ocean.material.roughness >= 0.35, "avoid a mirror-like ocean")
+assert.equal(waterSystem.ocean.material.metalness, 0, "water must remain nonmetallic")
 assert.ok(oceanShader.fragmentShader.includes("float oceanCurrent="))
 assert.equal(waterSystem.riverMeshes.length, RIVERS.length + LAKES.length)
 assert.equal(waterSystem.fjordMeshes.length, FJORDS.length)

@@ -216,14 +216,14 @@ export const LANDMARKS = [
   },
   {
     id: "conifer-canopy",
-    name: "针叶林冠",
+    name: "混合林冠",
     type: "forest",
     latitude: -18,
     longitude: 27,
     minDetailLevel: 4,
     maxDetailLevel: 4,
     priority: 90,
-    description: "沿湿度与海拔分布的针叶林群落",
+    description: "沿湿度与海拔分布的针叶与阔叶混合林群落",
   },
 
   // 地貌专名在地图放大后逐级展开；经纬度贴合共享高度场中的地貌。
@@ -537,7 +537,7 @@ export const TERRAIN_TYPES = {
   },
   forest: {
     displayName: "森林",
-    definition: "灰绿色针叶植被和生态群落集中分布的区域",
+    definition: "自然绿色的针叶、阔叶植被和生态群落集中分布的区域",
     color: "#288678",
   },
   desert: {

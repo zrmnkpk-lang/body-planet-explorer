@@ -53,15 +53,13 @@ export function detailWeights(distance) {
   const progress = zoomProgress(distance)
   return {
     progress,
-    // Ground objects start appearing at 63%; the surface must already be at
-    // its final radius so their instances stay attached during zoom.
-    // Keep the mountain silhouette readable from orbit; reach the shared
-    // surface radius before vegetation appears, avoiding floating instances.
-    relief: 0.58 + reveal(progress, 0.14, 0.61) * 0.42,
+    // Full shared height at every scale keeps distant rivers on their valleys
+    // and preserves the reference's mountain silhouette. LOD changes density only.
+    relief: 1,
     clouds: 1 - reveal(progress, 0.27, 0.68) * 0.78,
     weather:
-      reveal(progress, 0.32, 0.5) * (1 - reveal(progress, 0.82, 1) * 0.4),
-    rivers: reveal(progress, 0.34, 0.5),
+      reveal(progress, 0.32, 0.5) * (1 - reveal(progress, 0.82, 1) * 0.78),
+    rivers: 0.42 + reveal(progress, 0.34, 0.5) * 0.58,
     mountains: reveal(progress, 0.46, 0.68),
     trees: reveal(progress, 0.63, 0.82),
     shrubs: reveal(progress, 0.82, 0.96),

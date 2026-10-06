@@ -1,4 +1,4 @@
-// Original procedural landmark meshes, art pass 2026-10-06.
+// Original procedural landmark meshes, art pass 2026-10-07.
 // Broad layered basalt and fractured ice shelves replace stretched round rocks.
 // Each asset is one merged mesh with vertex colors and no external textures.
 import * as T from "three"
@@ -75,22 +75,39 @@ for (const kind of ["basalt", "glacier"]) {
   for (let i = 0; i < count; i++) {
     const row = Math.floor(i / (ice ? 4 : 5)), column = i % (ice ? 4 : 5)
     const height = ice
-      ? 0.48 + row * 0.22 + (Math.sin(i * 2.3) + 1) * 0.18
+      ? 0.32 + row * 0.18 + (Math.sin(i * 2.3) + 1) * 0.11
       : 0.78 + (1 - Math.abs(column - 2) / 3) * 1.04 + Math.sin(i * 2.7) * 0.14
     const geometry = layeredRock({
-      sides: ice ? 5 : 6, height,
-      width: ice ? 0.49 : 0.34, depth: ice ? 0.64 : 0.47,
+      sides: ice ? 4 : 6, height,
+      width: ice ? 0.68 : 0.34, depth: ice ? 0.9 : 0.47,
       layers: ice ? [[0, 1.08], [0.18, 1.03], [0.75, 0.95], [1, 0.87]]
         : [[0, 0.9], [0.12, 1.03], [0.4, 1], [0.43, 0.89], [0.7, 0.96], [0.74, 0.84], [1, 0.73]],
-      color: ice ? [0xcbdcdd, 0xb2cbd1, 0xe0e8df][i % 3]
-        : [0x777970, 0x8b8878, 0x696e69][i % 3],
+      color: ice ? [0xe0eee8, 0xbddce1, 0xf0f4ec][i % 3]
+        : [0x858578, 0xa49c82, 0x747b75][i % 3],
       seed: 724 + i * 31,
     })
-    geometry.rotateY(Math.sin(i * 1.4) * (ice ? 0.12 : 0.24))
+    geometry.rotateY((ice ? Math.PI / 4 : 0) + Math.sin(i * 1.4) * (ice ? 0.08 : 0.24))
     // Narrow gaps remain between broad ice slabs, reading as deep crevasses.
-    geometry.translate((column - (ice ? 1.5 : 2)) * (ice ? 0.92 : 0.54),
-      -0.05, (row - 0.7) * (ice ? 1.06 : 0.72) + Math.sin(i * 2) * 0.12)
+    geometry.translate((column - (ice ? 1.5 : 2)) * (ice ? 0.92 : 0.54) + row * 0.13,
+      -0.08, (row - 0.7) * (ice ? 1.06 : 0.72) + Math.sin(i * 2) * 0.12)
     geometries.push(geometry)
+  }
+  // A low continuous foot joins the pieces to their slope; angular talus breaks
+  // the regular outline without extra runtime meshes or external textures.
+  const foot = layeredRock({sides: 8, height: ice ? 0.25 : 0.4,
+    width: ice ? 1.95 : 1.7, depth: ice ? 1.9 : 1.15,
+    layers: [[0,1.12],[0.45,1],[1,0.72]],
+    color: ice ? 0x96c5d1 : 0x999480, seed: 932})
+  foot.translate(0,-0.25,ice ? 0.35 : -0.1)
+  geometries.push(foot)
+  for(let i=0;i<6;i++) {
+    const fragment = layeredRock({sides:4,height:0.17+(i%3)*0.08,
+      width:0.24,depth:0.35,layers:[[0,1],[1,0.45]],
+      color:ice ? 0xd7e9e8 : 0xaaa28a,seed:1481+i})
+    fragment.rotateY(i*1.73)
+    fragment.translate(Math.cos(i*2.4)*(ice ? 1.8 : 1.5),-0.08,
+      Math.sin(i*2.4)*(ice ? 1.8 : 0.95))
+    geometries.push(fragment)
   }
   const geometry = mergeGeometries(geometries)
   geometries.forEach(g => g.dispose())
@@ -99,8 +116,8 @@ for (const kind of ["basalt", "glacier"]) {
     vertexColors: true, roughness: ice ? 0.78 : 0.96, metalness: 0,
   })
   const model = new T.Mesh(geometry, material)
-  model.name = ice ? "Fractured glacier shelf v2" : "Layered basalt ridge v2"
-  model.userData = { version: 2, source: "scripts/generate-landmarks.mjs", concept: "04-planet-exploration-scale-v1" }
+  model.name = ice ? "Connected glacier shelf v3" : "Basalt ridge and talus v3"
+  model.userData = { version: 3, source: "scripts/generate-landmarks.mjs", concept: "04-planet-exploration-scale-v1" }
   const data = await new GLTFExporter().parseAsync(model, { binary: true })
   await writeFile(new URL("../public/assets/landmarks/" + kind + ".glb", import.meta.url), Buffer.from(data))
   console.log(JSON.stringify({kind, bytes: data.byteLength, triangles: geometry.attributes.position.count / 3,

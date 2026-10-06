@@ -47,7 +47,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
 renderer.setClearColor(0x000000, 0)
 renderer.outputColorSpace = T.SRGBColorSpace
 renderer.toneMapping = T.ACESFilmicToneMapping
-renderer.toneMappingExposure = 1.07
+renderer.toneMappingExposure = 1.12
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = T.PCFSoftShadowMap
 renderer.shadowMap.autoUpdate = false
@@ -55,7 +55,7 @@ renderer.shadowMap.needsUpdate = true
 host.appendChild(renderer.domElement)
 const scene = new T.Scene(),
   camera = new T.PerspectiveCamera(36, 1, 0.02, 50)
-camera.position.set(0, 0.16, 3.7)
+camera.position.set(0, 0.16, 4.2)
 const controls = new OrbitControls(camera, renderer.domElement)
 Object.assign(controls, {
   enablePan: false,
@@ -71,7 +71,8 @@ Object.assign(controls, {
 controls.enableRotate = false
 controls.mouseButtons.LEFT = null
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
-scene.add(new T.HemisphereLight(0xc9e5ff, 0x41506b, 1.27))
+// Clear daylight: warm sun, neutral sky fill and readable blue ocean shadows.
+scene.add(new T.HemisphereLight(0xd7eeff, 0x657d80, 1.42))
 const key = new T.DirectionalLight(0xffebd7, 1.8)
 key.position.set(-3, 4, 5)
 key.castShadow = true
@@ -87,7 +88,7 @@ Object.assign(key.shadow.camera, {
 key.shadow.bias = -0.00025
 key.shadow.normalBias = 0.003
 scene.add(key)
-const fill = new T.DirectionalLight(0x879ad2, 0.7)
+const fill = new T.DirectionalLight(0xb3d2e2, 0.9)
 fill.position.set(4, 0, -3)
 scene.add(fill)
 const root = new T.Group()
@@ -202,7 +203,7 @@ try {
         coastline = new T.Mesh(
           shoreGeometry,
           new T.MeshBasicMaterial({
-            color: 0x254a60,
+            color: 0x86d0c0,
             side: T.DoubleSide,
             transparent: true,
             opacity: 0.82,
@@ -690,7 +691,7 @@ function frame(now) {
     // the zoomed land/ocean boundary soft exactly when it was most visible.
     const farInk = 1 - T.MathUtils.smoothstep(weights.progress, 0.48, 0.75)
     const nearInk = T.MathUtils.smoothstep(weights.progress, 0.58, 0.87)
-    coastline.material.opacity = 0.82 * farInk + 0.78 * nearInk
+    coastline.material.opacity = 0.3 * farInk + 0.24 * nearInk
     coastline.visible = coastline.material.opacity > 0.01
   }
   terrainMaterial.userData.detail.value = weights.grain

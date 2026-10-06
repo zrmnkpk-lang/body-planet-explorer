@@ -1,4 +1,5 @@
 import * as T from "three"
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js"
 import {
   direction,
   sample,
@@ -18,9 +19,13 @@ import { installReveal, revealMesh } from "./view-levels.js"
 export const point = (lat, lon, r = 1) =>
   new T.Vector3(...direction(lat, lon)).multiplyScalar(r)
 function oceanMaterial() {
-  const material = new T.MeshLambertMaterial({
+  const material = new T.MeshStandardMaterial({
     color: 0xffffff,
     vertexColors: true,
+    roughness: 0.48,
+    metalness: 0,
+    emissive: 0x12394c,
+    emissiveIntensity: 0.12,
   })
   material.userData.time = { value: 0 }
   material.userData.current = { value: 0 }
@@ -46,6 +51,8 @@ function oceanMaterial() {
         `float oceanCurrent=sin(vOceanPosition.y*32.+oceanTime*.32+sin(vOceanPosition.x*23.)*1.3);
 float crossingCurrent=sin(vOceanPosition.z*25.-oceanTime*.24+vOceanPosition.y*9.);
 float currentLight=max(0.,oceanCurrent*crossingCurrent)*currentAmount;
+// Keep broad water highlights subordinate to the shelf/depth colors.
+outgoingLight-=reflectedLight.directSpecular*.7;
 outgoingLight+=vec3(.04,.12,.15)*currentLight;
 #include <opaque_fragment>`,
       )
@@ -56,12 +63,13 @@ export function addWater(root) {
   const oceanGeometry = new T.SphereGeometry(1, 160, 96),
     oceanColors = [],
     oceanPoint = new T.Vector3()
-  const deep = new T.Color("#203f56"),
-    shelf = new T.Color("#68a8aa")
+  const deep = new T.Color("#155b82"),
+    mid = new T.Color("#238da2"), shelf = new T.Color("#7dd7c9")
   for (let i = 0; i < oceanGeometry.attributes.position.count; i++) {
     oceanPoint.fromBufferAttribute(oceanGeometry.attributes.position, i)
     const s = sample(oceanPoint.x, oceanPoint.y, oceanPoint.z)
-    const c = deep.clone().lerp(shelf, smooth(-0.017, 0.005, s.h) * 0.85)
+    const c = deep.clone().lerp(mid, smooth(-0.027, -0.009, s.h) * 0.85)
+      .lerp(shelf, smooth(-0.01, 0.003, s.h) * 0.9)
     oceanColors.push(c.r, c.g, c.b)
   }
   oceanGeometry.setAttribute(
@@ -82,7 +90,8 @@ export function addWater(root) {
     root.add(m)
   }
   for (const b of LAKES) {
-    const material = new T.MeshLambertMaterial({ vertexColors: true, side: T.DoubleSide })
+    const material = new T.MeshStandardMaterial({ vertexColors: true, side: T.DoubleSide,
+      roughness: 0.4, metalness: 0 })
     const m = installReveal(new T.Mesh(lakeGeometry(b), material))
     m.userData.lakeId = b.id
     ;(b.kind === "marsh" ? tributaries : primaryWater).push(m)
@@ -113,7 +122,7 @@ export function addWater(root) {
     geometry.setIndex(indices)
     geometry.computeVertexNormals()
     const fjordMaterial = mat.clone()
-    fjordMaterial.color.set(0x508da2)
+    fjordMaterial.color.set(0x3c9eaf)
     const fjord = installReveal(new T.Mesh(geometry, fjordMaterial))
     root.add(fjord)
     fjordMeshes.push(fjord)
@@ -160,6 +169,20 @@ export function addWater(root) {
   }
 }
 function treeGeometry(type) {
+  // Two leafy silhouettes complement two conifers; placement remains the
+  // existing moisture/slope mask. Biome-specific species routing belongs to GLM.
+  if (type >= 2) {
+    const parts = [new T.CylinderGeometry(0.035,0.07,0.65,5).translate(0,0.325,0).toNonIndexed()]
+    for (let i=0;i<4;i++) {
+      const crown = new T.IcosahedronGeometry(1,1)
+      crown.scale(type === 2 ? 0.3 : 0.23,0.27,0.26)
+      crown.translate(Math.sin(i*2.4)*0.13,0.62+i*0.075,Math.cos(i*2.4)*0.12)
+      parts.push(crown)
+    }
+    const merged=mergeGeometries(parts)
+    parts.forEach(part=>part.dispose())
+    return merged
+  }
   const p = [],
     idx = []
   const sides = 5 + (type % 3),
@@ -286,7 +309,7 @@ export function addEcology(root) {
     instances(
       treeGeometry(i),
       arr,
-      [0x3b6247, 0x2d5147, 0x768454, 0x49684d][i],
+      [0x426f41, 0x305947, 0x82924c, 0x587f43][i],
       1,
       true,
     ),
@@ -305,9 +328,9 @@ export function addEcology(root) {
     0x938575,
   )
   const iceMesh = instances(
-    new T.CylinderGeometry(0.75, 1, 1, 5).translate(0, 0.3, 0),
+    new T.DodecahedronGeometry(1, 0).scale(1.25, 0.32, 0.7).translate(0, 0.03, 0),
     ice,
-    0x9bc9e7,
+    0xc8e5e8,
     0.65,
   )
   return {

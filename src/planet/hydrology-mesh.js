@@ -1,8 +1,9 @@
 import * as T from "three"
 import { RIVERS, direction, sample, riverWidth, waterHeight, basinPoint, smooth } from "./field.js"
 
-const deep = new T.Color("#429faa"), shallow = new T.Color("#8dd5be")
-const estuary = new T.Color("#5c9dac"), marsh = new T.Color("#709f85")
+// Daylight palette: blue river cores, jade shallows and warmer reed pools.
+const deep = new T.Color("#268eaa"), shallow = new T.Color("#88d6c3")
+const estuary = new T.Color("#50b8bc"), marsh = new T.Color("#739e78")
 const lerp = T.MathUtils.lerp
 const naturalHeight = v => sample(...direction(v.lat, v.lon), false).h
 function interpolate(a, b, t) {
@@ -88,7 +89,8 @@ export function lakeGeometry(basin) {
   return geometry(vertices, indices)
 }
 export function channelMaterial(clock) {
-  const m = new T.MeshLambertMaterial({ vertexColors: true, side: T.DoubleSide })
+  const m = new T.MeshStandardMaterial({ vertexColors: true, side: T.DoubleSide,
+    roughness: 0.4, metalness: 0 })
   m.onBeforeCompile = shader => {
     shader.uniforms.channelTime = clock
     shader.vertexShader = shader.vertexShader.replace("#include <common>",

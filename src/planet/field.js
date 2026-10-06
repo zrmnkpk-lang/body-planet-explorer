@@ -397,11 +397,15 @@ export function sample(x, y, z, hydrology = true) {
   const spine = Math.pow(smooth(0.42, 0.94, ridge), 1.7)
   const alpine = inland * Math.max(belt, backBelt * 0.82) *
     (0.012 + spine * 0.047) * (1 - polar)
+  // Art pass 2026-10-07: branching ridgelines above the existing valley floor.
+  // Positive-only relief preserves the authored river outlets and lake beds.
+  const rib = Math.pow(1 - Math.abs(noise(x * 32 + warp, y * 32, z * 32 - warp)), 4)
+  const peaks = alpine * (0.14 + rib * 0.72) * smooth(0.35, 0.85, ridge)
   let h =
     -0.018 +
     land * (0.032 + Math.max(0, continental) * 0.038) +
     mountains * (0.016 + smooth(0.34, 0.87, ridge) * 0.039) +
-    inland * plateau * 0.014 + alpine +
+    inland * plateau * 0.014 + alpine + peaks +
     land * (0.0013 * fbm(x * 37, y * 37, z * 37, 2) +
       0.0011 * fbm(x * 75, y * 75, z * 75, 2))
   if (polar > 0) {

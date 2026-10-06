@@ -160,10 +160,14 @@ void main(){
   vec3 normalDirection=normalize(vCloudNormal);
   float light=dot(normalDirection,normalize(vec3(-0.35,0.72,0.58)))*0.5+0.5;
   float grain=sin(vCloudPosition.x*28.0+uTime*0.16)*sin(vCloudPosition.z*22.0-uTime*0.12);
-  float bands=floor((light+grain*0.045)*4.0+0.5)/4.0;
+  float bands=smoothstep(0.0,1.0,light+grain*0.07);
   float rim=pow(1.0-abs(normalDirection.z),2.2);
   vec3 color=uColor*(0.58+bands*0.44)+vec3(0.025,0.047,0.06)*rim;
-  float alpha=uOpacity*(0.76+bands*0.2+rim*0.12)*vStormPulse*vCycloneClearance;
+  // Soft, broken silhouettes suppress the visible overlapping sphere rims.
+  float edge=pow(smoothstep(0.03,0.85,abs(normalDirection.z)),1.6);
+  float wisps=0.74+0.26*sin(vCloudPosition.x*81.+sin(vCloudPosition.z*47.)*2.)
+    *sin(vCloudPosition.y*67.+vCloudPosition.z*39.);
+  float alpha=uOpacity*edge*wisps*(0.84+bands*0.16)*vStormPulse*vCycloneClearance;
   gl_FragColor=vec4(color,alpha);
 }`
 
@@ -820,7 +824,7 @@ export function addClimate(root) {
   const rand = seeded(8217),
     up = new T.Vector3(0, 1, 0),
     helper = new T.Object3D(),
-    cloudGeometry = new T.SphereGeometry(1, 12, 8),
+    cloudGeometry = new T.SphereGeometry(1, 20, 12),
     cloudItems = [],
     rainItems = [],
     stormDirections = STORM_CENTERS.map(([latitude, longitude]) =>
@@ -960,9 +964,9 @@ export function addClimate(root) {
       helper.quaternion.setFromUnitVectors(up, v)
       helper.rotateY(rand() * Math.PI * 2)
       helper.scale.set(
-        scale * (1.15 + rand() * 0.55),
+        scale * (1.5 + rand() * 0.7),
         Math.min(0.029, scale * (0.24 + rand() * 0.10)),
-        scale * (0.78 + rand() * 0.52),
+        scale * (0.55 + rand() * 0.35),
       )
       helper.updateMatrix()
       mesh.setMatrixAt(i, helper.matrix)
@@ -1007,7 +1011,7 @@ export function addClimate(root) {
       const time = now * 0.001
       const cycloneStorm = cycloneStormLevels(time), stormIntensity = Math.max(...cycloneStorm)
       clouds.material.uniforms.uTime.value = time
-      clouds.material.uniforms.uOpacity.value = weights.clouds * 0.32
+      clouds.material.uniforms.uOpacity.value = weights.clouds * 0.24
       rainClouds.material.uniforms.uTime.value = time
       rainClouds.material.uniforms.uOpacity.value = weights.weather * 0.56
       cycloneClouds.visible = weights.weather > 0.01

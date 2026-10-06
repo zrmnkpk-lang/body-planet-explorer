@@ -2,20 +2,20 @@ import * as T from "three"
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 import { sample, noise, smooth, clamp } from "./field.js"
 const palette = {
-  sand: new T.Color("#d0b18a"),
-  dune: new T.Color("#d5af78"),
-  redSand: new T.Color("#be8162"),
-  forest: new T.Color("#3e6047"),
-  forestEdge: new T.Color("#768562"),
-  grass: new T.Color("#a2ad7b"),
-  rock: new T.Color("#827e76"),
-  strata: new T.Color("#b5a58c"),
-  snow: new T.Color("#e4eee8"),
-  ice: new T.Color("#c3d7dc"),
-  iceCrack: new T.Color("#718e9e"),
+  sand: new T.Color("#e5ce99"),
+  dune: new T.Color("#daba7c"),
+  redSand: new T.Color("#bd8054"),
+  forest: new T.Color("#315f46"),
+  forestEdge: new T.Color("#6c924d"),
+  grass: new T.Color("#93af68"),
+  rock: new T.Color("#77817d"),
+  strata: new T.Color("#c4b799"),
+  snow: new T.Color("#f0f4ec"),
+  ice: new T.Color("#d3e8e9"),
+  iceCrack: new T.Color("#6795ac"),
   marsh: new T.Color("#789e64"),
-  wet: new T.Color("#418f85"),
-  deep: new T.Color("#243e67"),
+  wet: new T.Color("#83a368"),
+  deep: new T.Color("#16557b"),
 }
 export function makeTerrain(detail) {
   const raw = new T.IcosahedronGeometry(1, detail)
@@ -147,16 +147,19 @@ function bakeTerrain(g) {
     color.lerp(palette.marsh, s.wetland * 0.58)
     color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
     const snow =
-      smooth(0.127, 0.157, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.004) *
-      (1 - smooth(0.5, 0.85, slope))
+      smooth(0.145, 0.185, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.008) *
+      (1 - smooth(0.25, 0.65, slope))
     color.lerp(palette.snow, snow)
     color.lerp(palette.ice, s.polar)
     color.lerp(palette.snow, s.polar * smooth(0.045, 0.082, s.h) *
       (1 - smooth(0.07, 0.32, slope)))
     // Blue-gray exposed slopes distinguish glacier valleys from ivory summits.
     color.lerp(palette.iceCrack, s.polar * smooth(0.055, 0.3, slope) * 0.32)
-    const iceScar = smooth(0.22, 0.47, Math.abs(noise(v.x * 48, v.y * 48, v.z * 48)))
-    color.lerp(palette.iceCrack, s.polar * iceScar * 0.23)
+    // Long broken crevasses replace the rounded gray stains on the ice sheet.
+    const iceScar = (1 - smooth(0.015, 0.08, Math.abs(
+      Math.sin(v.x * 95 + v.z * 32 + noise(v.x * 11, v.y * 11, v.z * 11) * 2))))
+      * smooth(-0.2, 0.4, noise(v.x * 24, v.y * 24, v.z * 24))
+    color.lerp(palette.iceCrack, s.polar * iceScar * 0.42)
     if (s.h < 0) color.copy(palette.deep)
     // Near-surface ink is drawn in the shader, where its edges can be filtered.
     color.multiplyScalar(0.99 + 0.015 * noise(v.x * 32, v.y * 32, v.z * 32))
@@ -269,8 +272,13 @@ export function surfaceMaterial() {
         `float land=smoothstep(1.004,1.024,length(vTerrainPosition));
  float closeInk=smoothstep(.28,.88,detailAmount)*land;
  float terrainLum=dot(outgoingLight,vec3(.2126,.7152,.0722));
- float terrainBand=floor(terrainLum*4.+.5)/4.;
- outgoingLight*=mix(1.,clamp(terrainBand/max(terrainLum,.001),.68,1.32),.32+closeInk*.38);
+ float terrainBand=floor(terrainLum*7.+.5)/7.;
+ outgoingLight*=mix(1.,clamp(terrainBand/max(terrainLum,.001),.82,1.18),.12+closeInk*.12);
+ // Directional strata follow elevation with warped breaks on exposed faces.
+ vec3 faceNormal=normalize(cross(dFdx(vTerrainPosition),dFdy(vTerrainPosition)));
+ float stoneFace=smoothstep(.055,.3,1.-abs(dot(faceNormal,normalize(vTerrainPosition))));
+ float rockVein=sin(length(vTerrainPosition)*480.+sin(vTerrainPosition.x*39.+vTerrainPosition.z*27.)*2.);
+ outgoingLight*=1.-stoneFace*(1.-vTerrainBiome.y)*detailAmount*(.045+.04*rockVein)*grainFilter;
  if(closeInk>.008){
  // Irregular pigment fields break up the ground without drawing the mesh grid.
  float broadGrain=sin(vTerrainPosition.x*53.+sin(vTerrainPosition.z*17.)*2.1)
@@ -282,10 +290,10 @@ export function surfaceMaterial() {
  float iceScratch=iceCrevasse*vTerrainBiome.y*grainFilter*.065;
  float speckleFilter=1.-smoothstep(.58,1.08,length(fwidth(vTerrainPosition))*225.);
  float coarseDots=inkDots(vTerrainPosition,210.,mix(.53,.93,vTerrainBiome.x))
-   *speckleFilter*(.31+vTerrainBiome.x*.19+vTerrainBiome.y*.13);
+   *speckleFilter*(.035+vTerrainBiome.x*.045)*(1.-vTerrainBiome.y);
  float fineFilter=1.-smoothstep(.48,.92,length(fwidth(vTerrainPosition))*420.);
  float fineDots=inkDots(vTerrainPosition+3.7,380.,.78)*fineFilter
-   *(.12+vTerrainBiome.x*.18);
+   *(.02+vTerrainBiome.x*.025)*(1.-vTerrainBiome.y);
  float ink=landInk+duneHatch+iceScratch+coarseDots+fineDots;
  outgoingLight*=1.-closeInk*min(.68,ink);
  }
