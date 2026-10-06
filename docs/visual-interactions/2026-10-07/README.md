@@ -4,7 +4,7 @@
 
 ![首页、今日计划展开与编辑计划](01-home-plan-history-body-v2.png)
 
-来源：用户提供的原始 PNG，原样保存。本图替代 [上一版首页图](../2026-10-06/01-home-navigation-tasks-v1.png) 的首页布局与计划交互；上一版 Train / Planet / Body / Me 图继续作为参考。完整页面交接见 [PAGE_CONTENT.md](../../design/PAGE_CONTENT.md)。本次只更新设计资产与说明，未将图片或交互接入运行代码。
+来源：用户提供的原始 PNG，原样保存。本图替代 [上一版首页图](../2026-10-06/01-home-navigation-tasks-v1.png) 的首页布局与计划交互；Train 已更新为 [两种训练入口 v2](TRAIN.md)；上一版 Planet / Body / Me 图继续作为参考。完整页面交接见 [PAGE_CONTENT.md](../../design/PAGE_CONTENT.md)。本次只更新设计资产与说明，未将图片或交互接入运行代码。
 
 ## 视觉基准与首页结构
 
@@ -22,7 +22,7 @@
 ## 今日计划与编辑流程
 
 1. 点击 View plan，首页加遮罩，弹出 Today's plan；展示 1/3 completed、Edit、关闭按钮。
-2. Strength training 默认展开：20 min · Planned；Warm-up 3 min / Strength 14 min / Cool-down 3 min。点击行右侧箭头折叠或展开；Start training 是显式开始入口。
+2. Strength training 默认展开：20 min · Planned；Warm-up 3 min / Strength 14 min / Cool-down 3 min。点击行右侧箭头折叠或展开；本轮训练页优化后，图中的 Start training 应改为 View workout：先进入训练计划内容，内容页的 Start planned workout 才开始。
 3. Walking 展示 8,000 steps · Planned，可展开详情；图未定义其详情内容，不自行增加设备采集流程。Hydration 展示 2,000 ml · Completed，并标记 Manually recorded。
 4. Edit 切换至编辑面板，建立独立草稿。Training duration / Daily steps / Water goal 各提供减、当前值、加；单位分别为 min / steps / ml。
 5. Cancel 返回计划面板并丢弃草稿；Save changes 保存后返回计划面板、更新首页摘要。编辑面板关闭与取消保持同样语义。计划面板关闭回到首页；遮罩或系统返回如支持，也必须保持一致取消语义。
@@ -40,9 +40,11 @@
 ChatGPT 负责此设计基准、视觉评审和美术资产；GLM 负责首页布局接入、计划展开/折叠、编辑草稿与保存、当日持久化、训练与历史数据联动。此文档为开发需求交接，尚未发送至其他聊天或启动功能开发。
 
 - Home 四区域顺序、标签与主次关系符合原图；320/390/430px 宽度下内容、底栏和面板可读可操作。
-- View plan 只展开；显式 Start training 才建立训练会话；时长与今日计划一致。
+- View plan 只展开；View workout 进入计划内容；显式 Start planned workout 才建立计划会话，时长与今日计划一致。
 - 草稿调整后取消或关闭，旧值不变；保存成功后首页与计划同步，刷新后可恢复当天数据。
 - 防重复提交；失败保留草稿与旧值，错误可读且可重试；本地保存不伪造网络状态。
 - 完成状态、历史、周进度和 XP 同源，重复打开/保存/结算不重复奖励。
 - 面板支持焦点管理、关闭后恢复焦点、安全区与背景滚动锁定；图中文字不能作为整张图片代替实际控件。
 - 实现完成后更新现状交互、资产索引和变更记录，并提供实际浏览器截图；这张示意图不构成运行验收。
+
+<!-- 2026-10-07：按用户训练页新要求同步入口语义；首页原图保留，实施文案由 Start training 改为 View workout。 -->
