@@ -13,7 +13,7 @@
       <div id="landmark-layer" aria-hidden="true"></div>
 
       <header>
-        <div class="wordmark"><span class="orbit-logo">◉</span> BODY PLANET <span class="edition">ATLAS / 3.2</span></div>
+        <div class="wordmark"><span class="orbit-logo">◉</span> BODY PLANET <span class="edition">ATLAS / 4.0</span></div>
         <p>你的身体是一颗星球 · 拉近，发现下一层风景</p>
       </header>
 
@@ -34,6 +34,28 @@
         <p id="zoom-summary" aria-live="polite">星球轮廓 · 薄云 · 极地</p>
         <p id="zoom-next">缩放至 20%，查看大陆板块</p>
       </section>
+
+      <!-- 2026-10-06: terrain/weather explanations navigate the existing globe. -->
+      <details id="atlas-panel" class="atlas-panel">
+        <summary>地形与气候图鉴 <span>探索指南</span></summary>
+        <div class="atlas-content">
+          <div class="atlas-tabs" role="group" aria-label="图鉴分类">
+            <button data-atlas-tab="terrain" aria-pressed="true">地形 · 8</button>
+            <button data-atlas-tab="weather" aria-pressed="false">气候与水流 · 7</button>
+          </div>
+          <label for="atlas-topic">选择观察主题</label>
+          <select id="atlas-topic"></select>
+          <p id="atlas-layer" class="atlas-layer"></p>
+          <h2 id="atlas-title"></h2>
+          <p id="atlas-body" class="atlas-body"></p>
+          <p id="atlas-appearance"></p>
+          <h3>如何观察</h3><p id="atlas-weather"></p>
+          <div class="atlas-actions"><button id="atlas-go">前往观察</button><button id="atlas-near">近看地表</button></div>
+          <p id="atlas-feedback" role="status"></p>
+          <details class="atlas-limit"><summary>效果说明</summary><p id="atlas-boundary"></p></details>
+          <p id="atlas-facts" class="atlas-facts"></p>
+        </div>
+      </details>
 
       <aside id="card" hidden aria-live="polite">
         <div class="card-head"><span id="zone-en"></span><button id="close" aria-label="关闭">×</button></div>

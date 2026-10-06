@@ -863,9 +863,9 @@ export function addClimate(root) {
   // Distinct large, medium, and small banks; rounded lobes vary in height
   // as well as footprint so they read as cloud volumes from the horizon.
   const sizeBands = [
-    { count: 10, min: 0.105, range: 0.052, lobes: 6 },
-    { count: 20, min: 0.063, range: 0.037, lobes: 3 },
-    { count: 38, min: 0.024, range: 0.032, lobes: 1 },
+    { count: 10, min: 0.074, range: 0.038, lobes: 6 },
+    { count: 20, min: 0.046, range: 0.026, lobes: 3 },
+    { count: 38, min: 0.018, range: 0.022, lobes: 1 },
   ]
   function addCloudCluster(items, v, scale, lobes, metadata = {}) {
     items.push({ v, scale, lift: 0, ...metadata })
@@ -961,7 +961,7 @@ export function addClimate(root) {
       helper.rotateY(rand() * Math.PI * 2)
       helper.scale.set(
         scale * (1.15 + rand() * 0.55),
-        Math.min(0.039, scale * (0.32 + rand() * 0.14)),
+        Math.min(0.029, scale * (0.24 + rand() * 0.10)),
         scale * (0.78 + rand() * 0.52),
       )
       helper.updateMatrix()
@@ -1007,7 +1007,7 @@ export function addClimate(root) {
       const time = now * 0.001
       const cycloneStorm = cycloneStormLevels(time), stormIntensity = Math.max(...cycloneStorm)
       clouds.material.uniforms.uTime.value = time
-      clouds.material.uniforms.uOpacity.value = weights.clouds * 0.43
+      clouds.material.uniforms.uOpacity.value = weights.clouds * 0.32
       rainClouds.material.uniforms.uTime.value = time
       rainClouds.material.uniforms.uOpacity.value = weights.weather * 0.56
       cycloneClouds.visible = weights.weather > 0.01

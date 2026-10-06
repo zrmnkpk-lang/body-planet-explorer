@@ -55,7 +55,9 @@ export function detailWeights(distance) {
     progress,
     // Ground objects start appearing at 63%; the surface must already be at
     // its final radius so their instances stay attached during zoom.
-    relief: 0.22 + reveal(progress, 0.14, 0.61) * 0.78,
+    // Keep the mountain silhouette readable from orbit; reach the shared
+    // surface radius before vegetation appears, avoiding floating instances.
+    relief: 0.58 + reveal(progress, 0.14, 0.61) * 0.42,
     clouds: 1 - reveal(progress, 0.27, 0.68) * 0.78,
     weather:
       reveal(progress, 0.32, 0.5) * (1 - reveal(progress, 0.82, 1) * 0.4),

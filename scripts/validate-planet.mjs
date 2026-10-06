@@ -1,5 +1,7 @@
 import assert from "node:assert/strict"
 import * as T from "three"
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
+import { TERRAIN_ATLAS, WEATHER_ATLAS } from "../src/planet/atlas.js"
 import { readFile } from "node:fs/promises"
 import {
   makeTerrain,
@@ -298,6 +300,23 @@ for (const l of LANDMARKS.filter((x) => x.model)) {
   assert.equal(buf.toString("utf8", 0, 4), "glTF")
   assert.equal(buf.readUInt32LE(4), 2)
   assert.equal(buf.readUInt32LE(8), buf.length)
+  const parsed = await new GLTFLoader().parseAsync(
+    buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), "")
+  const meshes = []
+  parsed.scene.traverse(n => { if (n.isMesh) meshes.push(n) })
+  assert.equal(meshes.length, 1, "each optimized landmark should use one merged mesh")
+  const geometry = meshes[0].geometry
+  assert.ok(geometry.attributes.position.array.every(Number.isFinite))
+  assert.ok(geometry.attributes.normal.array.every(Number.isFinite))
+  const faces = (geometry.index?.count ?? geometry.attributes.position.count) / 3
+  assert.ok(faces > 100 && faces < 1000, "landmark silhouette/detail budget exceeded")
+  assert.ok(buf.length < 100000, "landmark exceeds the 100 KB delivery budget")
+}
+for (const entry of [...TERRAIN_ATLAS, ...WEATHER_ATLAS]) {
+  assert.ok(entry.distance >= 1.48 && entry.distance <= 5.6)
+  if (entry.landmark) assert.ok(LANDMARKS.some(l => l.id === entry.landmark),
+    "atlas topic lost its geographic anchor: " + entry.id)
+  else assert.ok(entry.location.length === 2 && entry.location.every(Number.isFinite))
 }
 // Verify shader insertions against this checkout's actual Three.js shader chunks.
 const shader = {
@@ -364,7 +383,8 @@ assert.equal(orbit.trees, 0)
 assert.equal(orbit.shrubs, 0)
 assert.equal(orbit.landmarks, 0)
 assert.equal(orbit.progress, 0)
-assert.ok(orbit.relief < 0.3)
+assert.ok(orbit.relief >= 0.5 && orbit.relief < 0.75,
+  "orbital mountain silhouettes must remain readable without full close-up relief")
 assert.equal(orbit.grain, 0)
 assert.ok(detailWeights(VIEW_LEVELS[2].distance).grain > 0)
 assert.equal(surface.grain, 1)
@@ -608,7 +628,8 @@ assert.ok(highestBolt > 1.16, "lightning must reach above storm clouds")
 const cloudMatrix = new T.Matrix4(), cloudScale = new T.Vector3()
 climateRoot.children[0].getMatrixAt(0, cloudMatrix)
 cloudScale.setFromMatrixScale(cloudMatrix)
-assert.ok(cloudScale.y > 0.03, "large clouds need visible radial volume")
+assert.ok(cloudScale.y > 0.02 && cloudScale.y < 0.031,
+  "clouds need shallow radial volume without covering the terrain silhouette")
 assert.ok(climateRoot.children[0].material.vertexShader.includes("normalScale="))
 assert.ok(
   climateRoot.children.filter((child) => child.material?.isShaderMaterial)

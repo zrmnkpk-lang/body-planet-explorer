@@ -7,6 +7,8 @@ import { sample, sampleLatLon, zoneAt, seeded } from "./planet/field.js"
 import { makeTerrain, surfaceMaterial } from "./planet/terrain.js"
 import { point, addWater, addEcology } from "./planet/ecology.js"
 import { addClimate } from "./planet/climate.js"
+import { mountAtlas } from "./planet/atlas-panel.js"
+import { RIVERS, LAKES, FJORDS } from "./planet/field.js"
 import {
   VIEW_LEVELS,
   levelForDistance,
@@ -299,6 +301,7 @@ let selected = null,
   autoSpin = snapshotMode || backdropMode
 function select(zone) {
   if (!data[zone]) return
+  $("#atlas-panel").open = false
   selected = zone
   const d = data[zone]
   $("#card").hidden = false
@@ -369,6 +372,16 @@ function reset() {
   targetCamera = new T.Vector3(0, 0.16, innerWidth < 760 ? 4.4 : 4.2)
   setMotion(false)
 }
+if (!appMode && !snapshotMode && !backdropMode) mountAtlas({
+  closeMetric: close,
+  facts: `${RIVERS.length} 条河道 · ${LAKES.filter(l => l.kind === "lake").length} 处湖泊 · ${LAKES.filter(l => l.kind === "marsh").length} 处湿地 · ${FJORDS.length} 条峡湾 · ${climate.stormCenterCount} 处风暴 · ${climate.cycloneCount} 处气旋`,
+  navigate([lat, lon], distance) {
+    close()
+    setMotion(false)
+    targetCamera = point(lat, lon, distance).applyQuaternion(root.quaternion)
+    if (reduced) { camera.position.copy(targetCamera); targetCamera = null }
+  },
+})
 for (const b of document.querySelectorAll("[data-zone]"))
   b.onclick = () => focus(b.dataset.zone)
 for (const button of document.querySelectorAll("[data-view]"))
@@ -711,6 +724,7 @@ function frame(now) {
     "header",
     ".top-right",
     ".zoom-map",
+    "#atlas-panel",
     "#card",
     "footer",
     ".view-tools",

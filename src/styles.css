@@ -68,3 +68,29 @@ html.backdrop-mode #scene{cursor:default}
 
 /* The APP ecology surface explains body composition below the map, so the standalone renderer's zone legend stays out of the map frame. */
 .app-mode footer{display:none!important}
+
+/* Atlas 4.0: a compact field guide linked to real terrain and weather anchors. */
+html:not(.app-mode) #app{background:radial-gradient(ellipse at 48% 43%,#223336 0,#172328 44%,#101419 85%)}
+.atlas-panel{position:absolute;right:28px;top:110px;width:294px;z-index:6;background:#1b2228f5;border:1px solid #39464f;border-radius:14px;color:#f4f6f3;box-shadow:0 16px 42px #0003}
+.atlas-panel>summary{list-style:none;cursor:pointer;padding:16px 18px;font-size:15px;font-weight:650;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.atlas-panel>summary::-webkit-details-marker{display:none}.atlas-panel>summary span{font-size:11px;color:#b8c2c5;font-weight:400}.atlas-panel>summary span:after{content:" ＋";color:#c2d995}.atlas-panel[open]>summary span:after{content:" −"}
+.atlas-panel summary:focus-visible{outline:2px solid #c2d995;outline-offset:3px;border-radius:8px}
+.atlas-content{padding:0 18px 16px;max-height:calc(100svh - 320px);overflow:auto;overscroll-behavior:contain}
+.atlas-tabs{display:flex;gap:6px;padding-bottom:17px}.atlas-tabs button{flex:1;min-height:38px;font-size:12px;border-radius:8px;color:#b8c2c5;border-color:#39464f}.atlas-tabs button[aria-pressed=true]{color:#101419;background:#c2d995;border-color:#c2d995;font-weight:650}
+.atlas-content label{display:block;font-size:12px;color:#b8c2c5;margin-bottom:7px}.atlas-content select{width:100%;min-height:44px;background:#26313a;border-color:#596a73;font-size:14px;color:#f4f6f3}
+.atlas-content h2{font-size:23px;line-height:1.25;margin:8px 0;font-weight:650;letter-spacing:0}.atlas-content h3{font-size:12px;color:#b8c2c5;margin:19px 0 7px;font-weight:600}
+.atlas-content p{font-size:13px;line-height:1.8;margin:8px 0;color:#d4dddb}.atlas-content .atlas-layer{font-size:11px;color:#c2d995;margin-top:19px}.atlas-content .atlas-body{color:#91adb0;font-size:12px;margin-bottom:14px}
+.atlas-actions{display:flex;gap:7px;margin-top:17px}.atlas-actions button{min-height:44px;flex:1;font-size:13px;border-radius:9px;border-color:#6c8156}#atlas-go{color:#101419;background:#c2d995;font-weight:650}#atlas-go:hover{background:#d1e5ad}#atlas-near{color:#d3e2b8}
+.atlas-content #atlas-feedback{font-size:11px;color:#c2d995;min-height:0}.atlas-content #atlas-feedback:empty{display:none}.atlas-limit{margin-top:18px;border-top:1px solid #39464f;padding-top:12px}.atlas-limit summary{font-size:12px;cursor:pointer;color:#b8c2c5}.atlas-limit p{font-size:12px;color:#b8c2c5}.atlas-content .atlas-facts{font-size:10px;line-height:1.9;color:#a9b9be;border-top:1px solid #39464f;margin:16px 0 0;padding-top:12px}
+@media(min-width:1100px){html:not(.app-mode) #app:has(#atlas-panel[open]) #scene{inset:88px 326px 166px 170px}html:not(.app-mode) #app:has(#atlas-panel[open]) .view-tools{right:342px}html:not(.app-mode) #app:has(#atlas-panel[open]) footer{left:calc(50% - 80px);width:min(660px,calc(100% - 390px))}}
+@media(max-width:1099px){.atlas-panel{top:112px;right:20px;width:278px}.atlas-panel:not([open]){width:226px}.atlas-panel>summary{padding:12px 15px}.atlas-content{max-height:calc(100svh - 310px)}}
+@media(max-width:760px){.atlas-panel{top:206px;right:14px;width:min(294px,calc(100% - 28px))}.atlas-panel:not([open]){width:210px}.atlas-content{max-height:calc(100svh - 335px)}.atlas-panel>summary{font-size:13px}.atlas-panel>summary span{font-size:10px}}
+.app-mode .atlas-panel,.snapshot-mode .atlas-panel,.backdrop-mode .atlas-panel{display:none!important}
+
+/* Keep guide and map controls readable against bright ice and close terrain. */
+html:not(.app-mode) header{background:#101419e8;padding:10px 14px;border-radius:10px;left:20px;top:18px}
+html:not(.app-mode) .zoom-map{background:#142128e8;border:1px solid #39464f;border-radius:12px;padding:12px;width:170px;left:20px}
+html:not(.app-mode) .zoom-steps button{gap:10px}html:not(.app-mode) .hint{background:#142128e8;border:1px solid #39464f;border-radius:8px;width:fit-content;margin:0 auto 12px;padding:8px 12px;color:#d1dddc}
+@media(min-width:900px){html:not(.app-mode) #app:has(#atlas-panel[open]) #scene{inset:100px 310px 176px 170px}html:not(.app-mode) #app:has(#atlas-panel[open]) .view-tools{right:330px}html:not(.app-mode) #app:has(#atlas-panel[open]) footer{left:calc(50% - 70px);width:min(660px,calc(100% - 350px))}}
+@media(max-width:899px){html:not(.app-mode) #app:has(#atlas-panel[open]) .view-tools{visibility:hidden}}
+@media(max-width:760px){html:not(.app-mode) header{left:10px;top:9px;padding:7px 9px}html:not(.app-mode) .zoom-map{left:14px;right:14px;width:auto;padding:0;border:0;background:transparent}html:not(.app-mode) .zoom-steps button{gap:5px}html:not(.app-mode) .hint{font-size:11px;padding:6px 8px}}

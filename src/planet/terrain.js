@@ -5,14 +5,14 @@ const palette = {
   sand: new T.Color("#d0b18a"),
   dune: new T.Color("#d5af78"),
   redSand: new T.Color("#be8162"),
-  forest: new T.Color("#338577"),
-  forestEdge: new T.Color("#60a482"),
-  grass: new T.Color("#8bb795"),
-  rock: new T.Color("#a58a7c"),
-  strata: new T.Color("#bda38a"),
+  forest: new T.Color("#3e6047"),
+  forestEdge: new T.Color("#768562"),
+  grass: new T.Color("#a2ad7b"),
+  rock: new T.Color("#827e76"),
+  strata: new T.Color("#b5a58c"),
   snow: new T.Color("#e4eee8"),
-  ice: new T.Color("#a0c8ec"),
-  iceCrack: new T.Color("#668ea7"),
+  ice: new T.Color("#c3d7dc"),
+  iceCrack: new T.Color("#718e9e"),
   marsh: new T.Color("#789e64"),
   wet: new T.Color("#418f85"),
   deep: new T.Color("#243e67"),
@@ -147,7 +147,7 @@ function bakeTerrain(g) {
     color.lerp(palette.marsh, s.wetland * 0.58)
     color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
     const snow =
-      smooth(0.135, 0.165, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.003) *
+      smooth(0.127, 0.157, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.004) *
       (1 - smooth(0.5, 0.85, slope))
     color.lerp(palette.snow, snow)
     color.lerp(palette.ice, s.polar)

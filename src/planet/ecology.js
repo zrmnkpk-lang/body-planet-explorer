@@ -56,8 +56,8 @@ export function addWater(root) {
   const oceanGeometry = new T.SphereGeometry(1, 160, 96),
     oceanColors = [],
     oceanPoint = new T.Vector3()
-  const deep = new T.Color("#2d4c7d"),
-    shelf = new T.Color("#60a1b3")
+  const deep = new T.Color("#203f56"),
+    shelf = new T.Color("#68a8aa")
   for (let i = 0; i < oceanGeometry.attributes.position.count; i++) {
     oceanPoint.fromBufferAttribute(oceanGeometry.attributes.position, i)
     const s = sample(oceanPoint.x, oceanPoint.y, oceanPoint.z)
@@ -286,7 +286,7 @@ export function addEcology(root) {
     instances(
       treeGeometry(i),
       arr,
-      [0x287c70, 0x206071, 0x569e79, 0x327d84][i],
+      [0x3b6247, 0x2d5147, 0x768454, 0x49684d][i],
       1,
       true,
     ),
@@ -294,7 +294,7 @@ export function addEcology(root) {
   const shrubMesh = instances(
     new T.IcosahedronGeometry(1, 0).scale(1, 0.65, 1),
     shrubs,
-    0x64ae86,
+    0x81935f,
   )
   const reedMesh = instances(
     new T.ConeGeometry(0.17, 1.6, 3).translate(0, 0.8, 0), reeds, 0x789853,
@@ -302,7 +302,7 @@ export function addEcology(root) {
   const rockMesh = instances(
     new T.DodecahedronGeometry(1, 0).scale(1, 1.35, 0.7),
     rocks,
-    0xc18072,
+    0x938575,
   )
   const iceMesh = instances(
     new T.CylinderGeometry(0.75, 1, 1, 5).translate(0, 0.3, 0),
