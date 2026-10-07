@@ -321,11 +321,13 @@ for (const entry of [...TERRAIN_ATLAS, ...WEATHER_ATLAS]) {
 // Verify shader insertions against this checkout's actual Three.js shader chunks.
 const shader = {
   uniforms: {},
-  vertexShader: T.ShaderLib.lambert.vertexShader,
-  fragmentShader: T.ShaderLib.lambert.fragmentShader,
+  vertexShader: T.ShaderLib.standard.vertexShader,
+  fragmentShader: T.ShaderLib.standard.fragmentShader,
 }
 surfaceMaterial().onBeforeCompile(shader)
-assert.equal(surfaceMaterial().isMeshLambertMaterial, true, "terrain must stay matte")
+assert.equal(surfaceMaterial().isMeshStandardMaterial, true, "terrain needs per-fragment bump lighting")
+assert.ok(surfaceMaterial().roughness >= 0.9, "terrain must stay matte")
+assert.equal(surfaceMaterial().metalness, 0)
 assert.ok(shader.fragmentShader.includes("uniform vec3 patchCenter;"))
 assert.ok(shader.vertexShader.includes("attribute vec2 terrainBiome;"))
 assert.ok(shader.fragmentShader.includes("float textureFootprint="))

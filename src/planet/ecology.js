@@ -29,34 +29,54 @@ function oceanMaterial() {
   })
   material.userData.time = { value: 0 }
   material.userData.current = { value: 0 }
+  material.userData.detail = { value: 0 }
   material.onBeforeCompile = (shader) => {
     shader.uniforms.oceanTime = material.userData.time
     shader.uniforms.currentAmount = material.userData.current
+    shader.uniforms.waterDetail = material.userData.detail
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vOceanPosition;",
+        "#include <common>\nvarying vec3 vOceanPosition; varying vec3 vWaterView;",
       )
       .replace(
         "#include <begin_vertex>",
         "#include <begin_vertex>\nvOceanPosition=position;",
-      )
+      ).replace("#include <project_vertex>", "#include <project_vertex>\nvWaterView=mvPosition.xyz;")
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vOceanPosition;\nuniform float oceanTime;uniform float currentAmount;",
+        `#include <common>
+varying vec3 vOceanPosition; varying vec3 vWaterView;
+uniform float oceanTime;uniform float currentAmount;uniform float waterDetail;
+float seaHeight(vec3 p){
+  float filter=1.-smoothstep(.5,1.4,length(fwidth(p))*340.);
+  return (sin(dot(p,vec3(193.,71.,137.))-oceanTime*1.5)
+    +.55*sin(dot(p,vec3(-127.,213.,89.))+oceanTime*1.1)
+    +.25*sin(dot(p,vec3(319.,-157.,211.))-oceanTime*2.))*filter;
+}`,
       )
+      .replace("#include <normal_fragment_maps>", `#include <normal_fragment_maps>
+float waveHeight=seaHeight(vOceanPosition)*waterDetail*.00065;
+vec3 waterDx=dFdx(vWaterView),waterDy=dFdy(vWaterView);
+vec3 waterR1=cross(waterDy,normal),waterR2=cross(normal,waterDx);
+float waterDet=dot(waterDx,waterR1);
+normal=normalize(abs(waterDet)*normal-sign(waterDet)*(dFdx(waveHeight)*waterR1+dFdy(waveHeight)*waterR2));
+`)
       .replace(
         "#include <opaque_fragment>",
         `float oceanCurrent=sin(vOceanPosition.y*32.+oceanTime*.32+sin(vOceanPosition.x*23.)*1.3);
 float crossingCurrent=sin(vOceanPosition.z*25.-oceanTime*.24+vOceanPosition.y*9.);
 float currentLight=max(0.,oceanCurrent*crossingCurrent)*currentAmount;
 // Keep broad water highlights subordinate to the shelf/depth colors.
-outgoingLight-=reflectedLight.directSpecular*.7;
+outgoingLight-=reflectedLight.directSpecular*(.7-.5*waterDetail);
+float waveCrest=smoothstep(1.05,1.65,seaHeight(vOceanPosition));
+outgoingLight+=vec3(.035,.065,.07)*waveCrest*waterDetail;
 outgoingLight+=vec3(.04,.12,.15)*currentLight;
 #include <opaque_fragment>`,
       )
   }
+  material.customProgramCacheKey = () => "ocean-ripples-v2"
   return material
 }
 export function addWater(root) {
@@ -156,6 +176,7 @@ export function addWater(root) {
       clock.value = reduced ? 0 : now * 0.001
       ocean.material.userData.time.value = clock.value
       ocean.material.userData.current.value = 0.035 + weights.weather * 0.085
+      ocean.material.userData.detail.value = weights.grain
       for (const m of primaryWater) revealMesh(m, weights.rivers)
       for (const m of tributaries) revealMesh(m, weights.tributaries)
       for (const m of fjordMeshes) revealMesh(m, weights.rivers)

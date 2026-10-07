@@ -94,15 +94,25 @@ export function channelMaterial(clock) {
   m.onBeforeCompile = shader => {
     shader.uniforms.channelTime = clock
     shader.vertexShader = shader.vertexShader.replace("#include <common>",
-      "#include <common>\nvarying vec2 vChannelUv;").replace("#include <begin_vertex>",
-      "#include <begin_vertex>\nvChannelUv=uv;")
+      "#include <common>\nvarying vec2 vChannelUv; varying vec3 vChannelView;").replace("#include <begin_vertex>",
+      "#include <begin_vertex>\nvChannelUv=uv;").replace("#include <project_vertex>",
+      "#include <project_vertex>\nvChannelView=mvPosition.xyz;")
     shader.fragmentShader = shader.fragmentShader.replace("#include <common>",
-      "#include <common>\nvarying vec2 vChannelUv; uniform float channelTime;").replace("#include <opaque_fragment>", `
-float flowPhase=vChannelUv.y*8.-channelTime*.65+sin(vChannelUv.y*2.3)*.4;
+      `#include <common>
+varying vec2 vChannelUv; varying vec3 vChannelView; uniform float channelTime;
+float channelWave(vec2 p){return sin(p.y*8.-channelTime*2.4+sin(p.x*5.)*.8)
+  +.35*sin(p.y*19.-channelTime*4.1+p.x*9.);}`).replace("#include <normal_fragment_maps>", `#include <normal_fragment_maps>
+float channelBump=channelWave(vChannelUv)*.000045;
+vec3 cdx=dFdx(vChannelView),cdy=dFdy(vChannelView);
+vec3 cr1=cross(cdy,normal),cr2=cross(normal,cdx);
+float cdet=dot(cdx,cr1);
+normal=normalize(abs(cdet)*normal-sign(cdet)*(dFdx(channelBump)*cr1+dFdy(channelBump)*cr2));
+`).replace("#include <opaque_fragment>", `
+float flowPhase=vChannelUv.y*8.-channelTime*2.4+sin(vChannelUv.y*2.3)*.4;
 float ripple=pow(max(0.,sin(flowPhase)),12.)*(1.-smoothstep(.15,.82,abs(vChannelUv.x)));
-outgoingLight+=vec3(.035,.06,.055)*ripple;
+outgoingLight+=vec3(.12,.19,.18)*ripple;
 #include <opaque_fragment>`)
   }
-  m.customProgramCacheKey = () => "river-flow-v1"
+  m.customProgramCacheKey = () => "river-flow-v2"
   return m
 }

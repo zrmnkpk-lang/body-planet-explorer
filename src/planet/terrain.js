@@ -176,8 +176,10 @@ function bakeTerrain(g) {
   return g
 }
 export function surfaceMaterial() {
-  // Diffuse cartographic ink has no view-dependent specular lobe.
-  const m = new T.MeshLambertMaterial({
+  // Per-fragment lighting makes the filtered ground bump affect actual relief.
+  const m = new T.MeshStandardMaterial({
+    roughness: 0.94,
+    metalness: 0,
     vertexColors: true,
   })
   m.userData.detail = { value: 0 }
@@ -260,7 +262,11 @@ export function surfaceMaterial() {
    +sin(inkWarp.y*33.+inkWarp.z*17.)*2.1);
  float fineGrain=(rockGrain(vTerrainPosition)*(1.-vTerrainBiome.y*.82)
    +duneRipple*vTerrainBiome.x*.29-iceCrevasse*vTerrainBiome.y*.15)*grainFilter;
- float roughHeight=fineGrain*detailAmount*(.00018+vTerrainBiome.x*.00023+vTerrainBiome.y*.00029);
+ float microFilter=1.-smoothstep(.45,1.1,length(fwidth(vTerrainPosition))*720.);
+ float microGrain=rockGrain(vTerrainPosition*4.3)*microFilter;
+ float strataDetail=sin(length(vTerrainPosition)*1450.+sin(inkWarp.x*91.)*2.);
+ float roughHeight=detailAmount*(fineGrain*.00032+microGrain*.000075
+   +strataDetail*grainFilter*.00012*(1.-vTerrainBiome.y));
  vec3 dp1=dFdx(vTerrainViewPosition),dp2=dFdy(vTerrainViewPosition);
  vec3 r1=cross(dp2,normal),r2=cross(normal,dp1);
  float det=dot(dp1,r1);
@@ -297,7 +303,7 @@ export function surfaceMaterial() {
  float ink=landInk+duneHatch+iceScratch+coarseDots+fineDots;
  outgoingLight*=1.-closeInk*min(.68,ink);
  }
- outgoingLight*=1.+detailAmount*fineGrain*.028*grainFilter;
+ outgoingLight*=1.+detailAmount*(fineGrain*.065+microGrain*.035);
  #include <opaque_fragment>`,
       )
   }
