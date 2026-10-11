@@ -1,10 +1,12 @@
 {
-  "description": "This fitness web app helps users track workouts, set goals, and monitor progress, making it easier to achieve their health and fitness objectives.",
+  "description": "Your fitness companion. Train, track your body and explore your planet.",
   "robots": {
     "index": false
   },
   "accessibility": {
     "addBypassLinks": false,
     "ignoreReducedMotion": false
-  }
+  },
+  "title": "Portal Fitness",
+  "language": "en"
 }

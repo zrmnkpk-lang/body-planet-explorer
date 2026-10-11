@@ -1,0 +1,77 @@
+{
+  "result": "PASS",
+  "errors": [],
+  "original": {
+    "body": {
+      "muscle": 32.8,
+      "water": 58.3,
+      "bone": 3.1,
+      "fat": 18.7
+    },
+    "shape": {
+      "mountain": 1,
+      "channel": 1,
+      "ice": 1,
+      "moisture": 0
+    },
+    "vertices": 40962,
+    "triangles": 81920,
+    "trees": 2400,
+    "camera": [
+      -1.6108834935417704,
+      1.3675589497124583,
+      2.7901320558883986
+    ],
+    "rotation": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "sampleMountain": 0.10569586235147799,
+    "sampleIce": 0.060731257123351076,
+    "lods": [
+      15,
+      63
+    ],
+    "renderedFrames": 6
+  },
+  "changed": {
+    "body": {
+      "muscle": 52,
+      "water": 58.3,
+      "bone": 3.1,
+      "fat": 18.7
+    },
+    "shape": {
+      "mountain": 1.5853658536585367,
+      "channel": 1,
+      "ice": 1,
+      "moisture": 0
+    },
+    "vertices": 40962,
+    "triangles": 81920,
+    "trees": 2400,
+    "camera": [
+      -1.6108834935417704,
+      1.3675589497124583,
+      2.7901320558883986
+    ],
+    "rotation": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "sampleMountain": 0.13148702701818923,
+    "sampleIce": 0.060731257123351076,
+    "lods": [
+      15,
+      63
+    ],
+    "renderedFrames": 6
+  },
+  "status": {
+    "available": false
+  }
+}

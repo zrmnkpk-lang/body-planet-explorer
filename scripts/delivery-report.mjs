@@ -1,0 +1,18 @@
+import { readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+const read = async p => JSON.parse((await readFile(p, "utf8")).replace(/^\uFEFF/, ""));
+const baseline = await read("docs/development/baseline.json");
+const sourceChecks = [];
+for (const item of baseline.files) { const bytes = await readFile(`${baseline.source}/${item.path}`); sourceChecks.push({ path: item.path, matches: createHash("sha256").update(bytes).digest("hex").toUpperCase() === item.sha256 }); }
+const sourceIndex = createHash("sha256").update(await readFile(`${baseline.source}/.git/index`)).digest("hex").toUpperCase();
+if (sourceChecks.some(v => !v.matches) || sourceIndex !== baseline.sourceIndex) throw new Error("Original source changed since copy — inspect before reporting preservation.");
+const native = await read("docs/interaction-design/2026-10-11/screen-state-final.json");
+const coverage = Object.entries(native.screens).map(([code, screen]) => ({ code, figmaId: screen.frameId, name: screen.name, implementation: code.startsWith("AI") ? ["src/App.tsx", "src/Modals.tsx", "src/model.ts", "server/coach.mjs"] : code.startsWith("B") ? ["src/PlanetView.tsx", "src/app.js", "src/planet/field.js", "src/Modals.tsx"] : code.startsWith("T") ? ["src/App.tsx", "src/Modals.tsx", "src/model.ts"] : ["src/App.tsx", "src/Modals.tsx"], rendering: "shared-runtime-state", serviceBoundary: code.startsWith("AI") ? "Real AI provider pending; connected states validated with explicit test responses" : code === "A05" ? "Membership plans intentionally unavailable" : undefined }));
+await writeFile("docs/development/interaction-coverage.json", JSON.stringify({ figma: "https://www.figma.com/design/ccBI9Wxbj1gTnZI9D6yplY", nativeReferenceStates: coverage.length, screens: coverage }, null, 2));
+const assets = (await read("docs/interaction-design/2026-10-11/assets.json")).assets.filter(a => a.name !== "riverlands-planet");
+const runtimeAssets = [];
+for (const item of assets) { const path = `public/assets/companions/${item.name}.png`; const bytes = await readFile(path); const hash = createHash("sha256").update(bytes).digest("hex"); if (hash !== item.sha256) throw new Error(`Artwork mismatch: ${path}`); runtimeAssets.push({ path, sha256: hash, source: item.file, matchesFigmaSource: true }); }
+const tests = await read("docs/development/test-results.json"); const visual = await read("docs/development/visual-smoke.json");
+const report = { date: new Date().toISOString(), objective: "Independent formal application development on the original source with actual planet replacement", sourcePreserved: { directory: baseline.source, verifiedFiles: sourceChecks.length, allHashesUnchanged: true, gitIndexUnchanged: true, head: execFileSync("git", ["-C", baseline.source, "rev-parse", "HEAD"], { encoding: "utf8" }).trim() }, independentProject: process.cwd(), branch: execFileSync("git", ["branch", "--show-current"], { encoding: "utf8" }).trim(), tests: tests.stats, visual, runtimeAssets, realPlanet: { renderer: "Shared Three.js source, terrain workers and local GLBs", staticConceptImageUsedAsPlanet: false, savedBodyChangesActualTerrain: true }, remainingServiceIntegrations: ["Real coaching service provider", "Cloud account sign-in and sync", "Measurement hardware", "Membership pricing and payment", "Final progression and XP product policy"] };
+await writeFile("docs/development/delivery-check.json", JSON.stringify(report, null, 2)); console.log(JSON.stringify({ sourcePreserved: report.sourcePreserved, tests: report.tests, states: coverage.length, visualErrors: visual.errors }, null, 2));

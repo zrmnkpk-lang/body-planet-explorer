@@ -4,3 +4,8 @@ dist/
 *.log
 .openai/*.tar.gz
 *.zip
+.env
+.env.local
+.env.*.local
+test-results/
+playwright-report/

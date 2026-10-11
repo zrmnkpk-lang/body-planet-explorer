@@ -1,3 +1,7 @@
+# Portal Fitness · 独立正式开发项目
+
+本目录由原项目完整工作区复制，使用新版四栏界面和真实身体星球。开发入口与验证说明见 [正式开发说明](docs/development/README.md)。下方为继承的原项目文档，历史功能描述以正式开发说明为准。
+
 # Portal Fitness / Body Planet Explorer
 
 > 你的身体是一颗星球。

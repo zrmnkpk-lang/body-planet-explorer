@@ -1,0 +1,1021 @@
+{
+  "figma": "https://www.figma.com/design/ccBI9Wxbj1gTnZI9D6yplY",
+  "nativeReferenceStates": 89,
+  "screens": [
+    {
+      "code": "H01",
+      "figmaId": "5:2",
+      "name": "H01 · Home / default",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H02",
+      "figmaId": "5:3",
+      "name": "H02 · Today's plan / expanded",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H03",
+      "figmaId": "5:4",
+      "name": "H03 · Edit today's plan / initial",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H08",
+      "figmaId": "5:5",
+      "name": "H08 · Edit today's plan / adjusted",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H04",
+      "figmaId": "5:6",
+      "name": "H04 · Home / plan saved",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H05",
+      "figmaId": "5:7",
+      "name": "H05 · Home / no records",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H06",
+      "figmaId": "5:8",
+      "name": "H06 · Training history",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H07",
+      "figmaId": "5:9",
+      "name": "H07 · Updates / empty",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "A01",
+      "figmaId": "5:10",
+      "name": "A01 · Account / left drawer",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "A02",
+      "figmaId": "5:11",
+      "name": "A02 · Account information",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "A03",
+      "figmaId": "5:12",
+      "name": "A03 · Edit account information",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "A04",
+      "figmaId": "5:13",
+      "name": "A04 · Settings",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "A05",
+      "figmaId": "5:14",
+      "name": "A05 · Membership / plans unavailable",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Membership plans intentionally unavailable"
+    },
+    {
+      "code": "A06",
+      "figmaId": "5:15",
+      "name": "A06 · Settings / reduce motion enabled",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T01",
+      "figmaId": "5:16",
+      "name": "T01 · Train / no plan",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T02",
+      "figmaId": "5:17",
+      "name": "T02 · Train / planned",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T03",
+      "figmaId": "5:18",
+      "name": "T03 · Workout plan / preview",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T04",
+      "figmaId": "5:19",
+      "name": "T04 · Free workout / no exercises",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T05",
+      "figmaId": "5:20",
+      "name": "T05 · Add exercise / unselected",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T06",
+      "figmaId": "5:21",
+      "name": "T06 · Add exercise / selected",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T07",
+      "figmaId": "5:22",
+      "name": "T07 · Free workout / active",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T08",
+      "figmaId": "5:23",
+      "name": "T08 · Planned workout / active",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T09",
+      "figmaId": "5:24",
+      "name": "T09 · Planned workout / rest",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T10",
+      "figmaId": "5:25",
+      "name": "T10 · Workout / paused",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T11",
+      "figmaId": "5:26",
+      "name": "T11 · Finish workout / confirmation",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T12",
+      "figmaId": "5:27",
+      "name": "T12 · Workout / completed summary",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T13",
+      "figmaId": "5:28",
+      "name": "T13 · Empty workout / discard confirmation",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T14",
+      "figmaId": "5:29",
+      "name": "T14 · Workout / save failed",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T15",
+      "figmaId": "5:30",
+      "name": "T15 · Exercise / details",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T16",
+      "figmaId": "5:31",
+      "name": "T16 · Workout / partial summary",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B01",
+      "figmaId": "5:32",
+      "name": "B01 · Body Planet / overview",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B02",
+      "figmaId": "5:33",
+      "name": "B02 · Body Planet / muscle selected",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B03",
+      "figmaId": "5:34",
+      "name": "B03 · Body Planet / water selected",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B04",
+      "figmaId": "5:35",
+      "name": "B04 · Body Planet / bone selected",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B05",
+      "figmaId": "5:36",
+      "name": "B05 · Body Planet / body fat selected",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B06",
+      "figmaId": "5:37",
+      "name": "B06 · Body Planet / focus region",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B07",
+      "figmaId": "5:38",
+      "name": "B07 · Update body data / draft",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B08",
+      "figmaId": "5:39",
+      "name": "B08 · Update body data / validation error",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B09",
+      "figmaId": "5:40",
+      "name": "B09 · Update body data / save failed",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B10",
+      "figmaId": "5:41",
+      "name": "B10 · Body Planet / data saved",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B11",
+      "figmaId": "5:42",
+      "name": "B11 · Body Planet / no body data",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B12",
+      "figmaId": "5:43",
+      "name": "B12 · Body Planet / loading",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B13",
+      "figmaId": "5:44",
+      "name": "B13 · Body Planet / renderer unavailable",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B14",
+      "figmaId": "5:45",
+      "name": "B14 · Update body data / focused input",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "AI01",
+      "figmaId": "5:46",
+      "name": "AI01 · AI Coach / welcome",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI02",
+      "figmaId": "5:47",
+      "name": "AI02 · AI Coach / source context",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI03",
+      "figmaId": "5:48",
+      "name": "AI03 · AI Coach / question draft",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI04",
+      "figmaId": "5:49",
+      "name": "AI04 · AI Coach / generating",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI05",
+      "figmaId": "5:50",
+      "name": "AI05 · AI Coach / suggested plan",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI06",
+      "figmaId": "5:51",
+      "name": "AI06 · AI Coach / review changes",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI07",
+      "figmaId": "5:52",
+      "name": "AI07 · AI Coach / plan saved",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI08",
+      "figmaId": "5:53",
+      "name": "AI08 · AI Coach / send failed",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI09",
+      "figmaId": "5:54",
+      "name": "AI09 · AI Coach / service unavailable",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI10",
+      "figmaId": "5:55",
+      "name": "AI10 · AI Coach / keyboard visible",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI11",
+      "figmaId": "5:56",
+      "name": "AI11 · AI Coach / conversation history",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI12",
+      "figmaId": "5:57",
+      "name": "AI12 · AI Coach / plan version conflict",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "H09",
+      "figmaId": "7:2",
+      "name": "H09 · Home / AI plan saved",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T17",
+      "figmaId": "7:3",
+      "name": "T17 · Updated 15 min plan",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T18",
+      "figmaId": "7:4",
+      "name": "T18 · 15 min plan / active",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T19",
+      "figmaId": "7:5",
+      "name": "T19 · Free workout / rest",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T20",
+      "figmaId": "7:6",
+      "name": "T20 · Free workout / paused",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T21",
+      "figmaId": "7:7",
+      "name": "T21 · Free workout / finish confirmation",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T22",
+      "figmaId": "7:8",
+      "name": "T22 · Free workout / add exercise",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T23",
+      "figmaId": "7:9",
+      "name": "T23 · Free workout / exercise selected",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T24",
+      "figmaId": "7:10",
+      "name": "T24 · 15 min plan / paused",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T25",
+      "figmaId": "7:11",
+      "name": "T25 · 15 min plan / rest",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T26",
+      "figmaId": "7:12",
+      "name": "T26 · 15 min plan / finish confirmation",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T27",
+      "figmaId": "7:13",
+      "name": "T27 · 15 min plan / complete",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T28",
+      "figmaId": "7:14",
+      "name": "T28 · Planned workout / final exercise",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T29",
+      "figmaId": "7:15",
+      "name": "T29 · Free workout / final exercise",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T30",
+      "figmaId": "7:16",
+      "name": "T30 · 15 min plan / final exercise",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T31",
+      "figmaId": "7:17",
+      "name": "T31 · Free workout / complete",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T32",
+      "figmaId": "7:18",
+      "name": "T32 · Free workout / partial summary",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "H10",
+      "figmaId": "12:3443",
+      "name": "H10 · Today’s plan / 15 min saved",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B15",
+      "figmaId": "15:3484",
+      "name": "B15 · Body Planet / focus Water",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B16",
+      "figmaId": "15:3603",
+      "name": "B16 · Body Planet / focus Bone",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "B17",
+      "figmaId": "15:3722",
+      "name": "B17 · Body Planet / focus Body fat",
+      "implementation": [
+        "src/PlanetView.tsx",
+        "src/app.js",
+        "src/planet/field.js",
+        "src/Modals.tsx"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "AI13",
+      "figmaId": "15:3847",
+      "name": "AI13 · AI Coach / Body Planet context",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI14",
+      "figmaId": "15:3926",
+      "name": "AI14 · AI Coach / Train context",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI15",
+      "figmaId": "15:4005",
+      "name": "AI15 · AI Coach / body question draft",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI16",
+      "figmaId": "15:4077",
+      "name": "AI16 · AI Coach / body response generating",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "AI17",
+      "figmaId": "15:4153",
+      "name": "AI17 · AI Coach / body response",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts",
+        "server/coach.mjs"
+      ],
+      "rendering": "shared-runtime-state",
+      "serviceBoundary": "Real AI provider pending; connected states validated with explicit test responses"
+    },
+    {
+      "code": "T33",
+      "figmaId": "16:3922",
+      "name": "T33 · Free workout / Plank added",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T34",
+      "figmaId": "16:3994",
+      "name": "T34 · Free workout / three exercises paused",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T35",
+      "figmaId": "16:4032",
+      "name": "T35 · Free workout / three exercises rest",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T36",
+      "figmaId": "16:4076",
+      "name": "T36 · Free workout / three exercises finish",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T37",
+      "figmaId": "16:4125",
+      "name": "T37 · Free workout / Plank final set",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T38",
+      "figmaId": "16:4166",
+      "name": "T38 · Free workout / three exercises complete",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    },
+    {
+      "code": "T39",
+      "figmaId": "16:4207",
+      "name": "T39 · Free workout / three exercises partial",
+      "implementation": [
+        "src/App.tsx",
+        "src/Modals.tsx",
+        "src/model.ts"
+      ],
+      "rendering": "shared-runtime-state"
+    }
+  ]
+}

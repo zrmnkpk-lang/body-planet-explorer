@@ -68,6 +68,9 @@ html.backdrop-mode #scene{cursor:default}
 
 /* The APP ecology surface explains body composition below the map, so the standalone renderer's zone legend stays out of the map frame. */
 .app-mode footer{display:none!important}
+.portal-embed,.portal-embed body,.portal-embed #app,.portal-embed #scene{width:100%;height:100%;min-height:0;overflow:hidden;background:transparent!important}
+.portal-embed header,.portal-embed .top-right,.portal-embed .zoom-map,.portal-embed #card,.portal-embed footer,.portal-embed .view-tools,.portal-embed .hint,.portal-embed #landmark-layer,.portal-embed #loading,.portal-embed #error{display:none!important}
+.portal-embed #scene{touch-action:none}
 
 /* Atlas 4.0: a compact field guide linked to real terrain and weather anchors. */
 html:not(.app-mode) #app{background:radial-gradient(ellipse at 48% 43%,#223336 0,#172328 44%,#101419 85%)}

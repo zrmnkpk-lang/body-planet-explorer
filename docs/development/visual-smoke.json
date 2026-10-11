@@ -1,0 +1,21 @@
+{
+  "errors": [],
+  "layouts": {
+    "home": {
+      "client": 594,
+      "scroll": 594
+    },
+    "train": {
+      "client": 594,
+      "scroll": 594
+    },
+    "body": {
+      "client": 594,
+      "scroll": 594
+    },
+    "coach": {
+      "client": 588,
+      "scroll": 588
+    }
+  }
+}

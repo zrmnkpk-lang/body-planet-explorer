@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
 import { LANDMARKS } from "./landmarks.js"
 import { ZONES } from "./planet/zones.js"
-import { sample, sampleLatLon, zoneAt, seeded } from "./planet/field.js"
+import { sample, sampleLatLon, zoneAt, seeded, BODY_PROFILE, BODY_SHAPE } from "./planet/field.js"
 import { makeTerrain, surfaceMaterial } from "./planet/terrain.js"
 import { point, addWater, addEcology } from "./planet/ecology.js"
 import { addClimate } from "./planet/climate.js"
@@ -18,10 +18,15 @@ import {
   revealMesh,
 } from "./planet/view-levels.js"
 import "./styles.css"
+import terrainWorkerUrl from "./planet/terrain.worker.js?worker&url"
 const params = new URLSearchParams(location.search)
 const appMode = params.get("mode") === "app"
 const snapshotMode = params.get("snapshot") === "1"
 const backdropMode = params.get("backdrop") === "1"
+const embedded = params.get("embed") === "1"
+const thumbnailMode = params.get("thumbnail") === "1"
+const publish = (type, detail = {}) => { if (embedded && parent !== window) parent.postMessage({ type, ...detail }, location.origin) }
+document.documentElement.classList.toggle("portal-embed", embedded)
 document.documentElement.classList.toggle("app-mode", appMode)
 document.documentElement.classList.toggle("snapshot-mode", snapshotMode)
 document.documentElement.classList.toggle("backdrop-mode", backdropMode)
@@ -39,9 +44,10 @@ try {
 } catch (e) {
   $("#loading").hidden = true
   $("#error").hidden = false
+  publish("portal:error")
   throw e
 }
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+renderer.setPixelRatio(Math.min(devicePixelRatio, thumbnailMode ? 1 : 2))
 // Backdrop mode lets the host APP provide the space field behind the planet.
 // Clear with zero alpha so the renderer never paints an opaque iframe-sized panel.
 renderer.setClearColor(0x000000, 0)
@@ -70,7 +76,7 @@ Object.assign(controls, {
 // Rotation is handled against the planet quaternion below, so it stays continuous across both poles.
 controls.enableRotate = false
 controls.mouseButtons.LEFT = null
-const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
+const reduced = params.get("motion") === "0" || matchMedia("(prefers-reduced-motion: reduce)").matches
 // Clear daylight: warm sun, neutral sky fill and readable blue ocean shadows.
 scene.add(new T.HemisphereLight(0xd7eeff, 0x657d80, 1.42))
 const key = new T.DirectionalLight(0xffebd7, 1.8)
@@ -147,7 +153,7 @@ starField.visible = !snapshotMode
 scene.add(starField)
 const lods = new Map([[15, terrain.geometry]]),
   pending = new Set()
-let quality = "fine",
+let quality = embedded ? "standard" : "fine",
   worker,
   localMesh = null,
   pendingZone = null,
@@ -155,7 +161,9 @@ let quality = "fine",
   workerFailed = false,
   coastline = null
 try {
-  worker = new Worker(new URL("./planet/terrain.worker.js", import.meta.url), {
+  const workerUrl = new URL(terrainWorkerUrl, location.href)
+  workerUrl.searchParams.set("body", JSON.stringify(BODY_PROFILE))
+  worker = new Worker(workerUrl, {
     type: "module",
   })
   worker.onmessage = ({ data: d }) => {
@@ -213,7 +221,7 @@ try {
         coastline.renderOrder = 2
         root.add(coastline)
       }
-      if (d.detail === 63) requestTerrain(127)
+      if (d.detail === 63 && !embedded) requestTerrain(127)
     }
   }
   worker.onerror = () => {
@@ -232,7 +240,7 @@ function requestTerrain(detail) {
     worker.postMessage({ detail })
   }
 }
-requestTerrain(63)
+if (!thumbnailMode) requestTerrain(63)
 // Local GLB landmarks. The generated source and manifest live in the repository.
 const landmarkModels = []
 const loader = new GLTFLoader()
@@ -455,7 +463,9 @@ function pick(e) {
     else hi = mid
   }
   evaluate(hi)
-  select(zoneAt(sample(n.x, n.y, n.z)))
+  const pickedZone = zoneAt(sample(n.x, n.y, n.z))
+  select(pickedZone)
+  publish("portal:region", { metric: pickedZone })
 }
 const pointers = new Set()
 const HOLD_TO_ROTATE_MS = 180
@@ -601,7 +611,7 @@ function resize() {
     h = host.clientHeight
   renderer.setSize(w, h)
   camera.aspect = w / h
-  camera.fov = w < 760 ? 44 : 36
+  camera.fov = embedded ? 40 : w < 760 ? 44 : 36
   camera.updateProjectionMatrix()
 }
 const observer = new ResizeObserver(resize)
@@ -616,6 +626,7 @@ let last = performance.now(),
   currentLevel = levelForDistance(camera.position.length(), 0)
 function frame(now) {
   raf = requestAnimationFrame(frame)
+  if (embedded && now - last < 1000 / (thumbnailMode ? 12 : 30)) return
   const dt = Math.min((now - last) / 1000, 0.1)
   last = now
   if (document.hidden || contextLost) return
@@ -783,9 +794,29 @@ function frame(now) {
 }
 raf = requestAnimationFrame(frame)
 $("#loading").hidden = true
+for (const [zone, value] of Object.entries(BODY_PROFILE)) data[zone].value = value
+if (embedded) {
+  camera.position.copy(point(23, -30, 3.5))
+  controls.enableZoom = !thumbnailMode
+  host.setAttribute("aria-label", "Interactive planet: drag to rotate, pinch to zoom, arrow keys to rotate, plus or minus to zoom, Escape to reset")
+  window.addEventListener("message", event => {
+    if (event.origin !== location.origin || event.source !== parent || event.data?.type !== "portal:command") return
+    const { action, metric } = event.data
+    if (action === "zoom-in") zoom(0.85)
+    else if (action === "zoom-out") zoom(1.18)
+    else if (action === "reset") { reset(); targetCamera = point(23, -30, 3.5) }
+    else if (data[metric] && (action === "select" || action === "focus")) focus(metric, action === "focus" ? 1.7 : 3.5)
+  })
+  renderer.render(scene, camera)
+  publish("portal:ready", { profile: BODY_PROFILE })
+}
+window.__PORTAL_PLANET__ = {
+  stats: () => ({ body: BODY_PROFILE, shape: BODY_SHAPE, vertices: terrain.geometry.attributes.position.count, triangles: terrain.geometry.index.count / 3, trees: ecology.treeCount, camera: camera.position.toArray(), rotation: root.quaternion.toArray(), sampleMountain: sampleLatLon(23, -30).h, sampleIce: sampleLatLon(68, 0).h, lods: [...lods.keys()], renderedFrames: frames }),
+}
 renderer.domElement.addEventListener("webglcontextlost", (e) => {
   e.preventDefault()
   contextLost = true
+  publish("portal:error")
   $("#error").hidden = false
 })
 window.addEventListener(

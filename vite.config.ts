@@ -2,6 +2,7 @@ import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
+import { coachPlugin } from './server/coach.mjs'
 
 import siteConfiguration from './.figma/make/site.json'
 
@@ -23,6 +24,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
+      coachPlugin(),
       react(),
       tailwindcss(),
       figmaSiteConfiguration(siteConfiguration),
@@ -37,13 +39,13 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: '0.0.0.0',
-      port: parseInt(process.env.PORT || '8443'),
+      port: parseInt(process.env.PORT || '8445'),
       strictPort: true,
-      watch: { ignored: ['**/.figma/**'] },
+      watch: { ignored: ['**/.figma/**', '**/docs/**', '**/scripts/**', '**/tests/**', '**/test-results/**', '**/dist/**'] },
     },
     preview: {
       host: '0.0.0.0',
-      port: parseInt(process.env.PORT || '8443'),
+      port: parseInt(process.env.PORT || '8445'),
     },
   }
 })

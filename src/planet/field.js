@@ -2,6 +2,25 @@ import { continentalShape } from "./continents.js"
 
 // All sampling takes place in 3D, so neither poles nor longitude seams exist.
 export const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v))
+// Read before river/lake profiles are constructed: the main frame and terrain
+// worker load this identical module with the same query, so relief, water,
+// vegetation, picking and all LOD levels share one physical surface.
+export const BODY_PROFILE = (() => {
+  const baseline = { muscle: 32.8, water: 58.3, bone: 3.1, fat: 18.7 }
+  try {
+    const input = JSON.parse(new URLSearchParams(globalThis.location?.search || "").get("body") || "null")
+    if (!input) return baseline
+    for (const key of Object.keys(baseline))
+      if (!Number.isFinite(input[key]) || input[key] < 0 || (key === "water" || key === "fat" ? input[key] > 100 : input[key] <= 0 || input[key] > 500)) return baseline
+    return Object.fromEntries(Object.keys(baseline).map(key => [key, input[key]]))
+  } catch { return baseline }
+})()
+export const BODY_SHAPE = {
+  mountain: clamp(BODY_PROFILE.muscle / 32.8, 0.65, 1.65),
+  channel: clamp(BODY_PROFILE.water / 58.3, 0.65, 1.45),
+  ice: clamp(BODY_PROFILE.bone / 3.1, 0.65, 1.65),
+  moisture: clamp((18.7 - BODY_PROFILE.fat) / 100, -0.25, 0.18),
+}
 export const smooth = (a, b, v) => {
   const t = clamp((v - a) / (b - a))
   return t * t * (3 - 2 * t)
@@ -288,7 +307,7 @@ export function riverWidth(lat, index = 0) {
   const r = RIVERS[index], t = clamp((r.north - lat) / (r.north - r.south))
   const phase = index * 1.738
   const variability = 1 + 0.025 * Math.sin(lat * 0.65 + phase) + 0.015 * Math.sin(lat * 1.3 - phase)
-  return r.width * variability * (r.delta ? 0.72 + 0.66 * smooth(0.45, 1, t) :
+  return r.width * BODY_SHAPE.channel * variability * (r.delta ? 0.72 + 0.66 * smooth(0.45, 1, t) :
     0.23 + 1.02 * smooth(0, 1, Math.pow(t, 0.8)))
 }
 export function riverInfo(lat, lon) {
@@ -430,8 +449,8 @@ export function sample(x, y, z, hydrology = true) {
   let h =
     -0.018 +
     land * (0.032 + Math.max(0, continental) * 0.038) +
-    mountains * foothillHeight +
-    inland * plateau * 0.014 + alpine +
+    mountains * foothillHeight * BODY_SHAPE.mountain +
+    inland * plateau * 0.014 + alpine * BODY_SHAPE.mountain +
     land * (0.0013 * fbm(x * 37, y * 37, z * 37, 2) +
       0.0011 * fbm(x * 75, y * 75, z * 75, 2))
   if (polar > 0) {
@@ -443,7 +462,7 @@ export function sample(x, y, z, hydrology = true) {
     const iceValley = 1 - smooth(0.012, 0.065,
       Math.abs(x + z * 0.35 + 0.07 * fbm(x * 11, y * 11, z * 11, 3)))
     const relief = 0.028 * icePlateau + 0.025 * iceRidge - 0.022 * iceValley
-    h = Math.max(h, -0.018 + polar * (0.056 + relief)) +
+    h = Math.max(h, -0.018 + polar * (0.056 + relief * BODY_SHAPE.ice)) +
       polar * (0.0017 * fbm(x * 64, y * 64, z * 64, 3) +
         0.0009 * noise(x * 112, y * 112, z * 112))
   }
@@ -483,7 +502,7 @@ export function sample(x, y, z, hydrology = true) {
     (1 - smooth(1, 2.15, lake)) * (lakeInfo.basin?.kind === "marsh" ? 1 : 0.7)) *
     (0.75 + 0.25 * noise(x * 90 + 5, y * 90, z * 90))) * (1 - polar) : 0
   const moisture = clamp(
-    0.63 +
+    0.63 + BODY_SHAPE.moisture +
       0.48 * fbm(x * 5 - 20, y * 5, z * 5, 4) +
       0.13 * fbm(x * 12 + 3, y * 12, z * 12, 2) -
       0.12 * mountains -
