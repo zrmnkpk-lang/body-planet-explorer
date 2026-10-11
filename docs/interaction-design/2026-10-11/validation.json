@@ -1,0 +1,1543 @@
+{
+  "screenCount": 89,
+  "expectedScreenCount": 89,
+  "inventory": [
+    {
+      "id": "H01",
+      "node": "5:2",
+      "body": 584,
+      "viewport": 588,
+      "scroll": false
+    },
+    {
+      "id": "H02",
+      "node": "5:3",
+      "body": 504,
+      "viewport": 720,
+      "scroll": false
+    },
+    {
+      "id": "H03",
+      "node": "5:4",
+      "body": 458,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "H08",
+      "node": "5:5",
+      "body": 458,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "H04",
+      "node": "5:6",
+      "body": 636,
+      "viewport": 588,
+      "scroll": true
+    },
+    {
+      "id": "H05",
+      "node": "5:7",
+      "body": 584,
+      "viewport": 588,
+      "scroll": false
+    },
+    {
+      "id": "H06",
+      "node": "5:8",
+      "body": 296,
+      "viewport": 588,
+      "scroll": false
+    },
+    {
+      "id": "H07",
+      "node": "5:9",
+      "body": 174,
+      "viewport": 596,
+      "scroll": false
+    },
+    {
+      "id": "A01",
+      "node": "5:10",
+      "scroll": false
+    },
+    {
+      "id": "A02",
+      "node": "5:11",
+      "body": 398,
+      "viewport": 680,
+      "scroll": false
+    },
+    {
+      "id": "A03",
+      "node": "5:12",
+      "body": 212,
+      "viewport": 680,
+      "scroll": false
+    },
+    {
+      "id": "A04",
+      "node": "5:13",
+      "body": 284,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "A05",
+      "node": "5:14",
+      "body": 234,
+      "viewport": 680,
+      "scroll": false
+    },
+    {
+      "id": "A06",
+      "node": "5:15",
+      "body": 284,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "T01",
+      "node": "5:16",
+      "body": 370,
+      "viewport": 588,
+      "scroll": false
+    },
+    {
+      "id": "T02",
+      "node": "5:17",
+      "body": 524,
+      "viewport": 588,
+      "scroll": false
+    },
+    {
+      "id": "T03",
+      "node": "5:18",
+      "body": 396,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T04",
+      "node": "5:19",
+      "body": 226,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T05",
+      "node": "5:20",
+      "body": 426,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T06",
+      "node": "5:21",
+      "body": 426,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T07",
+      "node": "5:22",
+      "body": 638,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T08",
+      "node": "5:23",
+      "body": 824,
+      "viewport": 672,
+      "scroll": true
+    },
+    {
+      "id": "T09",
+      "node": "5:24",
+      "body": 278,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T10",
+      "node": "5:25",
+      "body": 178,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T11",
+      "node": "5:26",
+      "body": 250,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "T12",
+      "node": "5:27",
+      "body": 296,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T13",
+      "node": "5:28",
+      "body": 196,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "T14",
+      "node": "5:29",
+      "body": 188,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "T15",
+      "node": "5:30",
+      "body": 238,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T16",
+      "node": "5:31",
+      "body": 282,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "B01",
+      "node": "5:32",
+      "body": 532,
+      "viewport": 532,
+      "scroll": false
+    },
+    {
+      "id": "B02",
+      "node": "5:33",
+      "body": 646,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B03",
+      "node": "5:34",
+      "body": 646,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B04",
+      "node": "5:35",
+      "body": 646,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B05",
+      "node": "5:36",
+      "body": 646,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B06",
+      "node": "5:37",
+      "body": 718,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B07",
+      "node": "5:38",
+      "body": 434,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "B08",
+      "node": "5:39",
+      "body": 524,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "B09",
+      "node": "5:40",
+      "body": 464,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "B10",
+      "node": "5:41",
+      "body": 558,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B11",
+      "node": "5:42",
+      "body": 404,
+      "viewport": 532,
+      "scroll": false
+    },
+    {
+      "id": "B12",
+      "node": "5:43",
+      "body": 494,
+      "viewport": 588,
+      "scroll": false
+    },
+    {
+      "id": "B13",
+      "node": "5:44",
+      "body": 422,
+      "viewport": 532,
+      "scroll": false
+    },
+    {
+      "id": "B14",
+      "node": "5:45",
+      "body": 434,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "AI01",
+      "node": "5:46",
+      "body": 462,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI02",
+      "node": "5:47",
+      "body": 336,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI03",
+      "node": "5:48",
+      "body": 146,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI04",
+      "node": "5:49",
+      "body": 248,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI05",
+      "node": "5:50",
+      "body": 420,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI06",
+      "node": "5:51",
+      "body": 224,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "AI07",
+      "node": "5:52",
+      "body": 276,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI08",
+      "node": "5:53",
+      "body": 196,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI09",
+      "node": "5:54",
+      "body": 274,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI10",
+      "node": "5:55",
+      "body": 146,
+      "viewport": 424,
+      "scroll": false
+    },
+    {
+      "id": "AI11",
+      "node": "5:56",
+      "body": 180,
+      "viewport": 650,
+      "scroll": false
+    },
+    {
+      "id": "AI12",
+      "node": "5:57",
+      "body": 244,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "H09",
+      "node": "7:2",
+      "body": 610,
+      "viewport": 588,
+      "scroll": true
+    },
+    {
+      "id": "T17",
+      "node": "7:3",
+      "body": 422,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T18",
+      "node": "7:4",
+      "body": 824,
+      "viewport": 672,
+      "scroll": true
+    },
+    {
+      "id": "T19",
+      "node": "7:5",
+      "body": 278,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T20",
+      "node": "7:6",
+      "body": 178,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T21",
+      "node": "7:7",
+      "body": 250,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "T22",
+      "node": "7:8",
+      "body": 302,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T23",
+      "node": "7:9",
+      "body": 302,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T24",
+      "node": "7:10",
+      "body": 178,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T25",
+      "node": "7:11",
+      "body": 278,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T26",
+      "node": "7:12",
+      "body": 250,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "T27",
+      "node": "7:13",
+      "body": 230,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T28",
+      "node": "7:14",
+      "body": 402,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T29",
+      "node": "7:15",
+      "body": 402,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T30",
+      "node": "7:16",
+      "body": 402,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T31",
+      "node": "7:17",
+      "body": 230,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T32",
+      "node": "7:18",
+      "body": 230,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "H10",
+      "node": "12:3443",
+      "body": 504,
+      "viewport": 720,
+      "scroll": false
+    },
+    {
+      "id": "B15",
+      "node": "15:3484",
+      "body": 718,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B16",
+      "node": "15:3603",
+      "body": 718,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "B17",
+      "node": "15:3722",
+      "body": 718,
+      "viewport": 532,
+      "scroll": true
+    },
+    {
+      "id": "AI13",
+      "node": "15:3847",
+      "body": 360,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI14",
+      "node": "15:3926",
+      "body": 336,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI15",
+      "node": "15:4005",
+      "body": 192,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI16",
+      "node": "15:4077",
+      "body": 248,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "AI17",
+      "node": "15:4153",
+      "body": 420,
+      "viewport": 582,
+      "scroll": false
+    },
+    {
+      "id": "T33",
+      "node": "16:3922",
+      "body": 700,
+      "viewport": 672,
+      "scroll": true
+    },
+    {
+      "id": "T34",
+      "node": "16:3994",
+      "body": 178,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T35",
+      "node": "16:4032",
+      "body": 278,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T36",
+      "node": "16:4076",
+      "body": 250,
+      "viewport": 728,
+      "scroll": false
+    },
+    {
+      "id": "T37",
+      "node": "16:4125",
+      "body": 424,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T38",
+      "node": "16:4166",
+      "body": 230,
+      "viewport": 672,
+      "scroll": false
+    },
+    {
+      "id": "T39",
+      "node": "16:4207",
+      "body": 230,
+      "viewport": 672,
+      "scroll": false
+    }
+  ],
+  "mainScreenEvidence": {
+    "H01": {
+      "frameId": "5:2",
+      "name": "H01 · Home / default",
+      "x": 80,
+      "y": 700,
+      "width": 390,
+      "height": 844,
+      "counts": {
+        "FRAME": 54,
+        "TEXT": 33,
+        "INSTANCE": 25,
+        "VECTOR": 39,
+        "RECTANGLE": 4
+      },
+      "bodyHeight": 584,
+      "viewportHeight": 588,
+      "scrolls": false,
+      "footerOrder": [
+        "AI quick entry",
+        "Bottom navigation"
+      ]
+    },
+    "B01": {
+      "frameId": "5:32",
+      "name": "B01 · Body Planet / overview",
+      "x": 80,
+      "y": 7400,
+      "width": 390,
+      "height": 844,
+      "counts": {
+        "FRAME": 34,
+        "TEXT": 19,
+        "INSTANCE": 19,
+        "VECTOR": 34,
+        "RECTANGLE": 2
+      },
+      "bodyHeight": 532,
+      "viewportHeight": 532,
+      "scrolls": false,
+      "footerOrder": [
+        "Button/Update body data",
+        "AI quick entry",
+        "Bottom navigation"
+      ]
+    },
+    "AI01": {
+      "frameId": "5:46",
+      "name": "AI01 · AI Coach / welcome",
+      "x": 80,
+      "y": 9700,
+      "width": 390,
+      "height": 844,
+      "counts": {
+        "FRAME": 29,
+        "TEXT": 15,
+        "INSTANCE": 16,
+        "VECTOR": 33
+      },
+      "bodyHeight": 462,
+      "viewportHeight": 582,
+      "scrolls": false,
+      "footerOrder": [
+        "Message composer",
+        "Bottom navigation"
+      ]
+    },
+    "A01": {
+      "frameId": "5:10",
+      "name": "A01 · Account / left drawer",
+      "x": 80,
+      "y": 1740,
+      "width": 390,
+      "height": 844,
+      "counts": {
+        "FRAME": 68,
+        "TEXT": 42,
+        "INSTANCE": 31,
+        "VECTOR": 46,
+        "RECTANGLE": 7
+      },
+      "scrolls": false
+    },
+    "T03": {
+      "frameId": "5:18",
+      "name": "T03 · Workout plan / preview",
+      "x": 1040,
+      "y": 3000,
+      "width": 390,
+      "height": 844,
+      "counts": {
+        "FRAME": 40,
+        "TEXT": 11,
+        "INSTANCE": 16,
+        "VECTOR": 48
+      },
+      "bodyHeight": 396,
+      "viewportHeight": 672,
+      "scrolls": false,
+      "footerOrder": [
+        "Button/Start planned workout"
+      ]
+    },
+    "AI06": {
+      "frameId": "5:51",
+      "name": "AI06 · AI Coach / review changes",
+      "x": 2480,
+      "y": 9700,
+      "width": 390,
+      "height": 844,
+      "counts": {
+        "FRAME": 17,
+        "TEXT": 9,
+        "INSTANCE": 7,
+        "VECTOR": 19
+      },
+      "bodyHeight": 224,
+      "viewportHeight": 672,
+      "scrolls": false,
+      "footerOrder": [
+        "Row"
+      ]
+    }
+  },
+  "typeCounts": {
+    "FRAME": 2229,
+    "TEXT": 1199,
+    "INSTANCE": 1104,
+    "VECTOR": 2425,
+    "RECTANGLE": 56
+  },
+  "textFamilies": {
+    "Inter": 1199
+  },
+  "artworkCount": 49,
+  "rasterNames": [
+    "alex-account",
+    "riverlands-planet",
+    "maya-sport",
+    "maya-body-analysis"
+  ],
+  "prototypeEdgeCount": 501,
+  "graph": {
+    "H01": [
+      "5:10",
+      "5:9",
+      "5:32",
+      "5:3",
+      "5:8",
+      "5:33",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:47",
+      "5:17",
+      "5:46"
+    ],
+    "H02": [
+      "5:2",
+      "5:4",
+      "5:18"
+    ],
+    "H03": [
+      "5:3",
+      "5:5",
+      "5:6"
+    ],
+    "H08": [
+      "5:3",
+      "5:4",
+      "5:6"
+    ],
+    "H04": [
+      "5:10",
+      "5:9",
+      "5:32",
+      "12:3443",
+      "5:8",
+      "5:33",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:47",
+      "5:2",
+      "7:3",
+      "5:46"
+    ],
+    "H05": [
+      "5:10",
+      "5:9",
+      "5:32",
+      "5:16",
+      "5:8",
+      "5:33",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:47",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "H06": [
+      "5:2",
+      "5:27",
+      "5:47",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "H07": [
+      "5:2",
+      "5:47",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "A01": [
+      "5:2",
+      "5:11",
+      "5:14",
+      "5:13"
+    ],
+    "A02": [
+      "5:10",
+      "5:12",
+      "5:14"
+    ],
+    "A03": [
+      "5:11"
+    ],
+    "A04": [
+      "5:10",
+      "5:15"
+    ],
+    "A05": [
+      "5:10"
+    ],
+    "A06": [
+      "5:10",
+      "5:13"
+    ],
+    "T01": [
+      "5:19",
+      "5:46",
+      "5:2",
+      "5:17",
+      "5:32"
+    ],
+    "T02": [
+      "5:18",
+      "5:19",
+      "15:3926",
+      "5:2",
+      "5:32",
+      "5:46"
+    ],
+    "T03": [
+      "5:17",
+      "5:30",
+      "5:23"
+    ],
+    "T04": [
+      "5:28",
+      "5:20"
+    ],
+    "T05": [
+      "5:19",
+      "5:21"
+    ],
+    "T06": [
+      "5:19",
+      "5:20",
+      "5:22"
+    ],
+    "T07": [
+      "7:5",
+      "7:6",
+      "7:8",
+      "7:7"
+    ],
+    "T08": [
+      "5:24",
+      "5:25",
+      "5:26"
+    ],
+    "T09": [
+      "7:14",
+      "5:25",
+      "5:26"
+    ],
+    "T10": [
+      "5:23",
+      "5:26"
+    ],
+    "T11": [
+      "5:23",
+      "5:31"
+    ],
+    "T12": [
+      "5:8",
+      "5:2"
+    ],
+    "T13": [
+      "5:19",
+      "5:16"
+    ],
+    "T14": [
+      "5:31",
+      "5:23"
+    ],
+    "T16": [
+      "5:8",
+      "5:2"
+    ],
+    "B01": [
+      "5:33",
+      "5:37",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B02": [
+      "5:37",
+      "5:32",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B03": [
+      "15:3484",
+      "5:32",
+      "5:33",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B04": [
+      "5:33",
+      "15:3603",
+      "5:32",
+      "5:34",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B05": [
+      "5:33",
+      "15:3722",
+      "5:32",
+      "5:34",
+      "5:35",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B06": [
+      "5:33",
+      "5:32",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B07": [
+      "5:32",
+      "5:45",
+      "5:41"
+    ],
+    "B08": [
+      "5:32",
+      "5:38"
+    ],
+    "B09": [
+      "5:32",
+      "5:41"
+    ],
+    "B10": [
+      "5:33",
+      "5:37",
+      "5:32",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B11": [
+      "5:33",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "5:46",
+      "5:2",
+      "5:17",
+      "5:32"
+    ],
+    "B12": [
+      "5:33",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:46",
+      "5:2",
+      "5:17",
+      "5:32"
+    ],
+    "B13": [
+      "5:32",
+      "5:33",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B14": [
+      "5:32",
+      "5:41"
+    ],
+    "AI01": [
+      "5:48",
+      "15:4005",
+      "5:56",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32"
+    ],
+    "AI02": [
+      "5:48",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI03": [
+      "5:55",
+      "5:49",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI04": [
+      "5:50",
+      "5:48",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI05": [
+      "5:51",
+      "5:55",
+      "5:49",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI06": [
+      "5:50",
+      "5:52"
+    ],
+    "AI07": [
+      "7:3",
+      "5:55",
+      "5:49",
+      "7:2",
+      "5:32",
+      "5:46"
+    ],
+    "AI08": [
+      "5:49",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI09": [
+      "5:46",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32"
+    ],
+    "AI10": [
+      "5:49",
+      "5:48"
+    ],
+    "AI11": [
+      "5:46",
+      "5:50",
+      "5:2",
+      "5:17",
+      "5:32"
+    ],
+    "AI12": [
+      "5:50",
+      "5:18"
+    ],
+    "H09": [
+      "5:10",
+      "5:9",
+      "5:32",
+      "12:3443",
+      "5:8",
+      "5:33",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:47",
+      "5:2",
+      "7:3",
+      "5:46"
+    ],
+    "T17": [
+      "5:30",
+      "7:4"
+    ],
+    "T18": [
+      "7:11",
+      "7:10",
+      "7:12"
+    ],
+    "T19": [
+      "7:15",
+      "7:6",
+      "7:7"
+    ],
+    "T20": [
+      "5:22",
+      "7:7"
+    ],
+    "T21": [
+      "5:22",
+      "7:18"
+    ],
+    "T22": [
+      "5:22",
+      "7:9"
+    ],
+    "T23": [
+      "5:22",
+      "7:8",
+      "16:3922"
+    ],
+    "T24": [
+      "7:4",
+      "7:12"
+    ],
+    "T25": [
+      "7:16",
+      "7:10",
+      "7:12"
+    ],
+    "T26": [
+      "7:4",
+      "5:31"
+    ],
+    "T27": [
+      "5:8",
+      "7:2"
+    ],
+    "T28": [
+      "5:27",
+      "5:26"
+    ],
+    "T29": [
+      "7:17",
+      "7:7"
+    ],
+    "T30": [
+      "7:13",
+      "7:12"
+    ],
+    "T31": [
+      "5:8",
+      "5:2"
+    ],
+    "T32": [
+      "5:8",
+      "5:2"
+    ],
+    "H10": [
+      "5:6",
+      "5:5",
+      "7:3"
+    ],
+    "B15": [
+      "5:33",
+      "5:32",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B16": [
+      "5:33",
+      "5:32",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "B17": [
+      "5:33",
+      "5:32",
+      "5:34",
+      "5:35",
+      "5:36",
+      "5:38",
+      "15:3847",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "AI13": [
+      "15:4005",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI14": [
+      "5:48",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI15": [
+      "5:55",
+      "15:4077",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI16": [
+      "15:4153",
+      "15:4005",
+      "5:55",
+      "5:2",
+      "5:17",
+      "5:32",
+      "5:46"
+    ],
+    "AI17": [
+      "5:32",
+      "5:55",
+      "15:4077",
+      "5:2",
+      "5:17",
+      "5:46"
+    ],
+    "T33": [
+      "16:4032",
+      "16:3994",
+      "16:4076"
+    ],
+    "T34": [
+      "16:3922",
+      "16:4076"
+    ],
+    "T35": [
+      "16:4125",
+      "16:3994",
+      "16:4076"
+    ],
+    "T36": [
+      "16:3922",
+      "16:4207"
+    ],
+    "T37": [
+      "16:4166",
+      "16:4076"
+    ],
+    "T38": [
+      "5:8",
+      "5:2"
+    ],
+    "T39": [
+      "5:8",
+      "5:2"
+    ]
+  },
+  "pathChecks": {
+    "homeEdit": {
+      "pass": true,
+      "path": [
+        "H01",
+        "H02",
+        "H03",
+        "H08",
+        "H04",
+        "H10",
+        "T17"
+      ]
+    },
+    "freeWorkout": {
+      "pass": true,
+      "path": [
+        "T01",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T19",
+        "T29",
+        "T31"
+      ]
+    },
+    "plannedWorkout": {
+      "pass": true,
+      "path": [
+        "T02",
+        "T03",
+        "T08",
+        "T09",
+        "T28",
+        "T12"
+      ]
+    },
+    "freeAddExercise": {
+      "pass": true,
+      "path": [
+        "T07",
+        "T22",
+        "T23",
+        "T33",
+        "T35",
+        "T37",
+        "T38"
+      ]
+    },
+    "freeAddPause": {
+      "pass": true,
+      "path": [
+        "T33",
+        "T34",
+        "T33"
+      ]
+    },
+    "freePartial": {
+      "pass": true,
+      "path": [
+        "T33",
+        "T36",
+        "T39"
+      ]
+    },
+    "bodySave": {
+      "pass": true,
+      "path": [
+        "B01",
+        "B07",
+        "B10"
+      ]
+    },
+    "waterFocus": {
+      "pass": true,
+      "path": [
+        "B01",
+        "B03",
+        "B15"
+      ]
+    },
+    "boneFocus": {
+      "pass": true,
+      "path": [
+        "B01",
+        "B04",
+        "B16"
+      ]
+    },
+    "climateFocus": {
+      "pass": true,
+      "path": [
+        "B01",
+        "B05",
+        "B17"
+      ]
+    },
+    "coachPlan": {
+      "pass": true,
+      "path": [
+        "AI01",
+        "AI03",
+        "AI04",
+        "AI05",
+        "AI06",
+        "AI07",
+        "T17",
+        "T18",
+        "T25",
+        "T30",
+        "T27"
+      ]
+    },
+    "coachBody": {
+      "pass": true,
+      "path": [
+        "B01",
+        "AI13",
+        "AI15",
+        "AI16",
+        "AI17",
+        "B01"
+      ]
+    }
+  },
+  "smallTargets": [],
+  "issues": [],
+  "flowStartingPoints": [
+    {
+      "nodeId": "5:2",
+      "name": "01 · Home & account"
+    },
+    {
+      "nodeId": "5:16",
+      "name": "02 · Free workout"
+    },
+    {
+      "nodeId": "5:17",
+      "name": "03 · Planned workout"
+    },
+    {
+      "nodeId": "5:32",
+      "name": "04 · Body Planet"
+    },
+    {
+      "nodeId": "5:46",
+      "name": "05 · AI Coach"
+    },
+    {
+      "nodeId": "5:29",
+      "name": "06 · Workout save error"
+    },
+    {
+      "nodeId": "5:39",
+      "name": "07 · Body validation"
+    },
+    {
+      "nodeId": "5:40",
+      "name": "08 · Body save error"
+    },
+    {
+      "nodeId": "5:42",
+      "name": "09 · No body data"
+    },
+    {
+      "nodeId": "5:43",
+      "name": "10 · Planet loading"
+    },
+    {
+      "nodeId": "5:44",
+      "name": "11 · Planet failure"
+    },
+    {
+      "nodeId": "5:53",
+      "name": "12 · AI send error"
+    },
+    {
+      "nodeId": "5:54",
+      "name": "13 · AI unavailable"
+    },
+    {
+      "nodeId": "5:57",
+      "name": "14 · Plan version conflict"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "overview.png",
+    "source": "Figma get_screenshot",
+    "bytes": 342905,
+    "width": 1760,
+    "height": 1020,
+    "sha256": "dffe2c3dc552bb007ea7bc093ec1c74cbc2f2edf51b865623dc2079174b89d02"
+  },
+  {
+    "name": "interaction-details.png",
+    "source": "Figma get_screenshot",
+    "bytes": 115958,
+    "width": 1330,
+    "height": 1020,
+    "sha256": "cb6bd85dab594538099dd1e961862b69e2d37f9687eb3b267f45b9cf3193bede"
+  },
+  {
+    "name": "home-preview.png",
+    "source": "Figma get_screenshot",
+    "bytes": 78529,
+    "width": 390,
+    "height": 844,
+    "sha256": "c8ae10ac8f7ef70d731baf111a3d777d941093b4beda3a1561a8210855a43010"
+  },
+  {
+    "name": "train-preview.png",
+    "source": "Figma get_screenshot",
+    "bytes": 60240,
+    "width": 390,
+    "height": 844,
+    "sha256": "536e4be24bd02ff35888ade584148adc2d6443c65f447c97b83b4713c4ab464c"
+  },
+  {
+    "name": "body-preview.png",
+    "source": "Figma get_screenshot",
+    "bytes": 154967,
+    "width": 390,
+    "height": 844,
+    "sha256": "8291107ec6d6826e442d2b954e6fc3d413f59cce0ef5c730a0f57fb5c7ebe58c"
+  },
+  {
+    "name": "ai-preview.png",
+    "source": "Figma get_screenshot",
+    "bytes": 44063,
+    "width": 390,
+    "height": 844,
+    "sha256": "fcab6171c4ea7e8d6dca15034a3f2d8bde8c3266d9d024f0cc7158c1f9a7e9d0"
+  }
+]

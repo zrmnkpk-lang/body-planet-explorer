@@ -1,0 +1,42 @@
+[
+  {
+    "name": "maya-sport",
+    "result": {
+      "success": true,
+      "imageHash": "f95ef28c16c4e8c548bf0ed9937c3d0a833c6f45",
+      "sizeBytes": 2126007,
+      "contentType": "image/png",
+      "placedOnNodeId": "4:73"
+    }
+  },
+  {
+    "name": "maya-body-analysis",
+    "result": {
+      "success": true,
+      "imageHash": "634176d49aea807d12e890a9965f91f169f71c77",
+      "sizeBytes": 2562828,
+      "contentType": "image/png",
+      "placedOnNodeId": "4:74"
+    }
+  },
+  {
+    "name": "alex-account",
+    "result": {
+      "success": true,
+      "imageHash": "f35ed9f5d6ad9ddda62313423e8c869c5777a6fb",
+      "sizeBytes": 1385232,
+      "contentType": "image/png",
+      "placedOnNodeId": "4:75"
+    }
+  },
+  {
+    "name": "riverlands-planet",
+    "result": {
+      "success": true,
+      "imageHash": "bc53c37e0ac9bd3f2effb8122ae08d4669a5bc0d",
+      "sizeBytes": 2771673,
+      "contentType": "image/png",
+      "placedOnNodeId": "4:76"
+    }
+  }
+]
