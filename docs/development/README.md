@@ -6,7 +6,9 @@
 
 本项目复制原项目的实际工作区，而不是只取旧的 Git 提交。包含最新未提交的连续山脊、河流、冰川、植被、地标、着色器和地形校验脚本。`baseline.json` 保存逐文件 SHA256、源提交和源 Git index 指纹；独立仓库的首个提交是复制基线。
 
-设计依据：[Portal Fitness 正式交互稿 V1](https://www.figma.com/design/ccBI9Wxbj1gTnZI9D6yplY)。实现使用 React 19、Vite、Tailwind v4、Inter 本地字体和 Lucide 图标，保留原来的 `src/main.tsx → ./App.tsx` 显式入口，避免与独立星球的 `src/app.js` 混淆。不是整页图片贴图。
+交互与状态依据：[Portal Fitness 正式交互稿 V1](https://www.figma.com/design/ccBI9Wxbj1gTnZI9D6yplY)。视觉依据为用户确认的 [Home / Account / AI V6](../visual-interactions/2026-10-11/03-home-account-membership-v6.png)、[Body Planet V5](../visual-interactions/2026-10-11/02-body-planet-linked-data-v5.png) 和 [Train V2](../visual-interactions/2026-10-07/03-train-free-add-planned-session-v2.png)。首轮正式稿转换曾简化颜色、图标和材质，本次按照已确认概念稿恢复这些视觉层次；原生 Figma V1 中旧的平色样式不再作为本开发版视觉的唯一依据。
+
+实现使用 React 19、Vite、Tailwind v4、Inter 本地字体和 Lucide 图标，保留原来的 `src/main.tsx → ./App.tsx` 显式入口，避免与独立星球的 `src/app.js` 混淆。不是整页图片贴图。对照、素材及生成提示词见 [视觉修正记录](visual-refinement/2026-10-11/README.md)。
 
 | 区域 | 实际运行功能 |
 |---|---|
@@ -95,6 +97,6 @@ V1 开发规则暂定完整训练 +20 XP、部分训练 +0 XP，沿用设计样�
 
 ## 资源与边界
 
-`public/assets/companions/` 的 Maya 运动半身、半透视身体分析和 Alex 头像均来自正式 Figma 设计使用的独立透明 PNG，复制哈希可追踪；不是整页截图，也没有真人照片。真实星球使用 `public/assets/landmarks/` 原 GLB 与程序地貌。Inter 来自 @fontsource/inter；图标使用 Lucide，favicon 也是该库 Globe2。
+`public/assets/companions/` 的 Maya 运动半身、半透视身体分析和 Alex 头像均来自正式 Figma 设计使用的独立透明 PNG，复制哈希可追踪；不是整页截图，也没有真人照片。`public/assets/visual-v2/` 为参照确认稿生成并实际接入的身体彩色图标 atlas、Maya 动作 atlas 和山地背景；角色与数据图标使用图片，通用操作与导航采用 Lucide。真实星球使用 `public/assets/landmarks/` 原 GLB 与程序地貌；背景插画不替代 3D 地形。Inter 来自 @fontsource/inter；favicon 为该库 Globe2。
 
 会员页面按正式稿保留“套餐不可用”，未虚构价格或接入支付；账户云同步、真实 AI 提供者、测量硬件与商店支付属于后续服务接入工作。当前交付是可运行、可验证的正式开发版本，不代表已上线欧美市场。

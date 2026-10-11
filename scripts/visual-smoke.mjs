@@ -8,6 +8,8 @@ page.on("pageerror", e => errors.push(e.message)); page.on("console", m => { if 
 page.on("response", r => { if (r.status() >= 400) console.log("HTTP ERROR", r.status(), r.url()); });
 await page.goto("http://127.0.0.1:8445/", { waitUntil: "networkidle", timeout: 60000 });
 await page.locator(".latest-planet-view iframe.is-ready").waitFor({ timeout: 60000 });
+const preview = page.frames().find(f => f.url().includes("planet.html"));
+await preview.waitForFunction(() => window.__PORTAL_PLANET__?.stats().lods.includes(63), { timeout: 30000 });
 await page.screenshot({ timeout: 60000, path: `${output}/home.png` });
 const layouts = { home: await page.locator(".page-content").evaluate(e => ({ client: e.clientHeight, scroll: e.scrollHeight })) };
 for (const [tab, label] of [["train", "Train"], ["body", "Body Planet"], ["coach", "AI Coach"]]) {

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
 import {
+  AudioLines,
   Check,
   ChevronRight,
   Crown,
@@ -10,7 +11,6 @@ import {
   Plus,
   Search,
   Settings,
-  User,
 } from "lucide-react"
 import {
   appendExercises,
@@ -27,7 +27,7 @@ import {
   type Metric,
   type Tab,
 } from "./model"
-import { art, Button, Dialog, IconButton } from "./ui"
+import { art, Button, Dialog, ExerciseArt, IconButton, MetricIcon } from "./ui"
 export type Overlay = "account" | "account-info" | "account-edit" | "settings" | "membership" | "today-plan" | "edit-plan" | "edit-body" | "add-exercise" | "exercise" | "finish" | "discard" | "review" | null
 type Props = {
   overlay: NonNullable<Overlay>
@@ -83,7 +83,7 @@ export default function Modals({
     state.session?.exercises.reduce((sum, e) => sum + e.sets, 0) ?? 0
   const complete = state.session?.completedSets === total && total > 0
   const title = {
-    account: "Your account",
+    account: "Account",
     "account-info": "Account information",
     "account-edit": "Edit account",
     settings: "Settings",
@@ -114,36 +114,21 @@ export default function Modals({
       )}
       {overlay === "account" && (
         <>
-          <div className="account-identity">
+          <button className="card account-profile-card" onClick={() => setOverlay("account-info")} aria-label="Account information">
             <img src={art("alex-account")} alt="Your profile avatar" />
-            <h3>{state.profile.name}</h3>
-            <p>{state.profile.email}</p>
-            <span className="badge">Free account</span>
-          </div>
-          <button
-            className="card membership-entry"
-            onClick={() => setOverlay("membership")}
-          >
-            <Crown size={24} />
-            <div>
-              <h3>Portal Plus</h3>
-              <p>Explore membership</p>
-            </div>
+            <div><h3>{state.profile.name}</h3><p>Account information</p></div>
             <ChevronRight size={18} />
           </button>
+          <section className="card membership-entry">
+            <div className="row spread"><Crown size={30} /><h3>Membership</h3><span className="badge">Free account</span></div>
+            <p>Explore membership options.</p>
+            <Button onClick={() => setOverlay("membership")}><span className="sr-only">Portal Plus Explore membership: </span>Upgrade membership <ChevronRight size={20} /></Button>
+          </section>
           <button
-            className="account-row"
-            onClick={() => setOverlay("account-info")}
-          >
-            <User size={20} />
-            <span>Account information</span>
-            <ChevronRight size={18} />
-          </button>
-          <button
-            className="account-row"
+            className="card account-row"
             onClick={() => setOverlay("settings")}
           >
-            <Settings size={20} />
+            <Settings size={28} />
             <span>Settings</span>
             <ChevronRight size={18} />
           </button>
@@ -401,7 +386,10 @@ export default function Modals({
             },
           ].map((item) => (
             <div className="card" key={item.key}>
-              <label htmlFor={`goal-${item.key}`}>{item.label}</label>
+              <div className="goal-field-heading">
+                {item.key === "water" ? <MetricIcon metric="water" /> : item.key === "steps" ? <Footprints className="accent" size={30} /> : <AudioLines className="accent" size={30} strokeWidth={3} />}
+                <div><label htmlFor={`goal-${item.key}`}>{item.label}</label><p>{item.key === "duration" ? "Warm-up + training + cool-down" : item.key === "steps" ? "Target number of steps" : "Target daily water intake"}</p></div>
+              </div>
               <div className="stepper">
                 <IconButton
                   label={`Decrease ${item.label.toLowerCase()}`}
@@ -479,7 +467,7 @@ export default function Modals({
       )}
       {overlay === "edit-body" && (
         <form
-          className="form-stack"
+          className="form-stack body-edit-form"
           noValidate
           onSubmit={(e) => {
             e.preventDefault()
@@ -507,10 +495,10 @@ export default function Modals({
             }
           }}
         >
-          <p className="muted">Update your measurements to shape your world.</p>
+          <p className="muted">Edit your saved measurements.</p>
           {METRICS.map((m) => (
             <label key={m.key}>
-              {m.label}
+              <span className="body-field-label"><MetricIcon metric={m.key} />{m.label}</span>
               <div className={`input-unit ${errors[m.key] ? "invalid" : ""}`}>
                 <input
                   id={`body-${m.key}`}
@@ -537,8 +525,7 @@ export default function Modals({
             </label>
           ))}
           <p className="small">
-            Measurements are entered manually. The planet is a visual expression
-            of your progress.
+            Changes apply after saving.
           </p>
           <div className="two-actions">
             <Button secondary onClick={close}>
@@ -564,6 +551,7 @@ export default function Modals({
               e.name.toLowerCase().includes(search.toLowerCase()),
             ).map((e) => (
               <label className="card pick-row" key={e.id}>
+                <ExerciseArt exerciseId={e.id} />
                 <input
                   type="checkbox"
                   checked={selected.includes(e.id)}
@@ -603,6 +591,7 @@ export default function Modals({
       )}
       {overlay === "exercise" && (
         <>
+          <div className="exercise-detail-art"><ExerciseArt exerciseId={exercise.id} large /></div>
           <span className="badge">{exercise.category}</span>
           <p>{exercise.instruction}</p>
           <div className="card">

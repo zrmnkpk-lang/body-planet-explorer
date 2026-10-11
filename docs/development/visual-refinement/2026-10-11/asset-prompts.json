@@ -1,0 +1,15 @@
+{
+  "tool": "built-in image_gen",
+  "references": [
+    "docs/visual-interactions/2026-10-11/03-home-account-membership-v6.png",
+    "docs/visual-interactions/2026-10-11/02-body-planet-linked-data-v5.png"
+  ],
+  "prompts": {
+    "icons": "Production UI asset for Portal Fitness, use the attached approved mobile UI boards as STYLE REFERENCES ONLY. Generate ONE square 1024 x 1024 transparent sprite atlas containing FOUR equally sized polished body metric icons in a precise 2x2 layout, each centered exactly in its own 512 x 512 tile, each symbol fitting a 340 x 340 central square with identical optical scale. Top left: peach toned flexed muscular bicep arm, facing right as reference, smooth sculpted adult shape. Top right: glossy ice-blue water droplet with small white highlights. Bottom left: warm ivory single bone tilted diagonally, rounded ends, subtle dimensional shading. Bottom right: golden amber flame, as in Home body fat icon. Match the simple premium lightly dimensional icon rendering from the reference, readable at 32 pixels, with soft sculpted edges, tiny highlights, restrained comic polish, no outlines, no neon, no human faces. Absolutely no tiles, circles, badges, labels, letters, shadows beyond icon bounds, background or visible grid. Keep all empty area genuinely transparent. This is a single production sprite sheet, not a mockup.",
+    "landscape": "Production landscape backdrop asset for Portal Fitness mobile app. Attached approved UI concept boards are STYLE REFERENCES ONLY. Create a WIDE 1536 x 1024 landscape illustration matching the dark mountainous natural environment behind the character and AI Coach in those references: urban American comic light realism rendering, rugged angular alpine ridges and evergreen forest, distant cool cyan river valley, restrained gray gold rock highlights, very dark deep pine green and charcoal overall, atmospheric muted teal mist, tiny subtle pale lime horizon light. Upper 45 percent mostly quiet almost-black green sky to support readable white app headings. Lower 55 percent layered mountains and forest with cinematic illustration detail. Landscape only: no planet, no sphere, no character, no person, no avatar, no chatbot logo, no UI, no text, no border, no typography, no flying islands. Strong directional detail in the right half and quiet darker left half for app text. Clean finished high quality art with restrained natural contrast that can sit beneath real app content."
+  },
+  "assets": [
+    "public/assets/visual-v2/body-metric-atlas.png",
+    "public/assets/visual-v2/alpine-night.png"
+  ]
+}

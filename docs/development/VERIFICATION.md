@@ -1,4 +1,6 @@
-# V1 验证结果
+# 正式开发验证结果
+
+2026-10-11 视觉还原 V2 已重新检查类型、生产构建、实际浏览器、16 项交互回归和原地形校验器。视觉来源与修改前后图片见 [视觉修正记录](visual-refinement/2026-10-11/README.md)。
 
 | 检查 | 结果与证据 |
 |---|---|
@@ -11,6 +13,7 @@
 | 服务适配器 | 离线状态、配置状态、非法来源/请求、代理转发与服务器密钥验证通过；提供者为本地测试服务 |
 | 原项目保护 | `delivery-check.json`：33 文件哈希一致，源 HEAD 与 Git index 不变 |
 | Figma 资源 | 3 个实际人物 PNG SHA256 与正式稿独立素材一致；星球不使用概念 PNG |
+| 视觉还原 | `visual-refinement/2026-10-11/verification.json`：12 个生产浏览器状态截图，320/390/430/1280 无横向溢出；三个新增素材保存尺寸及 SHA256 |
 
 `screenshots/home.png`、`train.png`、`body.png`、`coach.png`、`account.png` 是实际网页浏览器截图，`body-data-updated.png` 展示保存数据后的运行画面。`home-debug.png`、`body-debug.png` 为早期排错画面，不用于最终验收。
 

@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "ONE production sprite atlas for the Portal Fitness app. Supporting reference images: the first is the approved training UI visual style; the second is Maya's exact adult face, hair and outfit design. Create a square 1536x1536 TRANSPARENT sprite atlas in a PRECISE 3 by 3 invisible equal cell grid. Each cell holds one isolated full adult athlete in a specific exercise, completely within its own cell, no crossing. Same Maya in all 9 cells: adult athletic woman, long brown high ponytail, mature urban American comic light realism, black sport crop top, fitted dark charcoal leggings, black athletic sneakers with muted sage details. Do not make cute, anime or exaggerated superhero. Match facial identity and illustration rendering from the supplied Maya portrait. Clear correct limb anatomy. Use side or three quarter views with readable simple silhouette, minimum 10 percent clear transparent margin per cell, consistent optical scale. Row 1 left: standing arm circles, arms extended horizontally. Row 1 center: bodyweight squat, hips lowered, knees bent, hands together in front of chest. Row 1 right: push-up, side view body horizontal, hands on ground, arms slightly bent. Row 2 left: forearm plank, side view body straight horizontal, elbows below shoulders. Row 2 center: standing gentle overhead full-body side stretch. Row 2 right: reverse lunge, one foot forward with knee bent, back knee lowered. Row 3 left: dead bug, lying on back, opposite arm and leg extended, other knee bent. Row 3 center: jumping jack, arms diagonally up and legs apart. Row 3 right: standing neutral ready pose with relaxed hands on hips. Transparent ground and background, no floor rectangle, no card, no scenery, no arrows, no equipment, no labels, no letters, no text, no border, no grid lines. This single transparent atlas will be used through CSS background position in actual interactive exercise tiles.",
+  "asset": "public/assets/visual-v2/maya-exercise-atlas.png",
+  "columns": 3,
+  "rows": 3,
+  "frames": [
+    "arm-circles",
+    "squat",
+    "push-up",
+    "plank",
+    "stretch",
+    "reverse-lunge",
+    "dead-bug",
+    "jumping-jack",
+    "ready"
+  ]
+}

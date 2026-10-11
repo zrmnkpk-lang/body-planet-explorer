@@ -1,0 +1,234 @@
+{
+  "date": "2026-10-11T11:02:49.146Z",
+  "visualReference": "Approved Home V6 / Body Planet V5 / Train V2",
+  "errors": [],
+  "layouts": [
+    {
+      "name": "home",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 608,
+      "scroll": 608
+    },
+    {
+      "name": "today-plan",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 608,
+      "scroll": 608
+    },
+    {
+      "name": "edit-plan",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 608,
+      "scroll": 608
+    },
+    {
+      "name": "account",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 608,
+      "scroll": 608
+    },
+    {
+      "name": "train",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 600
+    },
+    {
+      "name": "workout-plan",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 756
+    },
+    {
+      "name": "workout-active",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 1116
+    },
+    {
+      "name": "exercise-picker",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 1116
+    },
+    {
+      "name": "body",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 600
+    },
+    {
+      "name": "body-selected",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 730
+    },
+    {
+      "name": "edit-body",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 730
+    },
+    {
+      "name": "coach",
+      "viewport": 390,
+      "horizontalOverflow": false,
+      "content": 590,
+      "scroll": 592
+    },
+    {
+      "name": "Home",
+      "viewport": 320,
+      "horizontalOverflow": false,
+      "content": 608,
+      "scroll": 608
+    },
+    {
+      "name": "Train",
+      "viewport": 320,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 600
+    },
+    {
+      "name": "Body Planet",
+      "viewport": 320,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 748
+    },
+    {
+      "name": "AI Coach",
+      "viewport": 320,
+      "horizontalOverflow": false,
+      "content": 590,
+      "scroll": 604
+    },
+    {
+      "name": "Home",
+      "viewport": 430,
+      "horizontalOverflow": false,
+      "content": 608,
+      "scroll": 608
+    },
+    {
+      "name": "Train",
+      "viewport": 430,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 600
+    },
+    {
+      "name": "Body Planet",
+      "viewport": 430,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 730
+    },
+    {
+      "name": "AI Coach",
+      "viewport": 430,
+      "horizontalOverflow": false,
+      "content": 590,
+      "scroll": 592
+    },
+    {
+      "name": "Home",
+      "viewport": 1280,
+      "horizontalOverflow": false,
+      "content": 608,
+      "scroll": 608
+    },
+    {
+      "name": "Train",
+      "viewport": 1280,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 600
+    },
+    {
+      "name": "Body Planet",
+      "viewport": 1280,
+      "horizontalOverflow": false,
+      "content": 600,
+      "scroll": 730
+    },
+    {
+      "name": "AI Coach",
+      "viewport": 1280,
+      "horizontalOverflow": false,
+      "content": 590,
+      "scroll": 592
+    }
+  ],
+  "assets": [
+    {
+      "path": "public/assets/visual-v2/body-metric-atlas.png",
+      "bytes": 769197,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "0120265ebe11dfeda889d5ae26d39c825b0a80d17c5455c561ae5d1efc39246a"
+    },
+    {
+      "path": "public/assets/visual-v2/maya-exercise-atlas.png",
+      "bytes": 1042865,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "1859b92bb5532762b800a25c81c3bbc6a448523f48b501e3b7d1047b43a509f9"
+    },
+    {
+      "path": "public/assets/visual-v2/alpine-night.png",
+      "bytes": 2281353,
+      "width": 1536,
+      "height": 1024,
+      "sha256": "8f683102079466f84da1e168c87d54d7a770f46bb7dd28be07e7a74267464b65"
+    }
+  ],
+  "renderedArt": [],
+  "realPlanet": {
+    "body": {
+      "muscle": 32.8,
+      "water": 58.3,
+      "bone": 3.1,
+      "fat": 18.7
+    },
+    "shape": {
+      "mountain": 1,
+      "channel": 1,
+      "ice": 1,
+      "moisture": 0
+    },
+    "vertices": 40962,
+    "triangles": 81920,
+    "trees": 2400,
+    "camera": [
+      -1.6108834935417704,
+      1.3675589497124583,
+      2.7901320558883986
+    ],
+    "rotation": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "sampleMountain": 0.10569586235147799,
+    "sampleIce": 0.060731257123351076,
+    "lods": [
+      15,
+      63
+    ],
+    "renderedFrames": 2
+  }
+}

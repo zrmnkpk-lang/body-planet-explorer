@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import {
   ArrowLeft,
-  ArrowRight,
+  AudioLines,
   Bell,
+  CalendarDays,
   Check,
   ChevronRight,
   Dumbbell,
@@ -13,13 +14,15 @@ import {
   House,
   Info,
   MessageCircle,
+  MessageCircleMore,
   Minus,
   Pause,
   Play,
   Plus,
   RotateCcw,
   Send,
-  Square,
+  SlidersHorizontal,
+  Leaf,
   X,
 } from "lucide-react"
 import PlanetView from "./PlanetView.tsx"
@@ -47,14 +50,14 @@ import {
   type Metric,
   type Tab,
 } from "./model"
-import { art, Button, fmt, IconButton, MetricGrid } from "./ui"
+import { art, Button, CoachMark, ExerciseArt, fmt, IconButton, MetricGrid, MetricIcon } from "./ui"
 import Modals, { type Overlay } from "./Modals"
 type View = "main" | "plan" | "workout" | "history" | "updates" | "summary" | "conversations"
 const tabs = [
   { id: "home", label: "Home", icon: House },
-  { id: "train", label: "Train", icon: Dumbbell },
+  { id: "train", label: "Train", icon: AudioLines },
   { id: "body", label: "Body Planet", icon: Globe2 },
-  { id: "coach", label: "AI Coach", icon: MessageCircle },
+  { id: "coach", label: "AI Coach", icon: MessageCircleMore },
 ] as const
 export default function App() {
   const state = useAppState()
@@ -342,7 +345,7 @@ export default function App() {
                 ? "Conversations"
                 : tabs.find((t) => t.id === tab)!.label
   return (
-    <div className={`app-shell ${keyboard ? "keyboard-open" : ""}`}>
+    <div className={`app-shell tab-${tab} ${keyboard ? "keyboard-open" : ""}`}>
       <div className="safe-top" aria-hidden="true">
         <span>PORTAL FITNESS</span>
         <span>
@@ -371,6 +374,7 @@ export default function App() {
         </header>
       ) : (
         <header className="page-header">
+          {tab === "coach" && view === "main" && <CoachMark large />}
           {view !== "main" && (
             <IconButton label="Go back" onClick={() => navigate(tab)}>
               <ArrowLeft size={22} />
@@ -383,11 +387,12 @@ export default function App() {
                 {tab === "train"
                   ? "Your plan for today"
                   : tab === "body"
-                    ? "Your progress shapes your world."
-                    : "Here for your next step."}
+                    ? "Your body. Your living world."
+                    : "Fitness assistant"}
               </p>
             )}
           </div>
+          {tab === "coach" && view === "main" && <IconButton label="Conversation history" onClick={() => navigate("coach", "conversations")}><History size={23} /></IconButton>}
         </header>
       )}
       <main
@@ -451,10 +456,10 @@ export default function App() {
             <section className="card planet-summary">
               <div className="planet-copy">
                 <button className="title-link" onClick={() => navigate("body")}>
-                  <h2>My Planet</h2>
+                  <h2>Body Planet</h2>
                   <ChevronRight size={18} />
                 </button>
-                <p>LV.5 · Riverlands Era</p>
+                <div className="planet-level"><span className="level-leaf"><Leaf size={21} fill="currentColor" /></span><div><strong>LV.5</strong><p>Riverlands Era</p></div></div>
                 <progress
                   value={state.xp % 800}
                   max={800}
@@ -489,6 +494,7 @@ export default function App() {
                   }
                 >
                   {state.plan ? "View plan" : "Start training"}
+                  <ChevronRight size={19} strokeWidth={2.7} />
                 </Button>
               </div>
               <img
@@ -504,6 +510,7 @@ export default function App() {
                   onClick={() => navigate("home", "history")}
                 >
                   View history
+                  <ChevronRight size={14} />
                 </button>
               </div>
               <p>
@@ -542,11 +549,7 @@ export default function App() {
                         }`}
                         onClick={() => navigate("home", "history")}
                       >
-                        {checked ? (
-                          <Check className="accent" size={22} />
-                        ) : (
-                          <Square size={20} />
-                        )}
+                        <span className={`day-indicator ${checked ? "completed" : ""}`} aria-hidden="true">{checked && <Check size={17} strokeWidth={3} />}</span>
                         <span>{label}</span>
                       </button>
                     )
@@ -632,7 +635,7 @@ export default function App() {
             )}
             <h2>Today’s other goals</h2>
             <button className="card goal-row" onClick={() => open("edit-plan")}>
-              <Footprints size={24} />
+              <Footprints className="walking-icon" size={30} />
               <div>
                 <strong>Walking</strong>
                 <p>
@@ -642,7 +645,7 @@ export default function App() {
               <ChevronRight size={18} />
             </button>
             <button className="card goal-row" onClick={() => open("edit-plan")}>
-              <Droplet size={24} />
+              <MetricIcon metric="water" />
               <div>
                 <strong>Hydration</strong>
                 <p>
@@ -676,6 +679,7 @@ export default function App() {
                 <span className="exercise-number">
                   {String(index + 1).padStart(2, "0")}
                 </span>
+                <ExerciseArt exerciseId={e.id} />
                 <div>
                   <h2>{e.name}</h2>
                   <p>
@@ -743,12 +747,9 @@ export default function App() {
                       {session.exercises[session.index].sets} ·{" "}
                       {session.exercises[session.index].reps}
                     </p>
-                    <div
-                      className="timer"
-                      role="timer"
-                      aria-label="Time remaining"
-                    >
-                      {fmt(remaining(session, now))}
+                    <div className="exercise-showcase">
+                      <ExerciseArt exerciseId={session.exercises[session.index].id} large />
+                      <div className="exercise-target"><div className="timer" role="timer" aria-label="Time remaining">{fmt(remaining(session, now))}</div><span>{session.exercises[session.index].reps}</span></div>
                     </div>
                     <p className="small">
                       {session.phase === "rest"
@@ -916,6 +917,19 @@ export default function App() {
               </div>
               <p className="small center">Drag to rotate · Pinch to zoom</p>
             </div>
+            <section className="card body-analysis">
+              <h2>Body overview</h2>
+              <div className="analysis-row">
+                <img
+                  src={art("maya-body-analysis")}
+                  alt="Maya with an illustrated half-body anatomy view"
+                />
+                <MetricGrid body={state.body} selected={metric} onSelect={selectMetric} />
+              </div>
+              {!state.body && (
+                <p className="small">Add measurements to shape your planet.</p>
+              )}
+            </section>
             {metric && (
               <section className="card region-card">
                 <div className="row spread">
@@ -946,19 +960,6 @@ export default function App() {
                 </Button>
               </section>
             )}
-            <section className="card body-analysis">
-              <h2>Body overview</h2>
-              <div className="analysis-row">
-                <img
-                  src={art("maya-body-analysis")}
-                  alt="Maya with an illustrated half-body anatomy view"
-                />
-                <MetricGrid body={state.body} selected={metric} onSelect={selectMetric} />
-              </div>
-              {!state.body && (
-                <p className="small">Add measurements to shape your planet.</p>
-              )}
-            </section>
             <Button onClick={() => open("edit-body")}>Update body data</Button>
           </>
         )}
@@ -966,22 +967,24 @@ export default function App() {
           <>
             {!chat.messages.length ? (
               <>
-                <section className="card coach-welcome">
-                  <MessageCircle className="accent" size={32} />
-                  <h2>Your fitness companion</h2>
-                  <p>
-                    Plan your next workout, understand your progress, or find a
-                    manageable next step.
-                  </p>
+                <section className="coach-welcome">
+                  <h2>How can I help today?</h2>
+                  <p>Work with your plan and progress.</p>
+                  <div className="coach-landscape" aria-hidden="true"><CoachMark large /></div>
                 </section>
-                <h2>Start a conversation</h2>
+                <button className="card goal-row coach-plan-context" onClick={() => coachEntry("home")}>
+                  <CalendarDays size={30} />
+                  <div><strong>Today’s plan</strong><p>{state.plan ? `3 tasks · ${state.plan.completed ? 2 : 1} completed` : "No plan yet"}</p></div>
+                  <span className="context-action">View context <ChevronRight size={18} /></span>
+                </button>
                 {[
-                  "Help me plan today’s workout",
-                  "Explain my body measurements",
-                  "I only have 15 minutes",
-                ].map((text) => (
-                  <Button
-                    secondary
+                  { text: "Help me plan today’s workout", title: "Review today’s plan", detail: "Check your scheduled workout and goals.", icon: CalendarDays },
+                  { text: "Explain an exercise", title: "Explain an exercise", detail: "Get clear step-by-step guidance.", icon: AudioLines },
+                  { text: "I only have 15 minutes", title: "Adjust my workout", detail: "Adapt intensity, time or focus.", icon: SlidersHorizontal },
+                ].map(({ text, title, detail, icon: PromptIcon }) => (
+                  <button
+                    className="card goal-row coach-prompt"
+                    aria-label={text}
                     key={text}
                     onClick={() =>
                       action(() =>
@@ -991,8 +994,8 @@ export default function App() {
                       )
                     }
                   >
-                    {text}
-                  </Button>
+                    <PromptIcon size={30} /><div><strong>{title}</strong><p>{detail}</p></div><ChevronRight size={18} />
+                  </button>
                 ))}
                 <button
                   className="card goal-row"
@@ -1151,6 +1154,7 @@ export default function App() {
               void sendMessage()
             }}
           >
+            <CoachMark />
             <label className="sr-only" htmlFor="coach-input">
               Ask AI Coach
             </label>
@@ -1190,9 +1194,9 @@ export default function App() {
         ) : (
           tab !== "coach" && (
             <button className="ai-quick" onClick={() => coachEntry(tab)}>
-              <MessageCircle size={24} />
+              <CoachMark />
               <span>Ask AI Coach…</span>
-              <ArrowRight size={22} />
+              <span className="quick-send" aria-hidden="true"><Send size={20} fill="currentColor" strokeWidth={1.5} /></span>
             </button>
           )
         )}
@@ -1204,7 +1208,7 @@ export default function App() {
                 aria-current={tab === t.id ? "page" : undefined}
                 onClick={() => navigate(t.id)}
               >
-                <t.icon size={24} strokeWidth={1.7} />
+                <t.icon className={`nav-icon nav-${t.id}`} size={26} strokeWidth={t.id === "train" ? 3.3 : 2} />
                 <span>{t.label}</span>
               </button>
             ))}

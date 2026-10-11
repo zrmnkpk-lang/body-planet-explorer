@@ -47,7 +47,7 @@ try {
   publish("portal:error")
   throw e
 }
-renderer.setPixelRatio(Math.min(devicePixelRatio, thumbnailMode ? 1 : 2))
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
 // Backdrop mode lets the host APP provide the space field behind the planet.
 // Clear with zero alpha so the renderer never paints an opaque iframe-sized panel.
 renderer.setClearColor(0x000000, 0)
@@ -240,7 +240,7 @@ function requestTerrain(detail) {
     worker.postMessage({ detail })
   }
 }
-if (!thumbnailMode) requestTerrain(63)
+requestTerrain(63)
 // Local GLB landmarks. The generated source and manifest live in the repository.
 const landmarkModels = []
 const loader = new GLTFLoader()
@@ -697,6 +697,15 @@ function frame(now) {
   currentLevel = levelForDistance(distance, currentLevel)
   const view = VIEW_LEVELS[currentLevel],
     weights = detailWeights(distance)
+  // The app's ecology globe shows its real woodland at overview scale.
+  // Standalone atlas keeps its progressive reveal; no alternate geometry is used.
+  if (embedded) {
+    weights.trees = 1
+    weights.rivers = 1
+    weights.tributaries = Math.max(weights.tributaries, 0.6)
+    weights.ice = Math.max(weights.ice, 0.7)
+    weights.grain = Math.max(weights.grain, 0.5)
+  }
   if (coastline) {
     // Reintroduce the coast stroke at surface scale; the previous fade left
     // the zoomed land/ocean boundary soft exactly when it was most visible.

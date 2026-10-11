@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client'
 // stored in src/app.js and Vite must not resolve this import to that script.
 import App from './App.tsx'
 import './index.css'
+import './visual-refinement.css'
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },

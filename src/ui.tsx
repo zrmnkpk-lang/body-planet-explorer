@@ -1,11 +1,69 @@
 import { useEffect, useRef, type ReactNode } from "react"
-import { X } from "lucide-react"
+import { MessageCircleMore, X } from "lucide-react"
 import { METRICS, type BodyMetrics, type Metric } from "./model"
-export function MetricGrid({ body, selected, onSelect }: { body: BodyMetrics | null; selected?: Metric | null; onSelect?: (metric: Metric) => void }) {
-  return <div className="metric-grid">{METRICS.map(m => {
-    const value = body ? `${body[m.key].toFixed(1)}${m.unit === "kg" ? " kg" : "%"}` : "—"
-    return onSelect ? <button key={m.key} className={`metric ${selected === m.key ? "selected" : ""}`} aria-pressed={selected === m.key} onClick={() => onSelect(m.key)}><span>{m.label}</span><strong>{value}</strong></button> : <div key={m.key} className="metric"><span>{m.label}</span><strong>{value}</strong></div>
-  })}</div>
+export function MetricIcon({ metric }: { metric: Metric }) {
+  return <span aria-hidden="true" className={`metric-art metric-art-${metric}`} />
+}
+export function CoachMark({ large = false }: { large?: boolean }) {
+  return (
+    <span aria-hidden="true" className={`coach-mark ${large ? "large" : ""}`}>
+      <MessageCircleMore size={large ? 52 : 28} strokeWidth={1.9} />
+    </span>
+  )
+}
+export function ExerciseArt({ exerciseId, large = false }: {
+  exerciseId: string
+  large?: boolean
+}) {
+  const frames = [
+    "arm-circles", "squat", "push-up", "plank", "stretch",
+    "reverse-lunge", "dead-bug", "jumping-jack",
+  ]
+  const found = frames.indexOf(exerciseId)
+  const index = found < 0 ? 8 : found
+  return (
+    <span
+      aria-hidden="true"
+      className={`exercise-art ${large ? "large" : ""} ${exerciseId === "dead-bug" ? "wide-pose" : ""}`}
+      style={{ backgroundPosition: `${(index % 3) * 50}% ${Math.floor(index / 3) * 50}%` }}
+    />
+  )
+}
+export function MetricGrid({ body, selected, onSelect }: {
+  body: BodyMetrics | null
+  selected?: Metric | null
+  onSelect?: (metric: Metric) => void
+}) {
+  return (
+    <div className="metric-grid">
+      {METRICS.map(m => {
+        const value = body ? `${body[m.key].toFixed(1)}${m.unit === "kg" ? " kg" : "%"}` : "—"
+        const contents = (
+          <>
+            <MetricIcon metric={m.key} />
+            <span className="metric-copy">
+              <span>{m.label}</span>
+              <strong>
+                {body ? body[m.key].toFixed(1) : "—"}
+                {body && <small> {m.unit}</small>}
+              </strong>
+            </span>
+          </>
+        )
+        return onSelect ? (
+          <button
+            key={m.key}
+            aria-label={`${m.label} ${value}`}
+            className={`metric ${selected === m.key ? "selected" : ""}`}
+            aria-pressed={selected === m.key}
+            onClick={() => onSelect(m.key)}
+          >
+            {contents}
+          </button>
+        ) : <div key={m.key} className="metric">{contents}</div>
+      })}
+    </div>
+  )
 }
 export const art = (name: string) => `/assets/companions/${name}.png`
 export const fmt = (seconds: number) =>

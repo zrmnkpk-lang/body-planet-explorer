@@ -2,20 +2,20 @@
   "errors": [],
   "layouts": {
     "home": {
-      "client": 594,
-      "scroll": 594
+      "client": 608,
+      "scroll": 608
     },
     "train": {
-      "client": 594,
-      "scroll": 594
+      "client": 600,
+      "scroll": 600
     },
     "body": {
-      "client": 594,
-      "scroll": 594
+      "client": 600,
+      "scroll": 600
     },
     "coach": {
-      "client": 588,
-      "scroll": 588
+      "client": 590,
+      "scroll": 592
     }
   }
 }

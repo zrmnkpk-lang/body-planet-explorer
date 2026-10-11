@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-11T10:21:37.932Z",
+  "date": "2026-10-11T11:05:25.355Z",
   "objective": "Independent formal application development on the original source with actual planet replacement",
   "sourcePreserved": {
     "directory": "D:\\AIworkspace\\myplanet",
@@ -11,8 +11,8 @@
   "independentProject": "D:\\AIworkspace\\portal-fitness-app",
   "branch": "codex/portal-fitness-development",
   "tests": {
-    "startTime": "2026-10-11T10:18:56.494Z",
-    "duration": 83542.613,
+    "startTime": "2026-10-11T11:01:33.204Z",
+    "duration": 153095.397,
     "expected": 16,
     "skipped": 0,
     "unexpected": 0,
@@ -22,20 +22,20 @@
     "errors": [],
     "layouts": {
       "home": {
-        "client": 594,
-        "scroll": 594
+        "client": 608,
+        "scroll": 608
       },
       "train": {
-        "client": 594,
-        "scroll": 594
+        "client": 600,
+        "scroll": 600
       },
       "body": {
-        "client": 594,
-        "scroll": 594
+        "client": 600,
+        "scroll": 600
       },
       "coach": {
-        "client": 588,
-        "scroll": 588
+        "client": 590,
+        "scroll": 592
       }
     }
   },
@@ -70,5 +70,202 @@
     "Measurement hardware",
     "Membership pricing and payment",
     "Final progression and XP product policy"
-  ]
+  ],
+  "visualRefinement": {
+    "reference": "Approved Home V6 / Body Planet V5 / Train V2",
+    "assets": [
+      {
+        "path": "public/assets/visual-v2/body-metric-atlas.png",
+        "bytes": 769197,
+        "width": 1254,
+        "height": 1254,
+        "sha256": "0120265ebe11dfeda889d5ae26d39c825b0a80d17c5455c561ae5d1efc39246a"
+      },
+      {
+        "path": "public/assets/visual-v2/maya-exercise-atlas.png",
+        "bytes": 1042865,
+        "width": 1254,
+        "height": 1254,
+        "sha256": "1859b92bb5532762b800a25c81c3bbc6a448523f48b501e3b7d1047b43a509f9"
+      },
+      {
+        "path": "public/assets/visual-v2/alpine-night.png",
+        "bytes": 2281353,
+        "width": 1536,
+        "height": 1024,
+        "sha256": "8f683102079466f84da1e168c87d54d7a770f46bb7dd28be07e7a74267464b65"
+      }
+    ],
+    "errors": [],
+    "layouts": [
+      {
+        "name": "home",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 608,
+        "scroll": 608
+      },
+      {
+        "name": "today-plan",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 608,
+        "scroll": 608
+      },
+      {
+        "name": "edit-plan",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 608,
+        "scroll": 608
+      },
+      {
+        "name": "account",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 608,
+        "scroll": 608
+      },
+      {
+        "name": "train",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 600
+      },
+      {
+        "name": "workout-plan",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 756
+      },
+      {
+        "name": "workout-active",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 1116
+      },
+      {
+        "name": "exercise-picker",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 1116
+      },
+      {
+        "name": "body",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 600
+      },
+      {
+        "name": "body-selected",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 730
+      },
+      {
+        "name": "edit-body",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 730
+      },
+      {
+        "name": "coach",
+        "viewport": 390,
+        "horizontalOverflow": false,
+        "content": 590,
+        "scroll": 592
+      },
+      {
+        "name": "Home",
+        "viewport": 320,
+        "horizontalOverflow": false,
+        "content": 608,
+        "scroll": 608
+      },
+      {
+        "name": "Train",
+        "viewport": 320,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 600
+      },
+      {
+        "name": "Body Planet",
+        "viewport": 320,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 748
+      },
+      {
+        "name": "AI Coach",
+        "viewport": 320,
+        "horizontalOverflow": false,
+        "content": 590,
+        "scroll": 604
+      },
+      {
+        "name": "Home",
+        "viewport": 430,
+        "horizontalOverflow": false,
+        "content": 608,
+        "scroll": 608
+      },
+      {
+        "name": "Train",
+        "viewport": 430,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 600
+      },
+      {
+        "name": "Body Planet",
+        "viewport": 430,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 730
+      },
+      {
+        "name": "AI Coach",
+        "viewport": 430,
+        "horizontalOverflow": false,
+        "content": 590,
+        "scroll": 592
+      },
+      {
+        "name": "Home",
+        "viewport": 1280,
+        "horizontalOverflow": false,
+        "content": 608,
+        "scroll": 608
+      },
+      {
+        "name": "Train",
+        "viewport": 1280,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 600
+      },
+      {
+        "name": "Body Planet",
+        "viewport": 1280,
+        "horizontalOverflow": false,
+        "content": 600,
+        "scroll": 730
+      },
+      {
+        "name": "AI Coach",
+        "viewport": 1280,
+        "horizontalOverflow": false,
+        "content": 590,
+        "scroll": 592
+      }
+    ]
+  }
 }
