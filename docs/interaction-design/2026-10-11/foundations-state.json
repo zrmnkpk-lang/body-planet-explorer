@@ -1,0 +1,53 @@
+{
+  "createdNodeIds": [
+    "2:2",
+    "2:3"
+  ],
+  "mutatedNodeIds": [
+    "0:1"
+  ],
+  "pages": {
+    "flows": "0:1",
+    "library": "2:2",
+    "handoff": "2:3"
+  },
+  "variables": {
+    "base": "VariableID:2:8",
+    "card": "VariableID:2:10",
+    "raised": "VariableID:2:12",
+    "primary": "VariableID:2:14",
+    "secondary": "VariableID:2:16",
+    "action": "VariableID:2:18",
+    "onAction": "VariableID:2:20",
+    "data": "VariableID:2:22",
+    "warning": "VariableID:2:24",
+    "error": "VariableID:2:26",
+    "border": "VariableID:2:28",
+    "space/4": "VariableID:2:29",
+    "space/8": "VariableID:2:30",
+    "space/12": "VariableID:2:31",
+    "space/16": "VariableID:2:32",
+    "space/20": "VariableID:2:33",
+    "space/24": "VariableID:2:34",
+    "radius/card": "VariableID:2:35",
+    "radius/control": "VariableID:2:36"
+  },
+  "textStyles": {
+    "Title": "S:383d8074093ab8ae798d2078e650db7177960bd4,",
+    "Section": "S:eda1313b5faba589a2d081f055837939ae37627f,",
+    "Body": "S:dc611b395b08875abaffb057a2d57f0a42239d16,",
+    "Label": "S:6da6543d06c823eaf2178cef060188f330c815db,",
+    "Small": "S:95b35ffa388edcee8b297ed1fadc7eafae2dcbeb,",
+    "Nav": "S:330b34f9db9d9c93cd480c61d8328b0f1f2afcbf,",
+    "Metric": "S:bd6d8a41b180f8c9afdfae870bbf911e4e4ee5ef,"
+  },
+  "collections": [
+    "VariableCollectionId:2:4",
+    "VariableCollectionId:2:5",
+    "VariableCollectionId:2:6"
+  ],
+  "colorCount": 11,
+  "geometryCount": 8,
+  "font": "Inter",
+  "gapAnalysis": "Blank file; brand-specific local components and tokens required. Approved concepts take precedence over legacy runtime typography."
+}

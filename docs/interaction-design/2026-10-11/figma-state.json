@@ -1,0 +1,43 @@
+{
+  "runId": "portal-interaction-v1-2026-10-11",
+  "scope": "formal-interaction-design",
+  "fileKey": "ccBI9Wxbj1gTnZI9D6yplY",
+  "fileUrl": "https://www.figma.com/design/ccBI9Wxbj1gTnZI9D6yplY",
+  "step": "complete",
+  "entities": {
+    "pages": {
+      "flows": "0:1",
+      "library": "2:2",
+      "handoff": "2:3"
+    },
+    "screenCount": 89,
+    "componentSets": 4,
+    "components": 61,
+    "variables": 30,
+    "textStyles": 7
+  },
+  "completedSteps": [
+    "create-file",
+    "discover-fonts",
+    "build-foundations",
+    "build-native-library",
+    "generate-discrete-artwork",
+    "upload-artwork",
+    "build-screens",
+    "connect-prototype",
+    "create-handoff",
+    "native-structure-validation",
+    "visual-screenshot-review"
+  ],
+  "pendingValidations": [],
+  "prototypeEntries": 14,
+  "prototypeEdges": 501,
+  "productionAppUpdated": false,
+  "artifacts": {
+    "screens": "screen-state-final.json",
+    "validation": "validation.json",
+    "components": "library-validation.json",
+    "overview": "overview.png",
+    "details": "interaction-details.png"
+  }
+}

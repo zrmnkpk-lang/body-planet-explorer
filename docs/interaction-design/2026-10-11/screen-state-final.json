@@ -1,0 +1,780 @@
+{
+  "screens": {
+    "H01": {
+      "frameId": "5:2",
+      "name": "H01 · Home / default",
+      "x": 80,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "H02": {
+      "frameId": "5:3",
+      "name": "H02 · Today's plan / expanded",
+      "x": 560,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "H03": {
+      "frameId": "5:4",
+      "name": "H03 · Edit today's plan / initial",
+      "x": 1040,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "H08": {
+      "frameId": "5:5",
+      "name": "H08 · Edit today's plan / adjusted",
+      "x": 1520,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "H04": {
+      "frameId": "5:6",
+      "name": "H04 · Home / plan saved",
+      "x": 2000,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "H05": {
+      "frameId": "5:7",
+      "name": "H05 · Home / no records",
+      "x": 2480,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "H06": {
+      "frameId": "5:8",
+      "name": "H06 · Training history",
+      "x": 2960,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "H07": {
+      "frameId": "5:9",
+      "name": "H07 · Updates / empty",
+      "x": 3440,
+      "y": 700,
+      "width": 390,
+      "height": 844
+    },
+    "A01": {
+      "frameId": "5:10",
+      "name": "A01 · Account / left drawer",
+      "x": 80,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "A02": {
+      "frameId": "5:11",
+      "name": "A02 · Account information",
+      "x": 560,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "A03": {
+      "frameId": "5:12",
+      "name": "A03 · Edit account information",
+      "x": 1040,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "A04": {
+      "frameId": "5:13",
+      "name": "A04 · Settings",
+      "x": 1520,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "A05": {
+      "frameId": "5:14",
+      "name": "A05 · Membership / plans unavailable",
+      "x": 2000,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "A06": {
+      "frameId": "5:15",
+      "name": "A06 · Settings / reduce motion enabled",
+      "x": 2480,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "T01": {
+      "frameId": "5:16",
+      "name": "T01 · Train / no plan",
+      "x": 80,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T02": {
+      "frameId": "5:17",
+      "name": "T02 · Train / planned",
+      "x": 560,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T03": {
+      "frameId": "5:18",
+      "name": "T03 · Workout plan / preview",
+      "x": 1040,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T04": {
+      "frameId": "5:19",
+      "name": "T04 · Free workout / no exercises",
+      "x": 1520,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T05": {
+      "frameId": "5:20",
+      "name": "T05 · Add exercise / unselected",
+      "x": 2000,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T06": {
+      "frameId": "5:21",
+      "name": "T06 · Add exercise / selected",
+      "x": 2480,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T07": {
+      "frameId": "5:22",
+      "name": "T07 · Free workout / active",
+      "x": 2960,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T08": {
+      "frameId": "5:23",
+      "name": "T08 · Planned workout / active",
+      "x": 3440,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T09": {
+      "frameId": "5:24",
+      "name": "T09 · Planned workout / rest",
+      "x": 3920,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T10": {
+      "frameId": "5:25",
+      "name": "T10 · Workout / paused",
+      "x": 4400,
+      "y": 3000,
+      "width": 390,
+      "height": 844
+    },
+    "T11": {
+      "frameId": "5:26",
+      "name": "T11 · Finish workout / confirmation",
+      "x": 80,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T12": {
+      "frameId": "5:27",
+      "name": "T12 · Workout / completed summary",
+      "x": 560,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T13": {
+      "frameId": "5:28",
+      "name": "T13 · Empty workout / discard confirmation",
+      "x": 1040,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T14": {
+      "frameId": "5:29",
+      "name": "T14 · Workout / save failed",
+      "x": 1520,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T15": {
+      "frameId": "5:30",
+      "name": "T15 · Exercise / details",
+      "x": 2000,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T16": {
+      "frameId": "5:31",
+      "name": "T16 · Workout / partial summary",
+      "x": 2480,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "B01": {
+      "frameId": "5:32",
+      "name": "B01 · Body Planet / overview",
+      "x": 80,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B02": {
+      "frameId": "5:33",
+      "name": "B02 · Body Planet / muscle selected",
+      "x": 560,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B03": {
+      "frameId": "5:34",
+      "name": "B03 · Body Planet / water selected",
+      "x": 1040,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B04": {
+      "frameId": "5:35",
+      "name": "B04 · Body Planet / bone selected",
+      "x": 1520,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B05": {
+      "frameId": "5:36",
+      "name": "B05 · Body Planet / body fat selected",
+      "x": 2000,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B06": {
+      "frameId": "5:37",
+      "name": "B06 · Body Planet / focus region",
+      "x": 2480,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B07": {
+      "frameId": "5:38",
+      "name": "B07 · Update body data / draft",
+      "x": 2960,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B08": {
+      "frameId": "5:39",
+      "name": "B08 · Update body data / validation error",
+      "x": 3440,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B09": {
+      "frameId": "5:40",
+      "name": "B09 · Update body data / save failed",
+      "x": 3920,
+      "y": 7400,
+      "width": 390,
+      "height": 844
+    },
+    "B10": {
+      "frameId": "5:41",
+      "name": "B10 · Body Planet / data saved",
+      "x": 80,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "B11": {
+      "frameId": "5:42",
+      "name": "B11 · Body Planet / no body data",
+      "x": 560,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "B12": {
+      "frameId": "5:43",
+      "name": "B12 · Body Planet / loading",
+      "x": 1040,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "B13": {
+      "frameId": "5:44",
+      "name": "B13 · Body Planet / renderer unavailable",
+      "x": 1520,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "B14": {
+      "frameId": "5:45",
+      "name": "B14 · Update body data / focused input",
+      "x": 2000,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "AI01": {
+      "frameId": "5:46",
+      "name": "AI01 · AI Coach / welcome",
+      "x": 80,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI02": {
+      "frameId": "5:47",
+      "name": "AI02 · AI Coach / source context",
+      "x": 560,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI03": {
+      "frameId": "5:48",
+      "name": "AI03 · AI Coach / question draft",
+      "x": 1040,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI04": {
+      "frameId": "5:49",
+      "name": "AI04 · AI Coach / generating",
+      "x": 1520,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI05": {
+      "frameId": "5:50",
+      "name": "AI05 · AI Coach / suggested plan",
+      "x": 2000,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI06": {
+      "frameId": "5:51",
+      "name": "AI06 · AI Coach / review changes",
+      "x": 2480,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI07": {
+      "frameId": "5:52",
+      "name": "AI07 · AI Coach / plan saved",
+      "x": 2960,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI08": {
+      "frameId": "5:53",
+      "name": "AI08 · AI Coach / send failed",
+      "x": 3440,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI09": {
+      "frameId": "5:54",
+      "name": "AI09 · AI Coach / service unavailable",
+      "x": 3920,
+      "y": 9700,
+      "width": 390,
+      "height": 844
+    },
+    "AI10": {
+      "frameId": "5:55",
+      "name": "AI10 · AI Coach / keyboard visible",
+      "x": 80,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "AI11": {
+      "frameId": "5:56",
+      "name": "AI11 · AI Coach / conversation history",
+      "x": 560,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "AI12": {
+      "frameId": "5:57",
+      "name": "AI12 · AI Coach / plan version conflict",
+      "x": 1040,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "H09": {
+      "frameId": "7:2",
+      "name": "H09 · Home / AI plan saved",
+      "x": 2960,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "T17": {
+      "frameId": "7:3",
+      "name": "T17 · Updated 15 min plan",
+      "x": 2960,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T18": {
+      "frameId": "7:4",
+      "name": "T18 · 15 min plan / active",
+      "x": 3440,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T19": {
+      "frameId": "7:5",
+      "name": "T19 · Free workout / rest",
+      "x": 3920,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T20": {
+      "frameId": "7:6",
+      "name": "T20 · Free workout / paused",
+      "x": 4400,
+      "y": 4040,
+      "width": 390,
+      "height": 844
+    },
+    "T21": {
+      "frameId": "7:7",
+      "name": "T21 · Free workout / finish confirmation",
+      "x": 80,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T22": {
+      "frameId": "7:8",
+      "name": "T22 · Free workout / add exercise",
+      "x": 560,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T23": {
+      "frameId": "7:9",
+      "name": "T23 · Free workout / exercise selected",
+      "x": 1040,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T24": {
+      "frameId": "7:10",
+      "name": "T24 · 15 min plan / paused",
+      "x": 1520,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T25": {
+      "frameId": "7:11",
+      "name": "T25 · 15 min plan / rest",
+      "x": 2000,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T26": {
+      "frameId": "7:12",
+      "name": "T26 · 15 min plan / finish confirmation",
+      "x": 2480,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T27": {
+      "frameId": "7:13",
+      "name": "T27 · 15 min plan / complete",
+      "x": 2960,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T28": {
+      "frameId": "7:14",
+      "name": "T28 · Planned workout / final exercise",
+      "x": 3440,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T29": {
+      "frameId": "7:15",
+      "name": "T29 · Free workout / final exercise",
+      "x": 3920,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T30": {
+      "frameId": "7:16",
+      "name": "T30 · 15 min plan / final exercise",
+      "x": 4400,
+      "y": 5080,
+      "width": 390,
+      "height": 844
+    },
+    "T31": {
+      "frameId": "7:17",
+      "name": "T31 · Free workout / complete",
+      "x": 80,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "T32": {
+      "frameId": "7:18",
+      "name": "T32 · Free workout / partial summary",
+      "x": 560,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "H10": {
+      "frameId": "12:3443",
+      "name": "H10 · Today’s plan / 15 min saved",
+      "x": 3440,
+      "y": 1740,
+      "width": 390,
+      "height": 844
+    },
+    "B15": {
+      "frameId": "15:3484",
+      "name": "B15 · Body Planet / focus Water",
+      "x": 2480,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "B16": {
+      "frameId": "15:3603",
+      "name": "B16 · Body Planet / focus Bone",
+      "x": 2960,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "B17": {
+      "frameId": "15:3722",
+      "name": "B17 · Body Planet / focus Body fat",
+      "x": 3440,
+      "y": 8440,
+      "width": 390,
+      "height": 844
+    },
+    "AI13": {
+      "frameId": "15:3847",
+      "name": "AI13 · AI Coach / Body Planet context",
+      "x": 1520,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "AI14": {
+      "frameId": "15:3926",
+      "name": "AI14 · AI Coach / Train context",
+      "x": 2000,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "AI15": {
+      "frameId": "15:4005",
+      "name": "AI15 · AI Coach / body question draft",
+      "x": 2480,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "AI16": {
+      "frameId": "15:4077",
+      "name": "AI16 · AI Coach / body response generating",
+      "x": 2960,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "AI17": {
+      "frameId": "15:4153",
+      "name": "AI17 · AI Coach / body response",
+      "x": 3440,
+      "y": 10740,
+      "width": 390,
+      "height": 844
+    },
+    "T33": {
+      "frameId": "16:3922",
+      "name": "T33 · Free workout / Plank added",
+      "x": 1040,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "T34": {
+      "frameId": "16:3994",
+      "name": "T34 · Free workout / three exercises paused",
+      "x": 1520,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "T35": {
+      "frameId": "16:4032",
+      "name": "T35 · Free workout / three exercises rest",
+      "x": 2000,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "T36": {
+      "frameId": "16:4076",
+      "name": "T36 · Free workout / three exercises finish",
+      "x": 2480,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "T37": {
+      "frameId": "16:4125",
+      "name": "T37 · Free workout / Plank final set",
+      "x": 2960,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "T38": {
+      "frameId": "16:4166",
+      "name": "T38 · Free workout / three exercises complete",
+      "x": 3440,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    },
+    "T39": {
+      "frameId": "16:4207",
+      "name": "T39 · Free workout / three exercises partial",
+      "x": 3920,
+      "y": 6120,
+      "width": 390,
+      "height": 844
+    }
+  },
+  "totalScreens": 89,
+  "pages": {
+    "flows": "0:1",
+    "library": "2:2",
+    "handoff": "2:3"
+  },
+  "flowStartingPoints": [
+    {
+      "nodeId": "5:2",
+      "name": "01 · Home & account"
+    },
+    {
+      "nodeId": "5:16",
+      "name": "02 · Free workout"
+    },
+    {
+      "nodeId": "5:17",
+      "name": "03 · Planned workout"
+    },
+    {
+      "nodeId": "5:32",
+      "name": "04 · Body Planet"
+    },
+    {
+      "nodeId": "5:46",
+      "name": "05 · AI Coach"
+    },
+    {
+      "nodeId": "5:29",
+      "name": "06 · Workout save error"
+    },
+    {
+      "nodeId": "5:39",
+      "name": "07 · Body validation"
+    },
+    {
+      "nodeId": "5:40",
+      "name": "08 · Body save error"
+    },
+    {
+      "nodeId": "5:42",
+      "name": "09 · No body data"
+    },
+    {
+      "nodeId": "5:43",
+      "name": "10 · Planet loading"
+    },
+    {
+      "nodeId": "5:44",
+      "name": "11 · Planet failure"
+    },
+    {
+      "nodeId": "5:53",
+      "name": "12 · AI send error"
+    },
+    {
+      "nodeId": "5:54",
+      "name": "13 · AI unavailable"
+    },
+    {
+      "nodeId": "5:57",
+      "name": "14 · Plan version conflict"
+    }
+  ]
+}

@@ -1,0 +1,311 @@
+import * as T from "three"
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
+import { sample, noise, smooth, clamp } from "./field.js"
+const palette = {
+  sand: new T.Color("#e5ce99"),
+  dune: new T.Color("#daba7c"),
+  redSand: new T.Color("#bd8054"),
+  forest: new T.Color("#315f46"),
+  forestEdge: new T.Color("#6c924d"),
+  grass: new T.Color("#93af68"),
+  rock: new T.Color("#77817d"),
+  strata: new T.Color("#c4b799"),
+  snow: new T.Color("#f0f4ec"),
+  ice: new T.Color("#d3e8e9"),
+  iceCrack: new T.Color("#6795ac"),
+  marsh: new T.Color("#789e64"),
+  wet: new T.Color("#83a368"),
+  deep: new T.Color("#16557b"),
+}
+export function makeTerrain(detail) {
+  const raw = new T.IcosahedronGeometry(1, detail)
+  raw.deleteAttribute("normal")
+  raw.deleteAttribute("uv")
+  const g = mergeVertices(raw, 1e-6)
+  raw.dispose()
+  return bakeTerrain(g)
+}
+export function makeLocalTerrain(center, segments = 512) {
+  const up = new T.Vector3(...center).normalize(),
+    right = new T.Vector3(-up.z, 0, up.x)
+  if (right.lengthSq() < 0.001) right.set(1, 0, 0)
+  right.normalize()
+  const north = new T.Vector3().crossVectors(up, right).normalize(),
+    p = [],
+    idx = [],
+    v = new T.Vector3()
+  for (let y = 0; y <= segments; y++)
+    for (let x = 0; x <= segments; x++) {
+      v.copy(up)
+        .addScaledVector(right, (x / segments - 0.5) * 0.48)
+        .addScaledVector(north, (y / segments - 0.5) * 0.48)
+        .normalize()
+      p.push(v.x, v.y, v.z)
+      if (x < segments && y < segments) {
+        const a = y * (segments + 1) + x,
+          b = a + 1,
+          c = a + segments + 1,
+          d = c + 1
+        idx.push(a, b, c, b, d, c)
+      }
+    }
+  const g = new T.BufferGeometry()
+  g.setAttribute("position", new T.Float32BufferAttribute(p, 3))
+  g.setIndex(idx)
+  return bakeTerrain(g)
+}
+// The sea-facing strip follows the height-field zero contour, including islands.
+// Compute it in the terrain worker so map-scale outlines do not block dragging.
+export function coastlinePositions(terrain) {
+  const p = terrain.attributes.position,
+    index = terrain.index,
+    heights = new Float32Array(p.count),
+    vertices = [],
+    corners = [new T.Vector3(), new T.Vector3(), new T.Vector3()],
+    sea = new T.Vector3(), land = new T.Vector3(),
+    shoreA = new T.Vector3(), shoreB = new T.Vector3(),
+    outward = new T.Vector3(), offsetA = new T.Vector3(), offsetB = new T.Vector3()
+  for (let i = 0; i < p.count; i++)
+    heights[i] = Math.hypot(p.getX(i), p.getY(i), p.getZ(i)) - 1
+  for (let i = 0; i < index.count; i += 3) {
+    const ids = [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
+    for (let k = 0; k < 3; k++) corners[k].fromBufferAttribute(p, ids[k]).normalize()
+    sea.set(0, 0, 0)
+    land.set(0, 0, 0)
+    let crossings = 0
+    for (let j = 0; j < 3; j++) {
+      const id = ids[j], other = ids[(j + 1) % 3]
+      if (heights[id] < 0) sea.add(corners[j])
+      else land.add(corners[j])
+      const h1 = heights[id], h2 = heights[other]
+      if ((h1 < 0) === (h2 < 0)) continue
+      const target = crossings++ ? shoreB : shoreA
+      target.copy(corners[j]).lerp(corners[(j + 1) % 3], h1 / (h1 - h2)).normalize()
+    }
+    if (crossings !== 2 || !sea.lengthSq() || !land.lengthSq()) continue
+    outward.copy(sea.normalize().sub(land.normalize()))
+    outward.addScaledVector(shoreA, -outward.dot(shoreA)).normalize().multiplyScalar(0.006)
+    offsetA.copy(shoreA).add(outward).normalize().multiplyScalar(1.003)
+    offsetB.copy(shoreB).add(outward).normalize().multiplyScalar(1.003)
+    shoreA.multiplyScalar(1.003)
+    shoreB.multiplyScalar(1.003)
+    vertices.push(...shoreA, ...shoreB, ...offsetA, ...shoreB, ...offsetB, ...offsetA)
+  }
+  return new Float32Array(vertices)
+}
+function bakeTerrain(g) {
+  const p = g.attributes.position,
+    colors = new Float32Array(p.count * 3),
+    normals = new Float32Array(p.count * 3),
+    biomes = new Float32Array(p.count * 2),
+    color = new T.Color(),
+    duneColor = new T.Color(),
+    forestColor = new T.Color(),
+    rock = new T.Color()
+  const v = new T.Vector3(),
+    t = new T.Vector3(),
+    b = new T.Vector3(),
+    n = new T.Vector3(),
+    u = new T.Vector3(),
+    w = new T.Vector3()
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i).normalize()
+    const s = sample(v.x, v.y, v.z)
+    // Symmetric height derivatives preserve sharp divides without a directional
+    // bias; every LOD samples the same shared surface with the same step.
+    t.set(-v.z, 0, v.x)
+    if (t.lengthSq() < 0.001) t.set(1, 0, 0)
+    t.addScaledVector(v, -t.dot(v)).normalize()
+    b.crossVectors(v, t).normalize()
+    const e = 0.0002
+    u.copy(v).addScaledVector(t, e).normalize()
+    w.copy(v).addScaledVector(t, -e).normalize()
+    const dhT = (sample(u.x, u.y, u.z).h - sample(w.x, w.y, w.z).h) / (2 * e)
+    u.copy(v).addScaledVector(b, e).normalize()
+    w.copy(v).addScaledVector(b, -e).normalize()
+    const dhB = (sample(u.x, u.y, u.z).h - sample(w.x, w.y, w.z).h) / (2 * e)
+    n.copy(v).addScaledVector(t, -dhT / (1 + s.h))
+      .addScaledVector(b, -dhB / (1 + s.h)).normalize()
+    const slope = 1 - clamp(n.dot(v))
+    color.copy(palette.sand).lerp(palette.grass, smooth(0.008, 0.035, s.h))
+    duneColor.copy(palette.dune).lerp(
+      palette.redSand,
+      smooth(0.24, 0.7, 0.5 + 0.5 * noise(v.x * 18, v.y * 18, v.z * 18)) * 0.46,
+    )
+    color.lerp(duneColor, s.desert * 0.96)
+    forestColor.copy(palette.forestEdge).lerp(palette.forest, smooth(0.3, 0.8, s.forest))
+    color.lerp(forestColor, smooth(0.08, 0.75, s.forest) * 0.94)
+    const strata = 0.5 + 0.5 * noise(v.x * 24, v.y * 24, v.z * 24)
+    rock.copy(palette.rock).lerp(palette.strata, smooth(0.3, 0.7, strata) * 0.45)
+    // Rock faces and high plateaus read as broad faceted forms; wooded slopes stay green.
+    const rockAmount = Math.max(
+      smooth(0.11, 0.36, slope) * 0.85,
+      s.mountains * smooth(0.065, 0.115, s.h) * 0.7,
+      s.plateau * smooth(0.085, 0.12, s.h) * 0.45,
+    )
+    color.lerp(rock, rockAmount * (1 - s.forest * 0.68) * (1 - s.desert * 0.35))
+    color.lerp(palette.marsh, s.wetland * 0.58)
+    color.lerp(palette.wet, (1 - smooth(1.5, 4, s.river)) * 0.55)
+    const snow =
+      smooth(0.145, 0.185, s.h + noise(v.x * 16, v.y * 16, v.z * 16) * 0.008) *
+      (1 - smooth(0.25, 0.65, slope))
+    color.lerp(palette.snow, snow)
+    color.lerp(palette.ice, s.polar)
+    color.lerp(palette.snow, s.polar * smooth(0.045, 0.082, s.h) *
+      (1 - smooth(0.07, 0.32, slope)))
+    // Blue-gray exposed slopes distinguish glacier valleys from ivory summits.
+    color.lerp(palette.iceCrack, s.polar * smooth(0.055, 0.3, slope) * 0.32)
+    // Long broken crevasses replace the rounded gray stains on the ice sheet.
+    const iceScar = (1 - smooth(0.015, 0.08, Math.abs(
+      Math.sin(v.x * 95 + v.z * 32 + noise(v.x * 11, v.y * 11, v.z * 11) * 2))))
+      * smooth(-0.2, 0.4, noise(v.x * 24, v.y * 24, v.z * 24))
+    color.lerp(palette.iceCrack, s.polar * iceScar * 0.42)
+    if (s.h < 0) color.copy(palette.deep)
+    // Near-surface ink is drawn in the shader, where its edges can be filtered.
+    color.multiplyScalar(0.99 + 0.015 * noise(v.x * 32, v.y * 32, v.z * 32))
+    p.setXYZ(i, v.x * (1 + s.h), v.y * (1 + s.h), v.z * (1 + s.h))
+    color.toArray(colors, i * 3)
+    n.toArray(normals, i * 3)
+    biomes[i * 2] = s.desert
+    biomes[i * 2 + 1] = s.polar
+  }
+  g.setAttribute("color", new T.BufferAttribute(colors, 3))
+  g.setAttribute("normal", new T.BufferAttribute(normals, 3))
+  g.setAttribute("terrainBiome", new T.BufferAttribute(biomes, 2))
+  g.computeBoundingSphere()
+  return g
+}
+export function surfaceMaterial() {
+  // Per-fragment lighting makes the filtered ground bump affect actual relief.
+  const m = new T.MeshStandardMaterial({
+    roughness: 0.94,
+    metalness: 0,
+    vertexColors: true,
+  })
+  m.userData.detail = { value: 0 }
+  m.userData.relief = { value: 1 }
+  m.userData.patch = {
+    center: { value: new T.Vector3(0, 1, 0) },
+    cos: { value: Math.cos(0.215) },
+    mode: { value: 0 },
+  }
+  m.onBeforeCompile = (shader) => {
+    shader.uniforms.detailAmount = m.userData.detail
+    shader.uniforms.reliefAmount = m.userData.relief
+    shader.uniforms.patchCenter = m.userData.patch.center
+    shader.uniforms.patchCos = m.userData.patch.cos
+    shader.uniforms.patchMode = m.userData.patch.mode
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nattribute vec2 terrainBiome;\nvarying vec2 vTerrainBiome;\nvarying vec3 vTerrainPosition;\nvarying vec3 vTerrainViewPosition;\nuniform float reliefAmount;",
+      )
+      .replace(
+        "#include <beginnormal_vertex>",
+        "#include <beginnormal_vertex>\nobjectNormal=normalize(mix(normalize(position),objectNormal,reliefAmount));",
+      )
+      .replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>\ntransformed=normalize(position)*mix(1.,length(position),reliefAmount);\nvTerrainPosition=transformed;\nvTerrainBiome=terrainBiome;",
+      )
+      .replace(
+        "#include <project_vertex>",
+        "#include <project_vertex>\nvTerrainViewPosition=mvPosition.xyz;",
+      )
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        `#include <common>
+ varying vec3 vTerrainPosition;
+ varying vec3 vTerrainViewPosition;
+ varying vec2 vTerrainBiome;
+ uniform float detailAmount;
+ uniform vec3 patchCenter;uniform float patchCos;uniform float patchMode;
+ float rockGrain(vec3 p){return sin(p.x*163.+sin(p.z*57.))*sin(p.y*151.+sin(p.x*61.));}
+ float inkHash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+ float inkDots(vec3 p,float frequency,float coverage){
+   vec3 cell=floor(p*frequency),local=fract(p*frequency);
+   vec3 center=vec3(inkHash(cell),inkHash(cell+19.7),inkHash(cell+43.2));
+   float distanceToDot=length(local-center);
+   float aa=max(fwidth(distanceToDot),.012);
+   float radius=mix(.19,.27,inkHash(cell+7.1));
+   return step(1.-coverage,inkHash(cell+87.1))
+     *(1.-smoothstep(radius-aa,radius+aa,distanceToDot));
+ }
+ `,
+      )
+      .replace(
+        "#include <clipping_planes_fragment>",
+        `#include <clipping_planes_fragment>
+ float insidePatch=dot(normalize(vTerrainPosition),patchCenter);
+ if(patchMode>.5&&patchMode<1.5&&insidePatch>patchCos)discard;
+ if(patchMode>1.5&&insidePatch<=patchCos)discard;
+ `,
+      )
+      .replace(
+        "#include <normal_fragment_maps>",
+        `#include <normal_fragment_maps>
+ // Screen-space filtering avoids shimmer while the planet is zoomed out.
+ float textureFootprint=length(fwidth(vTerrainPosition))*163.;
+ float grainFilter=1.-smoothstep(.65,1.6,textureFootprint);
+ vec3 inkWarp=vTerrainPosition+vec3(
+   sin(vTerrainPosition.y*19.+vTerrainPosition.z*27.),
+   sin(vTerrainPosition.z*17.-vTerrainPosition.x*23.),
+   sin(vTerrainPosition.x*21.+vTerrainPosition.y*14.))*.029;
+ float gapWave=sin(inkWarp.x*26.+sin(inkWarp.z*15.)*2.3)
+   *sin(inkWarp.y*31.-inkWarp.z*23.);
+ float tracePhase=dot(inkWarp,vec3(69.,31.,-53.))
+   +sin(inkWarp.y*19.+inkWarp.z*25.)*1.7;
+ float iceCrevasse=pow(1.-abs(sin(tracePhase)),20.)
+   *smoothstep(.42,.79,gapWave);
+ float duneRipple=sin(inkWarp.x*101.+inkWarp.z*57.
+   +sin(inkWarp.y*33.+inkWarp.z*17.)*2.1);
+ float fineGrain=(rockGrain(vTerrainPosition)*(1.-vTerrainBiome.y*.82)
+   +duneRipple*vTerrainBiome.x*.29-iceCrevasse*vTerrainBiome.y*.15)*grainFilter;
+ float microFilter=1.-smoothstep(.45,1.1,length(fwidth(vTerrainPosition))*720.);
+ float microGrain=rockGrain(vTerrainPosition*4.3)*microFilter;
+ // Fine irregular grain only; altitude-periodic bump drew dense contour rings.
+ float roughHeight=detailAmount*(fineGrain*.00024+microGrain*.000065);
+ vec3 dp1=dFdx(vTerrainViewPosition),dp2=dFdy(vTerrainViewPosition);
+ vec3 r1=cross(dp2,normal),r2=cross(normal,dp1);
+ float det=dot(dp1,r1);
+ normal=normalize(abs(det)*normal-sign(det)*(dFdx(roughHeight)*r1+dFdy(roughHeight)*r2));
+ `,
+      )
+      .replace(
+        "#include <opaque_fragment>",
+        `float land=smoothstep(1.004,1.024,length(vTerrainPosition));
+ float closeInk=smoothstep(.28,.88,detailAmount)*land;
+ float terrainLum=dot(outgoingLight,vec3(.2126,.7152,.0722));
+ float terrainBand=floor(terrainLum*7.+.5)/7.;
+ outgoingLight*=mix(1.,clamp(terrainBand/max(terrainLum,.001),.82,1.18),.12+closeInk*.12);
+ // Sparse broken rock markings appear only on steeper exposed faces.
+ vec3 faceNormal=normalize(cross(dFdx(vTerrainPosition),dFdy(vTerrainPosition)));
+ float stoneFace=smoothstep(.055,.3,1.-abs(dot(faceNormal,normalize(vTerrainPosition))));
+ float rockVein=pow(1.-abs(sin(dot(inkWarp,vec3(74.,-41.,59.)))),12.)
+   *smoothstep(.45,.8,gapWave);
+ outgoingLight*=1.-stoneFace*(1.-vTerrainBiome.y)*detailAmount*rockVein*.055*grainFilter;
+ if(closeInk>.008){
+ // Irregular pigment fields break up the ground without drawing the mesh grid.
+ float broadGrain=sin(vTerrainPosition.x*53.+sin(vTerrainPosition.z*17.)*2.1)
+   *sin(vTerrainPosition.y*49.-vTerrainPosition.z*33.);
+ float landInk=smoothstep(.26,.52,broadGrain)*(.09+vTerrainBiome.x*.07)
+   *(1.-vTerrainBiome.y*.9);
+ float duneHatch=smoothstep(.91,.985,duneRipple)
+   *smoothstep(.3,.7,gapWave)*vTerrainBiome.x*grainFilter*.07;
+ float iceScratch=iceCrevasse*vTerrainBiome.y*grainFilter*.065;
+ float speckleFilter=1.-smoothstep(.58,1.08,length(fwidth(vTerrainPosition))*225.);
+ float coarseDots=inkDots(vTerrainPosition,210.,mix(.53,.93,vTerrainBiome.x))
+   *speckleFilter*(.035+vTerrainBiome.x*.045)*(1.-vTerrainBiome.y);
+ float fineFilter=1.-smoothstep(.48,.92,length(fwidth(vTerrainPosition))*420.);
+ float fineDots=inkDots(vTerrainPosition+3.7,380.,.78)*fineFilter
+   *(.02+vTerrainBiome.x*.025)*(1.-vTerrainBiome.y);
+ float ink=landInk+duneHatch+iceScratch+coarseDots+fineDots;
+ outgoingLight*=1.-closeInk*min(.68,ink);
+ }
+ outgoingLight*=1.+detailAmount*(fineGrain*.065+microGrain*.035);
+ #include <opaque_fragment>`,
+      )
+  }
+  return m
+}

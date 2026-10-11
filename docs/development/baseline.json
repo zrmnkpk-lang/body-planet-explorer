@@ -1,0 +1,142 @@
+{
+  "files": [
+    {
+      "path": "src\\app.js",
+      "sha256": "013F5210761444921D1D9CBB6974313FAA925F3290D0EA9EC6F5B900A73AFD6A"
+    },
+    {
+      "path": "src\\App.tsx",
+      "sha256": "33667BADBB0C9243F154B2FB86D16A72D543439F531842DCE342A1F35B829345"
+    },
+    {
+      "path": "src\\index.css",
+      "sha256": "210FEA649B9AD7CE53CE8AF00C5EAAECC5160CA93E49BA861D69845A561C6CE7"
+    },
+    {
+      "path": "src\\landmarks.js",
+      "sha256": "FB1174D336A42F8EF519EC61E65F68C69C7E52FBAB052D45D6AC2BBAAB7132EC"
+    },
+    {
+      "path": "src\\main.tsx",
+      "sha256": "59D91E9CAB2EC6407561AD3A5B24115E8397138355826C7CC54706D4B50A0D0C"
+    },
+    {
+      "path": "src\\PlanetView.tsx",
+      "sha256": "F06818E885FD6EA1B503CC4E1803D88710FB56E9C90A9932D256A45C76EC1E7C"
+    },
+    {
+      "path": "src\\styles.css",
+      "sha256": "B925131802CF2D4E393B204AC56E155B160C9A4AA3D85CC0C6E8E7A8BB97A050"
+    },
+    {
+      "path": "src\\vite-env.d.ts",
+      "sha256": "65996936FBB042915F7B74A200FCDDE7E410F32A669B1AB9597CFAA4B0FADDB5"
+    },
+    {
+      "path": "src\\imports\\image.png",
+      "sha256": "AF9323B158EF64BE3DD25F7E8D9A90C1434A5E1223938C134ABD2A97526008A4"
+    },
+    {
+      "path": "src\\imports\\jimeng-2026-08-30-4227-________________________________________....png",
+      "sha256": "B95927AC7205AC1E2090A615CF49D1FC6079BAE4EA3E20C072DE5606AED0A96C"
+    },
+    {
+      "path": "src\\planet\\atlas-panel.js",
+      "sha256": "9865A37AFEDF7C3674D877622725357000821EEAD66458ADE9257201A0B202C7"
+    },
+    {
+      "path": "src\\planet\\atlas.js",
+      "sha256": "5F76161E9817D09B09B820807F33B55C8F83703E530BA1757B79EB8D3E983AF8"
+    },
+    {
+      "path": "src\\planet\\climate.js",
+      "sha256": "EB1E59203DF8A464A64012BDCD95627D43E033818C61B3CCC6A3128CBD7CA526"
+    },
+    {
+      "path": "src\\planet\\continents.js",
+      "sha256": "8E40CCAC30BF02035675E7A1CD9E87D50FECC5D40DAAECC19FD0559EEE2FC7F1"
+    },
+    {
+      "path": "src\\planet\\ecology.js",
+      "sha256": "7DF3F9C0D98B9772F737817070F52BD74A5AE6E1F2F246B192CF722FC9465C1C"
+    },
+    {
+      "path": "src\\planet\\field.js",
+      "sha256": "B51DA3374321631D17CBA84E30AD586571AB4FEEC023F970A484EC40BBEE406C"
+    },
+    {
+      "path": "src\\planet\\hydrology-mesh.js",
+      "sha256": "EBAE707CAA5AE2E25B132AE1ED5123661111EDFEF43AB69971AD90EFC5A2EB57"
+    },
+    {
+      "path": "src\\planet\\terrain.js",
+      "sha256": "A01CCF875D88AD8BDAA04979D9ADD125B2F647002772226A693F7078695063FA"
+    },
+    {
+      "path": "src\\planet\\terrain.worker.js",
+      "sha256": "7B6B063D84E536482D6DE9F0B431A2DEE2FAB3F8136AFFC7699E1282ABB3DFCF"
+    },
+    {
+      "path": "src\\planet\\view-levels.js",
+      "sha256": "D89CC8FB253F06C505A8E6C1B8A49266CF001EC03BB109410F058CC51AD2EAE0"
+    },
+    {
+      "path": "src\\planet\\zones.js",
+      "sha256": "08D4797FF0D5EE0AD6DCC234C3ED860485A1DE7A043095305BE098225D885C2B"
+    },
+    {
+      "path": "public\\assets\\card-backgrounds\\l1-ocean.webp",
+      "sha256": "72E22EA1F90F92B89DB985380EDCF8813FBF5D769EE879135D55EF7BFFF4C27B"
+    },
+    {
+      "path": "public\\assets\\card-backgrounds\\l2-islands.webp",
+      "sha256": "6732630BFBE1742EE96D12C218A390250B7EA562DD681A4C17766DFBF05CDD15"
+    },
+    {
+      "path": "public\\assets\\card-backgrounds\\l3-mountains.webp",
+      "sha256": "F802853F813F855CEDEE487B44985DF85A17E6D764E33E80E7329D4FE7190699"
+    },
+    {
+      "path": "public\\assets\\card-backgrounds\\l4-riverlands.webp",
+      "sha256": "B323F0459EE69D60F01BDD2B991CCF674B39ED4BD4DCE0B1501E1B426F2450F4"
+    },
+    {
+      "path": "public\\assets\\card-backgrounds\\l5-terrain.webp",
+      "sha256": "650DF2C4A6ABD99425345825D9F3162606D38DDB568BC1DB52E2D9D675C7942A"
+    },
+    {
+      "path": "public\\assets\\illustrations\\body-composition-scan.webp",
+      "sha256": "3B25DB3BE4451EBFBC3B197AA0860285834C71D0AE1DD00EA5EBD09EB51920F2"
+    },
+    {
+      "path": "public\\assets\\illustrations\\portal-black-hole.webp",
+      "sha256": "C818E5FA9D24A13EA65B27C2D5545D91E31F86A208F52628C6B465E2D19C431E"
+    },
+    {
+      "path": "public\\assets\\landmarks\\basalt.glb",
+      "sha256": "66486F08A33E545162F8149E6E743AB731A7314DCB83CD63CCC01D89DF4FF428"
+    },
+    {
+      "path": "public\\assets\\landmarks\\glacier.glb",
+      "sha256": "CE3C8603D32C90E8BCA6F51F4B1C7E2E4488769203A1E3BC1598A59CC4463EA0"
+    },
+    {
+      "path": "scripts\\generate-landmarks.mjs",
+      "sha256": "E654671D93A446E982B7B194AD413AAD829C1A6DF46D1BE629250C4EED5E34A7"
+    },
+    {
+      "path": "scripts\\sync-planet-atlas.mjs",
+      "sha256": "DE9EFA36E10C27FFB214075CF28A2DDF6455EDCDD6553586261D0DF4B183BCC2"
+    },
+    {
+      "path": "scripts\\validate-planet.mjs",
+      "sha256": "422B6A3A1BEB79A8338F8D7EAB035538B98A7020D81D8DDB9EFE9BD0B3F7589B"
+    }
+  ],
+  "source": "D:\\AIworkspace\\myplanet",
+  "sourceHead": "1c0871d6ea50ca9efd3f339c86e745d9a7db79e3",
+  "verifiedFiles": 33,
+  "sourceIndex": "B750190839DBF420E3C9A0927F56828017D62170236F6A47F4957F03931D922A",
+  "copiedWorkingChanges": true,
+  "createdAt": "2026-10-11T09:41:21.0008992Z"
+}

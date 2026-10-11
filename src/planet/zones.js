@@ -1,0 +1,43 @@
+// Stable IDs form the body-data binding contract; all display strings are editable here.
+export const ZONES = {
+  muscle: {
+    title: "造山带",
+    en: "OROGENIC BELT",
+    value: 28.6,
+    unit: "kg",
+    label: "骨骼肌量",
+    desc: "起伏山势、连续山脊与高原台地映射骨骼肌量；放大后可观察赤铜岩层、山谷和裸岩坡面。",
+    lat: 23,
+    lon: -30,
+  },
+  water: {
+    title: "深蓝寰海",
+    en: "PELAGIC OCEAN",
+    value: 56.8,
+    unit: "%",
+    label: "体内水分比例",
+    desc: "大洋范围与流场映射体内水分状态。放大可见冰川融水汇入天脉长河；河道动画是血液循环的视觉隐喻，不代表实际血流测量。",
+    lat: 6,
+    lon: 65,
+  },
+  bone: {
+    title: "极地要塞",
+    en: "POLAR CITADEL",
+    value: 2.8,
+    unit: "kg",
+    label: "骨量",
+    desc: "起伏冰原、冰脊、裂隙与峡湾映射骨量；放大后可观察冰川侵蚀形成的谷地和融水切痕。",
+    lat: 68,
+    lon: 0,
+  },
+  fat: {
+    title: "季风大陆",
+    en: "MONSOON CONTINENT",
+    value: 22.4,
+    unit: "%",
+    label: "体脂率",
+    desc: "季风林海、干湿边界与赤砂荒原的植被和裸地分布映射体脂率；这是地貌表达，不是身体测量或健康判断。",
+    lat: -18,
+    lon: 27,
+  },
+}

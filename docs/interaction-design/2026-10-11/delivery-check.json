@@ -1,0 +1,14 @@
+{
+  "pass": true,
+  "scope": "design artifacts only",
+  "scriptsChecked": 24,
+  "jsonFilesChecked": 23,
+  "screenCount": 89,
+  "prototypeEntries": 14,
+  "prototypeEdges": 501,
+  "pathChecks": 12,
+  "previewFiles": 6,
+  "componentSets": 4,
+  "mainComponents": 61,
+  "errors": []
+}
