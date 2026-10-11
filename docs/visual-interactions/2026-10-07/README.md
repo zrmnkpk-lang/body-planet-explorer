@@ -2,11 +2,11 @@
 
 <!-- 2026-10-07：ChatGPT 按用户提供的最新首页原图更新设计基准，并将功能实现要求整理为实施清单。 -->
 
-AI 入口已于 10 月 8 日更新为 [五页导航上方的全局横框 v4](../2026-10-08/README.md)，替代 [首页顶部 v3](HOME-AI.md)。四区域布局继续以用户原图为基准；生态页更新为 [无人物头像的 Planet v2](PLANET.md)。候选图待用户视觉评审，功能接入另行实施。
+最新以 [V5 四项导航、融合页与账户抽屉](../2026-10-11/README.md) 为准：Home 左上账户按钮展开左侧抽屉，Body/Planet 合并，AI Coach 为独立主标签。前三页保留 AI 横框。四区域布局继续以用户原图为基准；生态页更新为 [无人物头像的 Planet v2](PLANET.md)。候选图待用户视觉评审，功能接入另行实施。
 
 ![用户提供的首页四区域、今日计划展开与编辑计划原图](01-home-plan-history-body-v2.png)
 
-来源：用户提供的原始 PNG，原样保存。本图替代 [上一版首页图](../2026-10-06/01-home-navigation-tasks-v1.png) 的首页布局与计划交互；Train 已更新为 [两种训练入口 v2](TRAIN.md)；Planet 已更新为 [球体中心 v2](PLANET.md)；上一版 Body / Me 图继续作为参考。完整页面交接见 [PAGE_CONTENT.md](../../design/PAGE_CONTENT.md)。本次只更新设计资产与说明，未将图片或交互接入运行代码。
+来源：用户提供的原始 PNG，原样保存。本图替代 [上一版首页图](../2026-10-06/01-home-navigation-tasks-v1.png) 的首页布局与计划交互；Train 已更新为 [两种训练入口 v2](TRAIN.md)；Body/Planet 与原 Me 布局已由 V5 替代，旧图仅作细节参考。完整页面交接见 [PAGE_CONTENT.md](../../design/PAGE_CONTENT.md)。本次只更新设计资产与说明，未将图片或交互接入运行代码。
 
 ## 视觉基准与首页结构
 
@@ -14,12 +14,12 @@ AI 入口已于 10 月 8 日更新为 [五页导航上方的全局横框 v4](../
 
 | 区域 | 内容与入口 | 目标交互 |
 | --- | --- | --- |
-| My Planet | LV.5 / Riverlands Era / 320 of 800 XP，小球与进入箭头 | 卡片入口进入 Planet；小球本身为只读预览 |
+| My Planet | LV.5 / Riverlands Era / 320 of 800 XP，小球与进入箭头 | 卡片入口进入 Body Planet 顶部球体区；小球本身为只读预览 |
 | Today's plan | 3 tasks · 1 completed，搭档半身，View plan | 展开今日计划底部面板，不启动训练 |
 | History | This week · 3/5，七日完成标记，View history | 打开训练历史；历史页面细节另行设计，不能保留无反馈入口 |
-| Body overview | Muscle / Water / Bone / Body fat 四指标，View details | 进入 Body 查看已保存指标与身体分析示意 |
+| Body overview | Muscle / Water / Bone / Body fat 四指标，View details | 进入 Body Planet 并定位身体分析区 |
 
-顶部保留问候，底栏保持 Home / Train / Planet / Body / Me。图中通知铃的目的与实际通知能力尚未定义，实现前需确定或取消可点击外观。首页不再单列旧版长任务列表、训练菜单和独立 XP 模块；XP 合并到星球卡，任务合并到今日计划。
+顶部保留问候，底栏使用 Home / Train / Body Planet / AI Coach；首页左上账户按钮展开左侧抽屉。图中通知铃的目的与实际通知能力尚未定义，实现前需确定或取消可点击外观。首页不再单列旧版长任务列表、训练菜单和独立 XP 模块；XP 合并到星球卡，任务合并到今日计划。
 
 ## 今日计划与编辑流程
 
@@ -54,3 +54,5 @@ Codex 统一负责设计基准、视觉评审、美术资产及首页布局、�
 <!-- 2026-10-07：新增首页 AI 对话入口和生态页球体中心更新；原始首页图保留，新增候选图分别记录在 HOME-AI.md / PLANET.md。 -->
 
 <!-- 2026-10-08：更新索引与首页入口位置，五页使用全局 AI 横框 v4。 -->
+
+<!-- 2026-10-11：原图四个内容区保留，导航/账户/Body Planet 入口以 V5 为准。 -->
