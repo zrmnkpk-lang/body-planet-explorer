@@ -2,7 +2,7 @@
   "date": "2026-10-11",
   "tool": "built-in imagegen",
   "use_case": "ui-mockup",
-  "version": "V5",
+  "version": "V6-account / V5-body-planet",
   "status": "concept-pending-user-review",
   "assets": [
     {
@@ -14,7 +14,8 @@
         "../2026-10-08/02-global-ai-body-me-conversation-v4.png"
       ],
       "original_generation_file": "exec-2d306eb3-8852-4e3f-a5bd-ceb800dd9608.png",
-      "sha256": "11fbb5d559f9158f0fe7a19947c1ed86f8738892dcc8fbf077f95cc17fa66da3"
+      "sha256": "11fbb5d559f9158f0fe7a19947c1ed86f8738892dcc8fbf077f95cc17fa66da3",
+      "version": "V5"
     },
     {
       "file": "02-body-planet-linked-data-v5.png",
@@ -26,7 +27,20 @@
         "../2026-10-07/04-planet-globe-region-focus-v2.png"
       ],
       "original_generation_file": "exec-182cf491-9f39-4de9-8d8b-5f1925d6aa0d.png",
-      "sha256": "dbe4ae2669f5b0727248c9f4b44fcd59d4766af8ebc76b19be59b27c0ec9ff88"
+      "sha256": "dbe4ae2669f5b0727248c9f4b44fcd59d4766af8ebc76b19be59b27c0ec9ff88",
+      "version": "V5"
+    },
+    {
+      "file": "03-home-account-membership-v6.png",
+      "version": "V6",
+      "use_case": "precise-object-edit / ui-mockup",
+      "prompt_file": "03-account-membership-prompt.txt",
+      "prompt": "Use case: precise-object-edit / ui-mockup. EDIT the referenced V5 PORTAL FITNESS three-phone board to V6. Keep dark charcoal-green mature lightly realistic urban American-comic style, crisp white English typography, restrained lime controls, phone framing, original Alex/Maya identities, Home content cards, existing four tabs Home / Train / Body Planet / AI Coach. Keep rightmost AI Coach phone composition and content as close to original as possible. This is a precise refinement of the first two phones.\nTitle Chinese exactly \"账户入口优化 · 资料、会员与设置\". Top-right PORTAL FITNESS / \"交互示意 · V6\".\nLEFT PHONE HOME HEADER: SHRINK the visible top-left Alex circular account avatar to about HALF its current diameter, target 28px at 390px screen width. Delete the three horizontal hamburger/menu bars immediately to the RIGHT of the avatar completely. There must be only a small round account avatar, no hamburger icon, no extra chevron beside it. Greeting Hey, Alex remains next to avatar with comfortable spacing and subtitle Let's keep going today. SHRINK upper-right bell reminder icon to subtle 18px thin-line symbol, no circle background or notification dot. Header proportions compact and calm. Visible icons smaller while buttons can have invisible touch padding. Everything below header stays the same: Body Planet LV.5 /320/800 XP small globe; Today's plan3 tasks1completed with Maya and View plan; History3/5; 4 bodymetrics32.8kg58.3%3.1kg18.7%; Ask AI Coach... bar; four-tab navigation with Home selected. Caption below \"01 Home · 小头像与轻量提醒\".\nMIDDLE PHONE ACCOUNT DRAWER: FULLY REPLACE the content of the left side drawer. It still slides from LEFT, approx84% width, leaves dimmed Home strip on right. Header Account and normal close X. Use clean elegant hierarchy and fewer items.\nTop one compact profile card with Alex small 40px round portrait and name Alex, secondary Account information, subtle right chevron. NO LV, NO XP progress, NO weekly session numbers here.\nMiddle membership upgrade card noticeably but tastefully highlighted with thin muted lime border, small crown or star outline icon, heading \"Membership\", small current-status badge \"Free plan\". Short supporting line \"Explore membership options.\" One full-width lime CTA \"Upgrade membership\" with arrow. It is a paid-membership entry, NOT an actual checkout. NO prices, discounts, free-trial timers, feature promises or invented premium benefits.\nBelow ONE separate compact clearly tappable dark row/button with gear icon, label \"Settings\", right chevron. Slight horizontal divider or spacing supports grouping.\nKeep quiet space below these three compact sections; do NOT fill it with dashboards or unrelated cards. NOTHING else in drawer: absolutely NO Weekly goal, NO Training partner / Maya, NO Daily reminder /toggle, NO Explore Body Planet, NO level/XP. No login/logout/support/legal/payment-card form. Account info, membership upgrade entry, settings are the ONLY main content. Drawer itself has no bottom nav; old Home right strip is dim and inactive. Caption below \"02 账户抽屉 · 信息、会员、设置\".\nRIGHT PHONE AI COACH: retain prior AI main-tab content and exactly four-tab nav with AI selected, one composer. It serves as context, not redesigned.\nFooter Chinese \"小头像进入账户 · 查看账户信息 · 开通会员入口 · 设置集中管理\". High-resolution 3:2 landscape, all phones fully visible. Accurate readable labels. The left Home has small avatar WITHOUT menu bars and small bell; the middle drawer has three clean focused sections with no previous fitness stats.\n",
+      "references": [
+        "01-home-account-ai-navigation-v5.png"
+      ],
+      "original_generation_file": "exec-3fce175e-f3c1-45e3-be3c-035b71d8673b.png",
+      "sha256": "2fff08b5f266d2537ac67f4193e56a92320292bef6002bff2bb17254592f7f85"
     }
   ]
 }

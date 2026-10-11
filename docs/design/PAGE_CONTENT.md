@@ -1,22 +1,22 @@
-# 页面内容、状态与实施交接 1.5
+# 页面内容、状态与实施交接 1.6
 
 <!-- 2026-10-06：ChatGPT 汇总五张视觉交互图，将页面内容、英文文案和未实现需求整理为实施清单；本文件为目标设计，不覆盖现状交互基线。 -->
 
 ## 1. 产品范围与数据
 
-核心体验：知道今天做什么 → 和搭档完成训练 → 看到自己的星球 → 记录身体数据 → 持续回来。导航改为 Home / Train / Body Planet / AI Coach 四项；原 Me 功能放入 Home 左上角打开的账户抽屉。本次不扩展登录、社交、商店、抽卡、订阅或设备配对流程。
+核心体验：知道今天做什么 → 和搭档完成训练 → 看到自己的星球 → 记录身体数据 → 持续回来。导航改为 Home / Train / Body Planet / AI Coach 四项；账户信息、会员开通入口与设置放入 Home 左上角打开的账户抽屉。本轮新增会员付费入口设计，会员方案、价格、权益和支付接入尚未定义；登录、社交、商店、抽卡、设备配对不在本轮设计范围。
 
-现状行为以 [interaction-spec.md](../interaction-spec.md) 为准，最新导航与融合布局以 [V5 交互图册](../visual-interactions/2026-10-11/README.md) 为准，旧图册仅用于未被替代的细节。本文件定义目标页面内容与新增状态；“建议”表示需要后续开发，不能直接对外宣布已有。
+现状行为以 [interaction-spec.md](../interaction-spec.md) 为准，最新首页/账户以 V6、导航与融合布局以 V5 为准，见 [当前交互图册](../visual-interactions/2026-10-11/README.md)。旧图册仅用于未被替代的细节。本文件定义目标页面内容与新增状态；“建议”表示需要后续开发，不能直接对外宣布已有。
 
 设计演示使用用户 Alex、搭档 Maya、LV.5、320/800 XP、周进度 3/5，肌肉 32.8kg、水分 58.3%、骨量 3.1kg、体脂 18.7%；都是同一套假数据，未改变运行默认值。角色工作名与英文 copy 可在落地时统一校对。
 
-目标数据只建立一份来源：`bodyMetrics`、`workoutSession`、`workoutHistory`、`dailyTasks`、`weeklyProgress`、`xp/level`、`selectedPartner`、`reminderPreference`；新增 `coachConversation` 与独立 `workoutPlanDraft`，对话、草案和训练记录分别管理。首页与账户抽屉读取同一个等级/XP；Body Planet 的身体分析与球体读取同一份已保存指标。具体 store 技术在实现时选择，本文件不要求引入新框架。
+目标数据只建立一份来源：`bodyMetrics`、`workoutSession`、`workoutHistory`、`dailyTasks`、`weeklyProgress`、`xp/level`、`selectedPartner`、`reminderPreference`；新增 `coachConversation` 与独立 `workoutPlanDraft`，对话、草案和训练记录分别管理。等级/XP 与周进度展示在首页；账户抽屉不重复这些训练数据。Body Planet 的身体分析与球体读取同一份已保存指标。会员状态后续由实际账户服务提供，示意 Free plan 不作为真实数据；具体 store 技术在实现时选择。
 
 <!-- 2026-10-07：首页改为用户最新四区域方案；新增当日计划展开与编辑交接，替代旧版首页入口规则。 -->
 
 ## 2. Home：四个核心区域
 
-四区域内容延续 [用户首页原图](../visual-interactions/2026-10-07/01-home-plan-history-body-v2.png)，最新顶部账户入口、四项导航和 AI 主页见 [V5 图册](../visual-interactions/2026-10-11/README.md)。原五项底栏、独立 Me、独立 Body/Planet 页面均已被本版替代。
+四区域内容延续 [用户首页原图](../visual-interactions/2026-10-07/01-home-plan-history-body-v2.png)，最新顶部账户入口与抽屉见 [V6 图册](../visual-interactions/2026-10-11/README.md)，四项导航与 AI 主页沿用 V5。原五项底栏、独立 Me、独立 Body/Planet 页面均已被本版替代。
 
 | 顺序 / 模块 | 内容 | 操作与结果 |
 | --- | --- | --- |
@@ -25,7 +25,7 @@
 | 3 History | This week · 3/5、七日完成标记、View history | 进入训练历史；详情页面另设计，完成数与真实记录同源 |
 | 4 Body overview | 肌肉、水分、骨量、体脂四指标、View details | 进入同一 Body Planet 并定位身体分析区；缺失值显示 — |
 
-顶部问候左侧增加账户头像按钮，点击从左侧展开 Account；底部使用四项导航。Ask AI Coach... 横框位于导航上方，点击切到第四项 AI Coach 并聚焦输入；底部区域预留独立空间，入口不遮挡内容，对话不启动训练。详见 [AI 健身辅助 Agent](../visual-interactions/2026-10-07/HOME-AI.md)。成长信息合并至星球卡，旧版独立每日任务列表与训练菜单由今日计划替代。人物与暗黑黄绿色视觉沿用都市美漫、轻度写实方向。
+顶部问候左侧仅用小圆形账户头像按钮，去掉头像右侧三条杠；点击从左侧展开 Account。实施参考：头像 28–32px、右上通知铃约 18px；实际触控区域至少 44×44px。底部使用四项导航。Ask AI Coach... 横框位于导航上方，点击切到第四项 AI Coach 并聚焦输入；底部区域预留独立空间，入口不遮挡内容，对话不启动训练。详见 [AI 健身辅助 Agent](../visual-interactions/2026-10-07/HOME-AI.md)。成长信息合并至星球卡，旧版独立每日任务列表与训练菜单由今日计划替代。人物与暗黑黄绿色视觉沿用都市美漫、轻度写实方向。
 
 Today's plan 面板显示 1/3 completed 和 Edit。力量训练可展开，图示 20 分钟由热身 3 分钟、主训练 14 分钟、放松 3 分钟组成，训练入口改为 View workout，先进入计划内容，再由 Start planned workout 开始；Walking 显示 8,000 steps，Hydration 显示 2,000 ml 与 Completed / Manually recorded。
 
@@ -77,18 +77,19 @@ Edit 建立独立草稿，调整当天训练总时长、步数目标、饮水目
 
 ## 5. Account：Home 左侧账户抽屉
 
-原 Me 内容迁入 Home 左上角账户按钮打开的左侧抽屉。抽屉约 84vw、桌面最大 360px，保留右侧遮罩；页面与底栏属于不可交互背景，关闭恢复首页位置和触发按钮焦点。
+账户内容放入 Home 左上角小头像打开的左侧抽屉。V6 简化为账户信息、会员开通入口、设置三个区域，保留 Account 标题与 X。抽屉约 84vw、桌面最大 360px，保留右侧遮罩；页面与底栏属于不可交互背景，关闭恢复首页位置和触发按钮焦点。
 
 | 内容 | 操作 | 状态与迁移规则 |
 | --- | --- | --- |
-| Alex / 资料 / LV.5 / XP | Account details | 与首页同源；现有身份替换为原创名；无账户服务时标为本地资料 |
-| Training partner | Change → 选择 → Confirm partner / Cancel | Maya/Jordan/Kai 能力一致；确认才同步首页、训练及身体分析插画 |
-| Weekly goal | 周完成数/目标 | 来源统一，进度封顶；修改目标需完整规则与表单，不留空点击 |
-| Daily reminder | ON/OFF 与准确副标题 | 偏好与系统通知能力区分；无通知能力不声称已安排提醒 |
-| Settings | 可用设置项 | 未定义目的项不启用；本轮不增加支付/订阅/登录流程 |
-| Explore Body Planet | 关闭抽屉，切第三项 | 到球体概览；不是另一个 Planet 路由 |
+| Account information | 小头像、Alex、副标题、右箭头；整行进入资料页 | 只展示账户资料，使用已接入字段；无账户服务时标为本地资料 |
+| Membership | 会员状态、Explore membership options、Upgrade membership 按钮 | 独立细黄绿边框卡；Free plan 为示例，实际状态由账户服务读取；按钮打开会员方案详情 |
+| Settings | 齿轮、Settings、右箭头；进入设置页 | 紧凑行，集中实际可用的偏好与设置，不留空点击 |
 
-X、遮罩、Escape 或系统返回关闭抽屉。进入账户子页后先返回抽屉；编辑取消丢弃草稿，不误保存。已有角色图为概念，不裁整张图当正式头像套件。抽屉自身没有第二套底栏。旧 Me 深链应到 Home + Account，不能因第四项变化误打开 AI。
+Weekly goal、Training partner、Daily reminder、Explore Body Planet、等级与 XP 不放在抽屉首页。周进度与成长信息继续在 Home；搭档选择和提醒偏好如后续保留则放到设置子页，确认/取消和同步规则保持有效。
+
+会员入口先到方案详情，后续由用户查看真实价格、周期、权益，选择方案并确认支付。按钮本身不直接扣款；本轮未设计完整收银页或接入支付。方案待定时不填虚构价格、折扣或权益，读取失败保留重试，不用示例会员状态覆盖真实状态。
+
+X、遮罩、Escape 或系统返回关闭抽屉。进入资料、会员、设置子页后先返回抽屉；编辑取消丢弃草稿，不误保存。已有角色图为概念，不裁整张图当正式头像套件。抽屉自身没有第二套底栏。旧 Me 深链应到 Home + Account，不能因第四项变化误打开 AI。
 
 ## 6. AI Coach：第四主页面
 
@@ -115,7 +116,8 @@ Agent 可解释动作、整理计划、提出调整草案。Suggested draft → 
 | --- | --- | --- |
 | 1 · V-01 | 美术与 UI 资产 | 一个搭档的正式分层/透明资产、五阶段背景和指标缩略图；不是图册截图；资源索引可核对 |
 | 2 · V-02 | UI 接入与评审 | 接入目标令牌、字体、主按钮、卡片与四项底栏；搭档贯穿首页/训练/身体分析/账户，球体视口不放人物；浏览器 320/390/430px 检查 |
-| 2b · G-NAV-v5 / G-ACCOUNT-DRAWER-v5 | 导航与账户迁移 | 四项导航、旧 Body/Planet 路径统一、原 Me 深链到账户抽屉；左侧抽屉关闭/子页返回/焦点恢复 |
+| 2b · G-NAV-v5 / G-ACCOUNT-DRAWER-v6 | 导航与账户迁移 | 四项导航、旧 Body/Planet 路径统一、原 Me 深链到账户抽屉；小头像无三条杠、小通知铃、触控区域保留；抽屉仅账户信息/会员/设置；关闭/子页返回/焦点恢复 |
+| 2c · G-MEMBERSHIP-ENTRY-v6 | 会员开通入口 | 读取会员状态，点击打开方案详情；实际方案与支付另行实现验收，不以概念按钮声称已支持付款 |
 | 2a · G-HOME-v2 | 功能实现与 UI 评审 | 按最新首页四区域接入，完成当日计划展开/折叠、编辑草稿、取消/保存/失败、日期持久化及历史/Body入口；验收见最新首页交接，待定数值规则先明确 |
 | 3 · G-TRAIN-v2 / G-01/G-02 | 功能实现与 UI 评审 | 无计划直接自由开练并添加动作；有计划先查看内容再开始；动作库、计划快照、真实计时/暂停、结束/完成、唯一结算与首页联动；完整验收见 Train v2，奖励规则先明确 |
 | 4 · G-BODY-PLANET-v5 / G-03 | 融合页与数据实现 | 单页身体/球体布局及指标双向联动； 草稿、取消、数值校验、可靠保存/失败保留、刷新恢复；Body/Planet 同源 |
