@@ -50,7 +50,7 @@ import {
   type Metric,
   type Tab,
 } from "./model"
-import { art, Button, CoachMark, ExerciseArt, fmt, IconButton, MetricGrid, MetricIcon } from "./ui"
+import { Artwork, Button, CoachMark, ExerciseArt, fmt, IconButton, MetricGrid, MetricIcon } from "./ui"
 import Modals, { type Overlay } from "./Modals"
 type View = "main" | "plan" | "workout" | "history" | "updates" | "summary" | "conversations"
 const tabs = [
@@ -209,12 +209,12 @@ export default function App() {
     }
   }, [])
   useEffect(() => {
-    if (tab === "coach")
+    if (tab === "coach" && view === "main")
       content.current?.scrollTo({
-        top: content.current.scrollHeight,
-        behavior: reduceMotion ? "instant" : "smooth",
+        top: chat.messages.length ? content.current.scrollHeight : 0,
+        behavior: reduceMotion || !chat.messages.length ? "instant" : "smooth",
       })
-  }, [chat.messages.length, coachStatus, tab, reduceMotion])
+  }, [chat.messages.length, coachStatus, tab, view, reduceMotion])
   useEffect(() => {
     document.documentElement.classList.toggle("reduce-motion", reduceMotion)
   }, [reduceMotion])
@@ -359,7 +359,7 @@ export default function App() {
       {tab === "home" && view === "main" ? (
         <header className="home-header">
           <IconButton label="Open account" onClick={() => open("account")}>
-            <img className="avatar" src={art("alex-account")} alt="" />
+            <Artwork name="alex-account" className="avatar" sizes="34px" loading="eager" alt="" />
           </IconButton>
           <div>
             <h1>Hey, {state.profile.name}</h1>
@@ -497,8 +497,11 @@ export default function App() {
                   <ChevronRight size={19} strokeWidth={2.7} />
                 </Button>
               </div>
-              <img
-                src={art("maya-sport")}
+              <Artwork
+                name="maya-sport"
+                sizes="(max-width: 360px) 144px, 168px"
+                loading="eager"
+                fetchPriority="high"
                 alt="Maya, your training companion"
               />
             </section>
@@ -532,7 +535,11 @@ export default function App() {
                 }{" "}
                 / 5
               </p>
-              <div className="week-days">
+              <button
+                className="week-days"
+                aria-label="View weekly training history"
+                onClick={() => navigate("home", "history")}
+              >
                 {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
                   (label, index) => {
                     const d = new Date()
@@ -542,20 +549,18 @@ export default function App() {
                         r.completed && r.date === d.toLocaleDateString("en-CA"),
                     )
                     return (
-                      <button
+                      <span
+                        className="week-day"
                         key={label}
-                        aria-label={`${label}: ${
-                          checked ? "completed" : "no workout"
-                        }`}
-                        onClick={() => navigate("home", "history")}
                       >
                         <span className={`day-indicator ${checked ? "completed" : ""}`} aria-hidden="true">{checked && <Check size={17} strokeWidth={3} />}</span>
                         <span>{label}</span>
-                      </button>
+                        <span className="sr-only">{checked ? "completed" : "no workout"}</span>
+                      </span>
                     )
                   },
                 )}
-              </div>
+              </button>
             </section>
             <section className="card body-summary">
               <button className="title-link" onClick={() => navigate("body")}>
@@ -594,8 +599,9 @@ export default function App() {
                   </p>
                   <span className="badge">Planned</span>
                 </div>
-                <img
-                  src={art("maya-sport")}
+                <Artwork
+                  name="maya-sport"
+                  sizes="168px"
                   alt="Maya, your training companion"
                 />
                 <p className="small">Warm-up · Strength · Cool-down</p>
@@ -920,8 +926,9 @@ export default function App() {
             <section className="card body-analysis">
               <h2>Body overview</h2>
               <div className="analysis-row">
-                <img
-                  src={art("maya-body-analysis")}
+                <Artwork
+                  name="maya-body-analysis"
+                  sizes="(max-width: 360px) 72px, 88px"
                   alt="Maya with an illustrated half-body anatomy view"
                 />
                 <MetricGrid body={state.body} selected={metric} onSelect={selectMetric} />
@@ -1208,7 +1215,7 @@ export default function App() {
                 aria-current={tab === t.id ? "page" : undefined}
                 onClick={() => navigate(t.id)}
               >
-                <t.icon className={`nav-icon nav-${t.id}`} size={26} strokeWidth={t.id === "train" ? 3.3 : 2} />
+                <t.icon className={`nav-icon nav-${t.id}`} size={23} strokeWidth={1.8} />
                 <span>{t.label}</span>
               </button>
             ))}

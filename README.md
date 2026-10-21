@@ -1,5 +1,7 @@
 # Portal Fitness · 独立正式开发项目
 
+2026-10-21：已按实际 APP 展示尺寸压缩运行时插画，改为响应式 WebP；统一卡片、按钮、底部导航和弹层。标注、资源预算和生成方法见 [APP 界面与图片规范](docs/development/APP_UI_GUIDELINES.md)。
+
 本目录由原项目完整工作区复制，使用新版四栏界面和真实身体星球。开发入口与验证说明见 [正式开发说明](docs/development/README.md)。下方为继承的原项目文档，历史功能描述以正式开发说明为准。
 
 # Portal Fitness / Body Planet Explorer

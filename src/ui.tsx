@@ -1,4 +1,5 @@
-import { useEffect, useRef, type ReactNode } from "react"
+import { useEffect, useRef, type ReactNode, type ImgHTMLAttributes } from "react"
+import imageAssets from "./image-assets.json"
 import { MessageCircleMore, X } from "lucide-react"
 import { METRICS, type BodyMetrics, type Metric } from "./model"
 export function MetricIcon({ metric }: { metric: Metric }) {
@@ -65,7 +66,25 @@ export function MetricGrid({ body, selected, onSelect }: {
     </div>
   )
 }
-export const art = (name: string) => `/assets/companions/${name}.png`
+type ArtworkName = "alex-account" | "maya-sport" | "maya-body-analysis"
+/** Display-sized, transparent artwork; the browser selects a suitable density. */
+export function Artwork({ name, sizes, loading = "lazy", ...props }: Omit<
+  ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet"
+> & { name: ArtworkName }) {
+  const variants = imageAssets[name]
+  return (
+    <img
+      {...props}
+      src={variants[0].src}
+      srcSet={variants.map(v => `${v.src} ${v.width}w`).join(", ")}
+      sizes={sizes ?? "160px"}
+      width={variants[0].width}
+      height={variants[0].height}
+      loading={loading}
+      decoding="async"
+    />
+  )
+}
 export const fmt = (seconds: number) =>
   `${Math.floor(Math.max(0, seconds) / 60)
     .toString()

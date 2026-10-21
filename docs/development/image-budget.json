@@ -1,0 +1,116 @@
+{
+  "sourceCommit": "9d06632dacc384b30da3eb6307434d3ad4499bab",
+  "originalBytes": 10167482,
+  "allVariantsBytes": 632556,
+  "reductionPercent": 93.8,
+  "assets": [
+    {
+      "name": "alex-account",
+      "original": "public/assets/companions/alex-account.png",
+      "originalBytes": 1385232,
+      "variants": [
+        {
+          "src": "/assets/app/alex-account-96-24f0db7815.webp",
+          "width": 96,
+          "height": 96,
+          "bytes": 4286
+        },
+        {
+          "src": "/assets/app/alex-account-192-030a9f78a7.webp",
+          "width": 192,
+          "height": 192,
+          "bytes": 10600
+        }
+      ]
+    },
+    {
+      "name": "maya-sport",
+      "original": "public/assets/companions/maya-sport.png",
+      "originalBytes": 2126007,
+      "variants": [
+        {
+          "src": "/assets/app/maya-sport-320-2d22a4a603.webp",
+          "width": 320,
+          "height": 480,
+          "bytes": 36058
+        },
+        {
+          "src": "/assets/app/maya-sport-480-48b863c5f7.webp",
+          "width": 480,
+          "height": 720,
+          "bytes": 64630
+        }
+      ]
+    },
+    {
+      "name": "maya-body-analysis",
+      "original": "public/assets/companions/maya-body-analysis.png",
+      "originalBytes": 2562828,
+      "variants": [
+        {
+          "src": "/assets/app/maya-body-analysis-192-4b2e6b1e0c.webp",
+          "width": 192,
+          "height": 288,
+          "bytes": 22516
+        },
+        {
+          "src": "/assets/app/maya-body-analysis-288-984990abd1.webp",
+          "width": 288,
+          "height": 432,
+          "bytes": 40202
+        }
+      ]
+    },
+    {
+      "name": "landscape",
+      "original": "public/assets/visual-v2/alpine-night.png",
+      "originalBytes": 2281353,
+      "variants": [
+        {
+          "src": "/assets/app/landscape-960-1f9cfb6949.webp",
+          "width": 960,
+          "height": 640,
+          "bytes": 52312
+        },
+        {
+          "src": "/assets/app/landscape-1440-9cb842c3e9.webp",
+          "width": 1440,
+          "height": 960,
+          "bytes": 99184
+        }
+      ]
+    },
+    {
+      "name": "metric-atlas",
+      "original": "public/assets/visual-v2/body-metric-atlas.png",
+      "originalBytes": 769197,
+      "variants": [
+        {
+          "src": "/assets/app/metric-atlas-256-50bc944f60.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 15830
+        }
+      ]
+    },
+    {
+      "name": "exercise-atlas",
+      "original": "public/assets/visual-v2/maya-exercise-atlas.png",
+      "originalBytes": 1042865,
+      "variants": [
+        {
+          "src": "/assets/app/exercise-atlas-576-2210fc9e09.webp",
+          "width": 576,
+          "height": 576,
+          "bytes": 75636
+        },
+        {
+          "src": "/assets/app/exercise-atlas-1080-1e631a093e.webp",
+          "width": 1080,
+          "height": 1080,
+          "bytes": 211302
+        }
+      ]
+    }
+  ]
+}

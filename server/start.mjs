@@ -25,12 +25,30 @@ createServer((req, res) =>
         res.statusCode = 403
         return res.end()
       }
-      if ((await stat(file)).isDirectory()) file = resolve(file, "index.html")
-      const data = await readFile(file)
+      let info = await stat(file)
+      if (info.isDirectory()) {
+        file = resolve(file, "index.html")
+        info = await stat(file)
+      }
+      // Hashed artwork and Vite bundles can stay cached across app launches.
+      // HTML is revalidated so a deployment immediately points at new hashes.
+      const versioned = /^\/assets\/.+-[\w-]{8,}\.[\w]+$/.test(name)
+      const tag = `W/"${info.size.toString(16)}-${Math.trunc(info.mtimeMs).toString(16)}"`
+      res.setHeader("ETag", tag)
+      res.setHeader("Cache-Control", extname(file) === ".html"
+        ? "no-cache"
+        : versioned ? "public, max-age=31536000, immutable" : "public, max-age=3600")
+      if (req.headers["if-none-match"] === tag) {
+        res.statusCode = 304
+        return res.end()
+      }
       res.setHeader(
         "Content-Type",
         types[extname(file)] ?? "application/octet-stream",
       )
+      res.setHeader("Content-Length", info.size)
+      if (req.method === "HEAD") return res.end()
+      const data = await readFile(file)
       res.end(data)
     } catch {
       res.statusCode = 404

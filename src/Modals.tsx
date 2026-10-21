@@ -27,7 +27,7 @@ import {
   type Metric,
   type Tab,
 } from "./model"
-import { art, Button, Dialog, ExerciseArt, IconButton, MetricIcon } from "./ui"
+import { Artwork, Button, Dialog, ExerciseArt, IconButton, MetricIcon } from "./ui"
 export type Overlay = "account" | "account-info" | "account-edit" | "settings" | "membership" | "today-plan" | "edit-plan" | "edit-body" | "add-exercise" | "exercise" | "finish" | "discard" | "review" | null
 type Props = {
   overlay: NonNullable<Overlay>
@@ -115,7 +115,7 @@ export default function Modals({
       {overlay === "account" && (
         <>
           <button className="card account-profile-card" onClick={() => setOverlay("account-info")} aria-label="Account information">
-            <img src={art("alex-account")} alt="Your profile avatar" />
+            <Artwork name="alex-account" sizes="58px" alt="Your profile avatar" />
             <div><h3>{state.profile.name}</h3><p>Account information</p></div>
             <ChevronRight size={18} />
           </button>
